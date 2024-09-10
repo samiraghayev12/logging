@@ -1,5 +1,5 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
+import 'package:logging_service/presentation/page/debug_page.dart';
 import 'package:logging_service/service/shake_service.dart';
 
 class DebugTool {
@@ -7,13 +7,14 @@ class DebugTool {
 
   bool isOpened = false;
 
-  start(VoidCallback onPhoneShake) {
+  start(
+    BuildContext context,
+  ) {
     shakeService = ShakeService(
       onPhoneShake: () async {
         if (!isOpened) {
           isOpened = true;
-          onPhoneShake();
-          // await Navigation.push(RouteName.debugPage);
+          await Navigator.push(context, MaterialPageRoute(builder: (_) => const DebugPage()));
           isOpened = false;
         }
       },
