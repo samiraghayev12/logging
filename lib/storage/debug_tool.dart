@@ -4,38 +4,23 @@ import 'package:logging_service/presentation/page/debug_page.dart';
 class DebugTool {
   bool isOpened = false;
 
-  void start(
+  start(
     BuildContext context,
-    String apiKey,
   ) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final overlayContext = Navigator.of(context).overlay?.context;
+    final navigatorKey = GlobalKey<NavigatorState>();
+    OverlayEntry overlayEntry = OverlayEntry(
+      builder: (context) => GestureDetector(
+        onLongPress: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const DebugPage()),
+          );
+        },
+        child: const SizedBox.expand(),
+      ),
+    );
 
-      if (overlayContext != null) {
-        OverlayEntry overlayEntry = OverlayEntry(
-          builder: (_) => GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onLongPress: () async {
-              if (!isOpened) {
-                isOpened = true;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const DebugPage(),
-                  ),
-                ).then((_) {
-                  isOpened = false;
-                });
-              }
-            },
-            child: const SizedBox.expand(),
-          ),
-        );
-
-        Overlay.of(overlayContext).insert(overlayEntry);
-      } else {
-        debugPrint("No Overlay found. Make sure MaterialApp or CupertinoApp is used.");
-      }
-    });
+    navigatorKey.currentState?.overlay?.insert(overlayEntry);
+    // Overlay'i ekliyoruz.
+    Overlay.of(context).insert(overlayEntry);
   }
 }
