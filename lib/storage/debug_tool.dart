@@ -50,7 +50,7 @@ class DebugTool {
                   onPressed: () async {
                     Navigator.of(context).pop();
                     await Future.delayed(const Duration(milliseconds: 500));
-                    await Shake.start(apiKey);
+                    // await Shake.start(apiKey);
                     await Shake.show();
                   },
                   isDefaultAction: true,
