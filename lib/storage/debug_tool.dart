@@ -3,24 +3,46 @@ import 'package:logging_service/presentation/page/debug_page.dart';
 
 class DebugTool {
   bool isOpened = false;
+  OverlayEntry? _overlayEntry;
 
-  start(
-    BuildContext context,
-  ) {
-    final navigatorKey = GlobalKey<NavigatorState>();
-    OverlayEntry overlayEntry = OverlayEntry(
+  // Başlangıç metodu
+  void start(BuildContext context) {
+    if (_overlayEntry != null) return; // Eğer zaten başlatılmışsa tekrarlama
+
+    _overlayEntry = OverlayEntry(
       builder: (context) => GestureDetector(
         onLongPress: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const DebugPage()),
-          );
+          _openDebugPage(context);
         },
         child: const SizedBox.expand(),
       ),
     );
 
-    navigatorKey.currentState?.overlay?.insert(overlayEntry);
-    // Overlay'i ekliyoruz.
-    Overlay.of(context).insert(overlayEntry);
+    _insertOverlay(context);
+  }
+
+  // Overlay'i eklemek için metot
+  void _insertOverlay(BuildContext context) {
+    final overlay = Overlay.of(context);
+    overlay.insert(_overlayEntry!);
+    isOpened = true;
+  }
+
+  // Debug sayfasını açma
+  void _openDebugPage(BuildContext context) {
+    if (isOpened) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const DebugPage()),
+      );
+    }
+  }
+
+  // Overlay'i kaldırma
+  void removeOverlay() {
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+      isOpened = false;
+    }
   }
 }
