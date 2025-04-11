@@ -12,14 +12,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sensors_plus: ^6.0.0
+  sensors_plus: ^6.1.1
   json_view: ^0.4.2
-  dio: ^5.4.3+1
+  dio: ^5.8.0+1
   intl: ^0.19.0
   flutter_web_plugins:
     sdk: flutter
   web: ^1.0.0
-  plugin_platform_interface: ^2.0.2
+  plugin_platform_interface: ^2.1.8
   shake_flutter: ^17.1.0
 
 dev_dependencies:
