@@ -1,35 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:logging_service/presentation/page/debug_page.dart';
+import 'package:logging_service/service/shake_service.dart';
+
+import '../presentation/page/debug_page.dart';
 
 class DebugTool {
   bool isOpened = false;
+  ShakeService? _shakeService;
+  OverlayEntry? _overlayEntry;
 
-  void start() {
-    final navigatorKey = GlobalKey<NavigatorState>();
-
-    final overlayEntry = OverlayEntry(
-      builder: (context) => GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onLongPress: () async {
-          if (!isOpened) {
-            isOpened = true;
-            navigatorKey.currentState
-                ?.push(
-              MaterialPageRoute(
-                builder: (_) => const DebugPage(),
-              ),
-            )
-                .then((_) {
-              isOpened = false;
-            });
-          }
-        },
-        child: const SizedBox.expand(),
-      ),
+  void start(BuildContext context, String apiKey) {
+    _shakeService = ShakeService(
+      onPhoneShake: () {
+        if (!isOpened) {
+          isOpened = true;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const DebugPage(),
+            ),
+          ).then((_) {
+            isOpened = false;
+          });
+        }
+      },
     );
+    _shakeService?.start();
+  }
 
-    final overlay = navigatorKey.currentContext != null ? Overlay.of(navigatorKey.currentContext!, rootOverlay: true) : null;
-
-    overlay?.insert(overlayEntry);
+  void dispose() {
+    _shakeService?.stop();
+    _overlayEntry?.remove();
   }
 }
