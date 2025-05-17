@@ -3,22 +3,23 @@ import 'package:logging_service/presentation/page/debug_page.dart';
 
 class DebugTool {
   bool isOpened = false;
-  start(
-    BuildContext context,
-    String apiKey,
-  ) {
-    OverlayEntry overlayEntry = OverlayEntry(
+
+  void start() {
+    final navigatorKey = GlobalKey<NavigatorState>();
+
+    final overlayEntry = OverlayEntry(
       builder: (context) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onLongPress: () async {
           if (!isOpened) {
             isOpened = true;
-            Navigator.push(
-              context,
+            navigatorKey.currentState
+                ?.push(
               MaterialPageRoute(
                 builder: (_) => const DebugPage(),
               ),
-            ).then((_) {
+            )
+                .then((_) {
               isOpened = false;
             });
           }
@@ -27,8 +28,8 @@ class DebugTool {
       ),
     );
 
-    Overlay.of(context).insert(overlayEntry);
+    final overlay = navigatorKey.currentContext != null ? Overlay.of(navigatorKey.currentContext!, rootOverlay: true) : null;
+
+    overlay?.insert(overlayEntry);
   }
 }
-
-
