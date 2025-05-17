@@ -1,8 +1,21 @@
-void start(BuildContext context, String apiKey) {
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final overlay = Overlay.of(context);
-    if (overlay == null) {
-      debugPrint("⚠️ Overlay is null — couldn't insert overlay.");
+import 'package:flutter/material.dart';
+import 'package:logging_service/presentation/page/debug_page.dart';
+
+class DebugTool {
+  static final DebugTool _instance = DebugTool._internal();
+  bool _isInjected = false;
+  bool _isOpened = false;
+
+  factory DebugTool() => _instance;
+  DebugTool._internal();
+
+  void start(BuildContext context, String apiKey) {
+    if (_isInjected) return; // ✅ artıq əlavə olunubsa, yenidən etmə
+    _isInjected = true;
+
+    final overlayState = Overlay.of(context);
+    if (overlayState == null) {
+      debugPrint("❗ Overlay is null — skipping DebugTool injection.");
       return;
     }
 
@@ -10,22 +23,21 @@ void start(BuildContext context, String apiKey) {
       builder: (context) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onLongPress: () async {
-          if (!isOpened) {
-            isOpened = true;
-            Navigator.push(
+          if (!_isOpened) {
+            _isOpened = true;
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => const DebugPage(),
               ),
-            ).then((_) {
-              isOpened = false;
-            });
+            );
+            _isOpened = false;
           }
         },
         child: const SizedBox.expand(),
       ),
     );
 
-    overlay.insert(overlayEntry);
-  });
+    overlayState.insert(overlayEntry);
+  }
 }
