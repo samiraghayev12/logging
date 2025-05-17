@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:logging_service/presentation/page/debug_page.dart';
+void start(BuildContext context, String apiKey) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    final overlay = Overlay.of(context);
+    if (overlay == null) {
+      debugPrint("⚠️ Overlay is null — couldn't insert overlay.");
+      return;
+    }
 
-class DebugTool {
-  bool isOpened = false;
-  start(
-    BuildContext context,
-    String apiKey,
-  ) {
-    OverlayEntry overlayEntry = OverlayEntry(
+    final overlayEntry = OverlayEntry(
       builder: (context) => GestureDetector(
         behavior: HitTestBehavior.translucent,
         onLongPress: () async {
@@ -27,6 +26,6 @@ class DebugTool {
       ),
     );
 
-    Overlay.of(context).insert(overlayEntry);
-  }
+    overlay.insert(overlayEntry);
+  });
 }

@@ -11,6 +11,7 @@ class DebugDetailViewModel {
     _buttonController.sink.add(detailButton);
   }
 
+
   close() {
     _buttonController.close();
   }
