@@ -12,7 +12,7 @@ class DebugStorage {
   var _counter = 0;
 
   // Adds request and stores start time
-  addRequest(RequestOptions requestOptions) {
+  void addRequest(RequestOptions requestOptions) {
     var debugModel = DebugModel(
       id: _counter,
       requestOptions: requestOptions,
@@ -22,23 +22,48 @@ class DebugStorage {
     _counter++;
   }
 
-  addResponse(Response response) {
+  void addResponse(Response response) {
     var request = requests.firstWhere(
       (element) => element.requestOptions?.uri == response.requestOptions.uri,
       orElse: () => DebugModel(),
     );
     request.response = response;
-    request.elapsedTime = DateTime.now().difference(request.requestStartTime!).inMilliseconds;
+    request.elapsedTime =
+        DateTime.now().difference(request.requestStartTime!).inMilliseconds;
     request.requestTime = DateTime.now().toString();
   }
 
   // Adds error and calculates elapsed time
-  addError(DioException dioError) {
-    var request = requests.firstWhere(
-      (element) => element.requestOptions?.uri == dioError.requestOptions.uri,
-      orElse: () => DebugModel(),
+  void addError(DioException dioError) {
+    final requestUri = dioError.requestOptions.uri;
+
+    // Find matching request by URI
+    int index = requests.indexWhere(
+      (element) => element.requestOptions?.uri == requestUri,
     );
-    request.dioError = dioError;
-    request.elapsedTime = DateTime.now().difference(request.requestStartTime!).inMilliseconds;
+
+    // If found, update existing request; otherwise create new one
+    if (index != -1) {
+      var request = requests[index];
+      request.dioError = dioError;
+      if (request.requestStartTime != null) {
+        request.elapsedTime =
+            DateTime.now().difference(request.requestStartTime!).inMilliseconds;
+      }
+      request.requestTime = DateTime.now().toString();
+    } else {
+      // Create new request entry if not found (shouldn't happen normally)
+      var newRequest = DebugModel(
+        id: _counter,
+        requestOptions: dioError.requestOptions,
+        dioError: dioError,
+        requestStartTime: DateTime.now(),
+        requestEndTime: DateTime.now(),
+        requestTime: DateTime.now().toString(),
+      );
+      newRequest.elapsedTime = 0;
+      requests.insert(0, newRequest);
+      _counter++;
+    }
   }
 }
