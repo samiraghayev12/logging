@@ -25,8 +25,9 @@ class DebugDetailResponseBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isSuccess = debugModel.statusCode.startsWith("2");
-    final statusColor = isSuccess ? Colors.green : Colors.red;
+    final isError = debugModel.response == null;
+    final isSuccess = !isError && debugModel.statusCode.startsWith("2");
+    final statusColor = isError || !isSuccess ? Colors.red : Colors.green;
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(16.w),

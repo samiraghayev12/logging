@@ -22,7 +22,7 @@ class DebugModel {
     this.elapsedTime,
   });
 
-  bool get hasError => dioError != null;
+  bool get hasError => dioError != null || response == null;
 
   String get httpMethod => requestOptions?.method ?? "NONE";
 
@@ -46,9 +46,15 @@ class DebugModel {
 
   dynamic get requestData => requestOptions?.data;
 
-  String get statusCode => "${response?.statusCode}";
+  String get statusCode {
+    if (response == null) return "Error";
+    return "${response?.statusCode}";
+  }
 
-  String get statusMessage => response?.statusMessage ?? "NONE";
+  String get statusMessage {
+    if (response == null) return "No response received";
+    return response?.statusMessage ?? "NONE";
+  }
 
   String get errorStatusCode => "${dioError?.response?.statusCode}";
 
