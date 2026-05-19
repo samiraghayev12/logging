@@ -31,7 +31,7 @@ class DebugDetailErrorBody extends StatelessWidget {
         children: [
           _buildSection(
             context,
-            title: "Error Details",
+            title: "Error ${debugModel.errorStatusCode}",
             isDark: isDark,
             children: [
               Container(
@@ -56,19 +56,11 @@ class DebugDetailErrorBody extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            debugModel.errorStatusCode,
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 18.sp,
-                            ),
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
                             debugModel.errorStatusMessage,
                             style: TextStyle(
                               color: Colors.red,
-                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.sp,
                             ),
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
