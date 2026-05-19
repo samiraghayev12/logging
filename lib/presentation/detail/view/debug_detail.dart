@@ -1,9 +1,11 @@
-import 'package:flutter/cupertino.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:logging_service/presentation/detail/model/debug_detail_view_model.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail_error_body.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail_request_body.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail_response_body.dart';
+import 'package:logging_service/presentation/widgets/copy_options_menu.dart';
+import 'package:logging_service/presentation/widgets/retry_dialog.dart';
 import 'package:logging_service/storage/debug_model.dart';
 
 class DebugDetail extends StatefulWidget {
@@ -15,11 +17,19 @@ class DebugDetail extends StatefulWidget {
   State<DebugDetail> createState() => _DebugDetailState();
 }
 
-class _DebugDetailState extends State<DebugDetail> {
+class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStateMixin {
   final viewModel = DebugDetailViewModel();
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
 
   @override
   void dispose() {
+    _tabController.dispose();
     viewModel.close();
     super.dispose();
   }
@@ -28,63 +38,72 @@ class _DebugDetailState extends State<DebugDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
         title: const Text(
-          "Detail",
+          "Request Details",
           style: TextStyle(
-            fontSize: 18,
-            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
-      ),
-      body: StreamBuilder<DetailButton>(
-        stream: viewModel.detailButtonStream,
-        builder: (_, snapshot) {
-          if (snapshot.data == DetailButton.request || snapshot.data == null) {
-            return DebugDetailRequestBody(debugModel: widget.debugModel);
-          } else {
-            if (widget.debugModel.hasError) {
-              return DebugDetailErrorBody(debugModel: widget.debugModel);
-            } else {
-              return DebugDetailResponseBody(debugModel: widget.debugModel);
-            }
-          }
-        },
-      ),
-      persistentFooterButtons: [
-        StreamBuilder<DetailButton>(
-          stream: viewModel.detailButtonStream,
-          builder: (context, snapshot) {
-            return Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: snapshot.data == DetailButton.request || snapshot.data == null
-                          ? CupertinoColors.activeBlue.withOpacity(0.2)
-                          : Colors.transparent,
-                      textStyle: const TextStyle(),
-                    ),
-                    onPressed: () => viewModel.choose(DetailButton.request),
-                    child: const Text("REQUEST"),
-                  ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.content_copy_rounded),
+            tooltip: 'Copy Request',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (_) => CopyOptionsMenu(debugModel: widget.debugModel),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Retry Request',
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => RetryDialog(
+                  debugModel: widget.debugModel,
+                  dioClient: Dio(),
                 ),
-                Expanded(
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: snapshot.data == DetailButton.response ? CupertinoColors.activeBlue.withOpacity(0.2) : Colors.transparent,
-                      textStyle: const TextStyle(),
-                    ),
-                    onPressed: () => viewModel.choose(DetailButton.response),
-                    child: Text(widget.debugModel.hasError ? "ERROR" : "RESPONSE"),
-                  ),
-                ),
-              ],
-            );
-          },
+              );
+            },
+          ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorSize: TabBarIndicatorSize.label,
+          labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          tabs: [
+            const Tab(
+              text: 'Request',
+              icon: Icon(Icons.send_rounded, size: 18),
+            ),
+            Tab(
+              text: widget.debugModel.hasError ? 'Error' : 'Response',
+              icon: Icon(
+                widget.debugModel.hasError
+                    ? Icons.error_rounded
+                    : Icons.check_circle_rounded,
+                size: 18,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          DebugDetailRequestBody(debugModel: widget.debugModel),
+          widget.debugModel.hasError
+              ? DebugDetailErrorBody(debugModel: widget.debugModel)
+              : DebugDetailResponseBody(debugModel: widget.debugModel),
+        ],
+      ),
     );
   }
 }

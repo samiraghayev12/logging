@@ -9,97 +9,245 @@ class DebugDetailRequestBody extends StatelessWidget {
 
   const DebugDetailRequestBody({super.key, required this.debugModel});
 
+  void _copyToClipboard(BuildContext context, String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("$label copied"),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    const headerStyle = TextStyle(fontWeight: FontWeight.w700);
-    const rowStyle = TextStyle();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const ListTile(title: Text("REQUEST", style: headerStyle)),
-          ListTile(
-            title: const Text("URL", style: rowStyle),
-            subtitle: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    debugModel.url,
-                    style: rowStyle,
+          _buildSection(
+            context,
+            title: "URL",
+            isDark: isDark,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[900] : Colors.grey[50],
+                  border: Border.all(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                   ),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                GestureDetector(
-                  onTap: () async {
-                    await Clipboard.setData(ClipboardData(text: debugModel.url));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("URL copied to clipboard"),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        debugModel.url,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
-                    );
-                  },
-                  child: const Icon(Icons.copy, color: Colors.grey),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.copy_rounded, size: 18),
+                      onPressed: () => _copyToClipboard(context, debugModel.url, "URL"),
+                      tooltip: "Copy URL",
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          ListTile(
-            title: const Text("HTTP method", style: rowStyle),
-            subtitle: Text(
-              debugModel.httpMethod,
-              style: rowStyle,
-            ),
-          ),
-          ListTile(
-            title: const Text("BODY", style: rowStyle),
-            trailing: GestureDetector(
-              onTap: () async {
-                await Clipboard.setData(ClipboardData(text: debugModel.requestData.toString()));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("Body copied to clipboard"),
+          const SizedBox(height: 20),
+          _buildSection(
+            context,
+            title: "HTTP Method",
+            isDark: isDark,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: debugModel.httpMethodColor.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: debugModel.httpMethodColor.withValues(alpha: 0.3),
                   ),
-                );
-              },
-              child: const Icon(Icons.copy, color: Colors.grey),
-            ),
-            subtitle: debugModel.requestData is FormData
-                ? const Center(child: Text("Form Data is not supported yet"))
-                : JsonView(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  debugModel.httpMethod,
+                  style: TextStyle(
+                    color: debugModel.httpMethodColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            context,
+            title: "Request Body",
+            isDark: isDark,
+            actionButton: debugModel.requestData is! FormData
+                ? IconButton(
+                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    onPressed: () => _copyToClipboard(
+                      context,
+                      debugModel.requestData.toString(),
+                      "Body",
+                    ),
+                    tooltip: "Copy Body",
+                  )
+                : null,
+            children: [
+              if (debugModel.requestData is FormData)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    border: Border.all(
+                      color: Colors.orange.withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_rounded,
+                        color: Colors.orange[700],
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Form Data is not supported yet",
+                        style: TextStyle(color: Colors.orange[700]),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  decoration: BoxDecoration(
+                    color: isDark ? Colors.grey[900] : Colors.grey[50],
+                    border: Border.all(
+                      color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: JsonView(
                     shrinkWrap: true,
                     json: debugModel.requestData,
                   ),
-          ),
-          const Divider(),
-          const ListTile(
-            title: Text("HTTP HEADER FIELDS", style: headerStyle),
-          ),
-          Column(
-            children: debugModel.requestHeaders.entries.map((e) {
-              final index = debugModel.requestHeaders.keys.toList().indexOf(e.key);
-              return ListTile(
-                title: Text(e.key, style: rowStyle),
-                trailing: index == 0 || index == 1 || index == 5
-                    ? null
-                    : GestureDetector(
-                        onTap: () async {
-                          await Clipboard.setData(ClipboardData(text: e.value));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(" ${e.key} copied to clipboard"),
-                            ),
-                          );
-                        },
-                        child: const Icon(Icons.copy, color: Colors.grey),
-                      ),
-                subtitle: Text(
-                  e.value,
-                  style: rowStyle,
                 ),
-              );
-            }).toList(),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _buildSection(
+            context,
+            title: "HTTP Headers",
+            isDark: isDark,
+            children: [
+              Column(
+                children: List.generate(
+                  debugModel.requestHeaders.length,
+                  (index) {
+                    final entries = debugModel.requestHeaders.entries.toList();
+                    final entry = entries[index];
+                    final isLast = index == debugModel.requestHeaders.length - 1;
+
+                    return Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isDark ? Colors.grey[900] : Colors.grey[50],
+                            border: Border.all(
+                              color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      entry.key,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .labelSmall
+                                          ?.copyWith(fontWeight: FontWeight.w600),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      entry.value,
+                                      style: Theme.of(context).textTheme.bodySmall,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.copy_rounded, size: 18),
+                                onPressed: () => _copyToClipboard(
+                                  context,
+                                  entry.value,
+                                  entry.key,
+                                ),
+                                tooltip: "Copy ${entry.key}",
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (!isLast) const SizedBox(height: 8),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSection(
+    BuildContext context, {
+    required String title,
+    required bool isDark,
+    required List<Widget> children,
+    Widget? actionButton,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            if (actionButton != null) actionButton,
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...children,
+      ],
     );
   }
 }
