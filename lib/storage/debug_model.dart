@@ -57,18 +57,37 @@ class DebugModel {
   }
 
   String get errorStatusCode {
+    // Try to get from response statusCode
     if (dioError?.response?.statusCode != null) {
       return "${dioError?.response?.statusCode}";
+    }
+    // Try to get from response data if it's a map
+    final responseData = dioError?.response?.data;
+    if (responseData is Map && responseData['Status'] != null) {
+      return "${responseData['Status']}";
     }
     return "Error";
   }
 
   String get errorStatusMessage {
+    // Try to get from response statusMessage
     if (dioError?.response?.statusMessage != null) {
       return "${dioError?.response?.statusMessage}";
     }
-    if (dioError?.message != null) {
-      return "${dioError?.message}";
+    // Try to get from response data Title if it's a map
+    final responseData = dioError?.response?.data;
+    if (responseData is Map) {
+      if (responseData['Title'] != null && responseData['Title'].toString().isNotEmpty) {
+        return "${responseData['Title']}";
+      }
+      if (responseData['Message'] != null && responseData['Message'].toString().isNotEmpty) {
+        return "${responseData['Message']}";
+      }
+    }
+    // Try to get DIO exception message
+    final exceptionMessage = dioError?.message;
+    if (exceptionMessage != null && exceptionMessage.toString().isNotEmpty) {
+      return exceptionMessage.toString();
     }
     return "Unknown error occurred";
   }
