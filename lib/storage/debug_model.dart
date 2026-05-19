@@ -22,7 +22,16 @@ class DebugModel {
     this.elapsedTime,
   });
 
-  bool get hasError => dioError != null || response == null;
+  bool get hasError {
+    // Error əgər DioException varsa
+    if (dioError != null) return true;
+    // Error əgər response null olarsa
+    if (response == null) return true;
+    // Error əgər HTTP status 4xx və ya 5xx olarsa
+    final statusCode = response?.statusCode;
+    if (statusCode != null && statusCode >= 400) return true;
+    return false;
+  }
 
   String get httpMethod => requestOptions?.method ?? "NONE";
 
@@ -57,16 +66,10 @@ class DebugModel {
   }
 
   String get errorStatusCode {
-    // Try to get from response statusCode
     if (dioError?.response?.statusCode != null) {
       return "${dioError?.response?.statusCode}";
     }
-    // Try to get from response data if it's a map
-    final responseData = dioError?.response?.data;
-    if (responseData is Map && responseData['Status'] != null) {
-      return "${responseData['Status']}";
-    }
-    return "Error";
+    return "Error code not found";
   }
 
   String get errorStatusMessage {
@@ -77,10 +80,12 @@ class DebugModel {
     // Try to get from response data Title if it's a map
     final responseData = dioError?.response?.data;
     if (responseData is Map) {
-      if (responseData['Title'] != null && responseData['Title'].toString().isNotEmpty) {
+      if (responseData['Title'] != null &&
+          responseData['Title'].toString().isNotEmpty) {
         return "${responseData['Title']}";
       }
-      if (responseData['Message'] != null && responseData['Message'].toString().isNotEmpty) {
+      if (responseData['Message'] != null &&
+          responseData['Message'].toString().isNotEmpty) {
         return "${responseData['Message']}";
       }
     }
@@ -92,7 +97,8 @@ class DebugModel {
     return "Unknown error occurred";
   }
 
-  Map<String, dynamic> get errorHeaders => dioError?.response?.headers.map ?? {};
+  Map<String, dynamic> get errorHeaders =>
+      dioError?.response?.headers.map ?? {};
 
   Color get httpMethodColor {
     if (httpMethod == "GET") {
