@@ -35,7 +35,7 @@ class DebugDetailErrorBody extends StatelessWidget {
             isDark: isDark,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: Colors.red.withValues(alpha: 0.1),
                   border: Border.all(
@@ -45,10 +45,10 @@ class DebugDetailErrorBody extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.error_rounded,
                       color: Colors.red,
-                      size: 24.0,
+                      size: 24.sp,
                     ),
                     SizedBox(width: 12.w),
                     Expanded(
@@ -63,16 +63,16 @@ class DebugDetailErrorBody extends StatelessWidget {
                               fontSize: 18.sp,
                             ),
                           ),
-                          if (debugModel.statusMessage.isNotEmpty) ...[
-                            SizedBox(height: 4.h),
-                            Text(
-                              debugModel.errorStatusMessage,
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 12.sp,
-                              ),
+                          SizedBox(height: 4.h),
+                          Text(
+                            debugModel.errorStatusMessage,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12.sp,
                             ),
-                          ],
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),

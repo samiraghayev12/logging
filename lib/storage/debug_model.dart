@@ -56,9 +56,22 @@ class DebugModel {
     return response?.statusMessage ?? "NONE";
   }
 
-  String get errorStatusCode => "${dioError?.response?.statusCode}";
+  String get errorStatusCode {
+    if (dioError?.response?.statusCode != null) {
+      return "${dioError?.response?.statusCode}";
+    }
+    return "Error";
+  }
 
-  String get errorStatusMessage => "${dioError?.response?.statusMessage}";
+  String get errorStatusMessage {
+    if (dioError?.response?.statusMessage != null) {
+      return "${dioError?.response?.statusMessage}";
+    }
+    if (dioError?.message != null) {
+      return "${dioError?.message}";
+    }
+    return "Unknown error occurred";
+  }
 
   Map<String, dynamic> get errorHeaders => dioError?.response?.headers.map ?? {};
 
