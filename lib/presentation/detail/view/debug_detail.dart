@@ -43,7 +43,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
         title: const Text(
           "Request Details",
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 20.0,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -76,12 +76,15 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
         bottom: TabBar(
           controller: _tabController,
           indicatorSize: TabBarIndicatorSize.label,
+          labelColor: Theme.of(context).primaryColor,
+          unselectedLabelColor: Colors.grey[600],
           labelStyle: const TextStyle(fontWeight: FontWeight.w600),
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          indicatorColor: Theme.of(context).primaryColor,
           tabs: [
             const Tab(
               text: 'Request',
-              icon: Icon(Icons.send_rounded, size: 18),
+              icon: Icon(Icons.send_rounded, size: 18.0),
             ),
             Tab(
               text: widget.debugModel.hasError ? 'Error' : 'Response',
@@ -89,7 +92,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
                 widget.debugModel.hasError
                     ? Icons.error_rounded
                     : Icons.check_circle_rounded,
-                size: 18,
+                size: 18.0,
               ),
             ),
           ],

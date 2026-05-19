@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/storage/debug_model.dart';
 
 class DebugDetailErrorBody extends StatelessWidget {
@@ -24,7 +25,7 @@ class DebugDetailErrorBody extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -40,35 +41,35 @@ class DebugDetailErrorBody extends StatelessWidget {
                   border: Border.all(
                     color: Colors.red.withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Row(
                   children: [
                     const Icon(
                       Icons.error_rounded,
                       color: Colors.red,
-                      size: 24,
+                      size: 24.0,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             debugModel.errorStatusCode,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.w700,
-                              fontSize: 18,
+                              fontSize: 18.sp,
                             ),
                           ),
                           if (debugModel.statusMessage.isNotEmpty) ...[
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4.h),
                             Text(
                               debugModel.errorStatusMessage,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.red,
-                                fontSize: 12,
+                                fontSize: 12.sp,
                               ),
                             ),
                           ],
@@ -81,7 +82,7 @@ class DebugDetailErrorBody extends StatelessWidget {
             ],
           ),
           if (debugModel.errorHeaders.isNotEmpty) ...[
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _buildSection(
               context,
               title: "Error Headers",
@@ -104,7 +105,7 @@ class DebugDetailErrorBody extends StatelessWidget {
                               border: Border.all(
                                 color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                               ),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +121,7 @@ class DebugDetailErrorBody extends StatelessWidget {
                                             .labelSmall
                                             ?.copyWith(fontWeight: FontWeight.w600),
                                       ),
-                                      const SizedBox(height: 6),
+                                      SizedBox(height: 6.h),
                                       Text(
                                         entry.value.toString(),
                                         style: Theme.of(context).textTheme.bodySmall,
@@ -132,7 +133,7 @@ class DebugDetailErrorBody extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: const Icon(Icons.copy_rounded, size: 18),
+                                  icon: const Icon(Icons.copy_rounded, size: 18.0),
                                   onPressed: () => _copyToClipboard(
                                     context,
                                     entry.value.toString(),
@@ -143,7 +144,7 @@ class DebugDetailErrorBody extends StatelessWidget {
                               ],
                             ),
                           ),
-                          if (!isLast) const SizedBox(height: 8),
+                          if (!isLast) SizedBox(height: 8.h),
                         ],
                       );
                     },
@@ -179,7 +180,7 @@ class DebugDetailErrorBody extends StatelessWidget {
             if (actionButton != null) actionButton,
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         ...children,
       ],
     );

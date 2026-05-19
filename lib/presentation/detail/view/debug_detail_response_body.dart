@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:json_view/json_view.dart';
 import 'package:logging_service/storage/debug_model.dart';
 
@@ -28,7 +29,7 @@ class DebugDetailResponseBody extends StatelessWidget {
     final statusColor = isSuccess ? Colors.green : Colors.red;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -38,22 +39,22 @@ class DebugDetailResponseBody extends StatelessWidget {
             isDark: isDark,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   border: Border.all(
                     color: statusColor.withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
                       color: statusColor,
-                      size: 24,
+                      size: 24.sp,
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12.w),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -62,16 +63,16 @@ class DebugDetailResponseBody extends StatelessWidget {
                           style: TextStyle(
                             color: statusColor,
                             fontWeight: FontWeight.w700,
-                            fontSize: 18,
+                            fontSize: 18.sp,
                           ),
                         ),
                         if (debugModel.statusMessage.isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4.h),
                           Text(
                             debugModel.statusMessage,
                             style: TextStyle(
                               color: statusColor,
-                              fontSize: 12,
+                              fontSize: 12.sp,
                             ),
                           ),
                         ],
@@ -83,14 +84,14 @@ class DebugDetailResponseBody extends StatelessWidget {
             ],
           ),
           if (debugModel.responseData != null) ...[
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _buildSection(
               context,
               title: "Response Body",
               isDark: isDark,
               actionButton: debugModel.responseData is! FormData
                   ? IconButton(
-                      icon: const Icon(Icons.copy_rounded, size: 18),
+                      icon: const Icon(Icons.copy_rounded, size: 18.0),
                       onPressed: () => _copyToClipboard(
                         context,
                         debugModel.responseData.toString(),
@@ -102,13 +103,13 @@ class DebugDetailResponseBody extends StatelessWidget {
               children: [
                 if (debugModel.responseData is FormData)
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12.w),
                     decoration: BoxDecoration(
                       color: Colors.orange.withValues(alpha: 0.1),
                       border: Border.all(
                         color: Colors.orange.withValues(alpha: 0.3),
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
                     child: Row(
                       children: [
@@ -132,9 +133,9 @@ class DebugDetailResponseBody extends StatelessWidget {
                       border: Border.all(
                         color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                       ),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(12.w),
                     child: JsonView(
                       shrinkWrap: true,
                       json: debugModel.responseData,
@@ -144,7 +145,7 @@ class DebugDetailResponseBody extends StatelessWidget {
             ),
           ],
           if (debugModel.responseHeaders.isNotEmpty) ...[
-            const SizedBox(height: 20),
+            SizedBox(height: 20.h),
             _buildSection(
               context,
               title: "Response Headers",
@@ -161,13 +162,13 @@ class DebugDetailResponseBody extends StatelessWidget {
                       return Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(12.w),
                             decoration: BoxDecoration(
                               color: isDark ? Colors.grey[900] : Colors.grey[50],
                               border: Border.all(
                                 color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                               ),
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +184,7 @@ class DebugDetailResponseBody extends StatelessWidget {
                                             .labelSmall
                                             ?.copyWith(fontWeight: FontWeight.w600),
                                       ),
-                                      const SizedBox(height: 6),
+                                      SizedBox(height: 6.h),
                                       Text(
                                         entry.value.toString(),
                                         style: Theme.of(context).textTheme.bodySmall,
@@ -195,7 +196,7 @@ class DebugDetailResponseBody extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: const Icon(Icons.copy_rounded, size: 18),
+                                  icon: const Icon(Icons.copy_rounded, size: 18.0),
                                   onPressed: () => _copyToClipboard(
                                     context,
                                     entry.value.toString(),
@@ -206,7 +207,7 @@ class DebugDetailResponseBody extends StatelessWidget {
                               ],
                             ),
                           ),
-                          if (!isLast) const SizedBox(height: 8),
+                          if (!isLast) SizedBox(height: 8.h),
                         ],
                       );
                     },
@@ -242,7 +243,7 @@ class DebugDetailResponseBody extends StatelessWidget {
             if (actionButton != null) actionButton,
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         ...children,
       ],
     );

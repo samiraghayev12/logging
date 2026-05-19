@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail.dart';
 import 'package:logging_service/presentation/stats/debug_stats.dart';
 import 'package:logging_service/storage/debug_storage.dart';
@@ -32,17 +33,17 @@ class _DebugPageState extends State<DebugPage> {
           onPressed: () => Navigator.of(context).pop(),
           tooltip: 'Close',
         ),
-        title: const Text(
+        title: Text(
           "Network Logs",
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 22.sp,
             fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.analytics_rounded),
+            icon: const Icon(Icons.bar_chart_rounded),
             tooltip: 'Analytics',
             onPressed: () {
               Navigator.of(context).push(
@@ -59,13 +60,14 @@ class _DebugPageState extends State<DebugPage> {
                 children: [
                   Icon(
                     Icons.cloud_off_rounded,
-                    size: 64,
+                    size: 70.sp,
                     color: Colors.grey.withValues(alpha: 0.4),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16.h),
                   Text(
                     'No network calls yet',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontSize: 20.sp,
                           color: Colors.grey.withValues(alpha: 0.6),
                         ),
                   ),
@@ -78,7 +80,7 @@ class _DebugPageState extends State<DebugPage> {
                 itemBuilder: (_, index) {
                   final request = debug.requests[index];
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
+                    padding: EdgeInsets.only(bottom: 8.h),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
@@ -101,24 +103,24 @@ class _DebugPageState extends State<DebugPage> {
                                   : Colors.grey[200]!,
                               width: 1,
                             ),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(12.r),
                           ),
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(12.w),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
                                   Container(
-                                    height: 32,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
+                                    height: 32.h,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w,
+                                      vertical: 4.h,
                                     ),
                                     decoration: BoxDecoration(
                                       color: request.httpMethodColor
                                           .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(6),
+                                      borderRadius: BorderRadius.circular(6.r),
                                     ),
                                     child: Center(
                                       child: Text(
@@ -126,12 +128,12 @@ class _DebugPageState extends State<DebugPage> {
                                         style: TextStyle(
                                           color: request.httpMethodColor,
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 12,
+                                          fontSize: 13.sp,
                                         ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12.w),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -145,49 +147,51 @@ class _DebugPageState extends State<DebugPage> {
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
+                                                fontSize: 15.sp,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                         ),
-                                        const SizedBox(height: 4),
+                                        SizedBox(height: 4.h),
                                         Text(
                                           request.requestTime ?? "",
                                           style: Theme.of(context)
                                               .textTheme
                                               .labelSmall
                                               ?.copyWith(
+                                                fontSize: 12.sp,
                                                 color: Colors.grey[600],
                                               ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12.w),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 8,
-                                          vertical: 4,
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 8.w,
+                                          vertical: 4.h,
                                         ),
                                         decoration: BoxDecoration(
                                           color: request.hasError
                                               ? Colors.red.withValues(alpha: 0.1)
                                               : Colors.green.withValues(alpha: 0.1),
                                           borderRadius:
-                                              BorderRadius.circular(6),
+                                              BorderRadius.circular(6.r),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             CircleAvatar(
-                                              radius: 4,
+                                              radius: 4.r,
                                               backgroundColor: request
                                                       .hasError
                                                   ? Colors.red
                                                   : Colors.green,
                                             ),
-                                            const SizedBox(width: 6),
+                                            SizedBox(width: 6.w),
                                             Text(
                                               request.hasError
                                                   ? "Error"
@@ -197,19 +201,20 @@ class _DebugPageState extends State<DebugPage> {
                                                     ? Colors.red
                                                     : Colors.green,
                                                 fontWeight: FontWeight.w600,
-                                                fontSize: 12,
+                                                fontSize: 13.sp,
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      const SizedBox(height: 6),
+                                      SizedBox(height: 6.h),
                                       Text(
                                         "${request.elapsedTime} ms",
                                         style: Theme.of(context)
                                             .textTheme
                                             .labelSmall
                                             ?.copyWith(
+                                              fontSize: 12.sp,
                                               color: Colors.grey[500],
                                             ),
                                       ),
