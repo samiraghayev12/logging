@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logging_service/presentation/detail/view/debug_detail.dart';
 import 'package:logging_service/storage/debug_storage.dart';
 
 class DebugStats extends StatelessWidget {
@@ -221,83 +222,102 @@ class DebugStats extends StatelessWidget {
           final request = requests[index];
           return Padding(
             padding: EdgeInsets.only(bottom: 8.h),
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[900] : Colors.grey[50],
-                border: Border.all(
-                  color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => DebugDetail(debugModel: request),
+                  ),
+                );
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.grey[900] : Colors.grey[50],
+                  border: Border.all(
+                    color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                  ),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              padding: EdgeInsets.all(12.w),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 8.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: request.httpMethodColor.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Text(
-                      request.httpMethod,
-                      style: TextStyle(
-                        color: request.httpMethodColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13.sp,
+                padding: EdgeInsets.all(12.w),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: request.httpMethodColor.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        request.httpMethod,
+                        style: TextStyle(
+                          color: request.httpMethodColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13.sp,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            request.path,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            request.requestTime ?? "",
+                            style: Theme.of(context)
+                                .textTheme
+                                .labelSmall
+                                ?.copyWith(
+                                    fontSize: 11.sp,
+                                    color: Colors.grey[600]),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          request.path,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                        ),
-                        SizedBox(height: 2.h),
-                        Text(
-                          request.requestTime ?? "",
+                          "${request.elapsedTime} ms",
                           style: Theme.of(context)
                               .textTheme
                               .labelSmall
-                              ?.copyWith(fontSize: 11.sp, color: Colors.grey[600]),
+                              ?.copyWith(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: request.elapsedTime! > 1000
+                                    ? Colors.red
+                                    : Colors.green,
+                              ),
+                        ),
+                        SizedBox(height: 2.h),
+                        Text(
+                          request.statusCode,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                fontSize: 11.sp,
+                                color: Colors.grey[500],
+                              ),
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        "${request.elapsedTime} ms",
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                              color: request.elapsedTime! > 1000
-                                  ? Colors.red
-                                  : Colors.green,
-                            ),
-                      ),
-                      SizedBox(height: 2.h),
-                      Text(
-                        request.statusCode,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 11.sp,
-                              color: Colors.grey[500],
-                            ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
