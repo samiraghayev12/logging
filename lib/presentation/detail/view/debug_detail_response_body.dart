@@ -9,89 +9,242 @@ class DebugDetailResponseBody extends StatelessWidget {
 
   const DebugDetailResponseBody({super.key, required this.debugModel});
 
+  void _copyToClipboard(BuildContext context, String text, String label) {
+    Clipboard.setData(ClipboardData(text: text));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("$label copied"),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    const headerStyle = TextStyle(fontWeight: FontWeight.w700, fontSize: 20);
-    const rowStyle = TextStyle();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isSuccess = debugModel.statusCode.startsWith("2");
+    final statusColor = isSuccess ? Colors.green : Colors.red;
+
     return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ListTile(
-            title: const Text(
-              "Status code",
-              style: headerStyle,
-            ),
-            subtitle: Align(
-              alignment: Alignment.centerLeft,
-              child: Chip(
-                backgroundColor: debugModel.statusCode.startsWith("2") ? Colors.green : Colors.red,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: debugModel.statusCode.startsWith("2") ? Colors.green : Colors.red,
+          _buildSection(
+            context,
+            title: "Status Code",
+            isDark: isDark,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: statusColor.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: statusColor.withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                label: Text(
-                  debugModel.statusCode,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (debugModel.statusMessage.isNotEmpty)
-            ListTile(
-              title: const Text("Status message", style: rowStyle),
-              subtitle: Text(
-                debugModel.statusMessage,
-                style: rowStyle,
-              ),
-            ),
-          if (debugModel.responseData != null)
-            ListTile(
-              trailing: GestureDetector(
-                onTap: () async {
-                  await Clipboard.setData(ClipboardData(text: debugModel.responseData.toString()));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Response copied to clipboard"),
+                child: Row(
+                  children: [
+                    Icon(
+                      isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
+                      color: statusColor,
+                      size: 24,
                     ),
-                  );
-                },
-                child: const Icon(Icons.copy, color: Colors.grey),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          debugModel.statusCode,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                        if (debugModel.statusMessage.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            debugModel.statusMessage,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              title: const Text("Response", style: headerStyle),
-              subtitle: debugModel.responseData is FormData
-                  ? const Center(child: Text("Form Data is not supported yet"))
-                  : JsonView(
-                      json: debugModel.responseData,
+            ],
+          ),
+          if (debugModel.responseData != null) ...[
+            const SizedBox(height: 20),
+            _buildSection(
+              context,
+              title: "Response Body",
+              isDark: isDark,
+              actionButton: debugModel.responseData is! FormData
+                  ? IconButton(
+                      icon: const Icon(Icons.copy_rounded, size: 18),
+                      onPressed: () => _copyToClipboard(
+                        context,
+                        debugModel.responseData.toString(),
+                        "Response",
+                      ),
+                      tooltip: "Copy Response",
+                    )
+                  : null,
+              children: [
+                if (debugModel.responseData is FormData)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.1),
+                      border: Border.all(
+                        color: Colors.orange.withValues(alpha: 0.3),
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_rounded,
+                          color: Colors.orange[700],
+                          size: 18,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Form Data is not supported yet",
+                          style: TextStyle(color: Colors.orange[700]),
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  Container(
+                    decoration: BoxDecoration(
+                      color: isDark ? Colors.grey[900] : Colors.grey[50],
+                      border: Border.all(
+                        color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: JsonView(
                       shrinkWrap: true,
+                      json: debugModel.responseData,
                     ),
+                  ),
+              ],
             ),
-          const Divider(),
-          const ListTile(
-            subtitle: Text(
-              "HTTP HEADER FIELDS",
-              style: headerStyle,
-            ),
-          ),
-          const Divider(),
-          Column(
-            children: debugModel.responseHeaders.entries.map((e) {
-              return ListTile(
-                title: Text(e.key, style: rowStyle),
-                subtitle: Text(
-                  e.value.toString(),
-                  style: rowStyle,
+          ],
+          if (debugModel.responseHeaders.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            _buildSection(
+              context,
+              title: "Response Headers",
+              isDark: isDark,
+              children: [
+                Column(
+                  children: List.generate(
+                    debugModel.responseHeaders.length,
+                    (index) {
+                      final entries = debugModel.responseHeaders.entries.toList();
+                      final entry = entries[index];
+                      final isLast = index == debugModel.responseHeaders.length - 1;
+
+                      return Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.grey[900] : Colors.grey[50],
+                              border: Border.all(
+                                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        entry.key,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .labelSmall
+                                            ?.copyWith(fontWeight: FontWeight.w600),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        entry.value.toString(),
+                                        style: Theme.of(context).textTheme.bodySmall,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  icon: const Icon(Icons.copy_rounded, size: 18),
+                                  onPressed: () => _copyToClipboard(
+                                    context,
+                                    entry.value.toString(),
+                                    entry.key,
+                                  ),
+                                  tooltip: "Copy ${entry.key}",
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (!isLast) const SizedBox(height: 8),
+                        ],
+                      );
+                    },
+                  ),
                 ),
-              );
-            }).toList(),
-          ),
+              ],
+            ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildSection(
+    BuildContext context, {
+    required String title,
+    required bool isDark,
+    required List<Widget> children,
+    Widget? actionButton,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            if (actionButton != null) actionButton,
+          ],
+        ),
+        const SizedBox(height: 8),
+        ...children,
+      ],
     );
   }
 }
