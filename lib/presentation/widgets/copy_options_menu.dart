@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/storage/debug_model.dart';
 import 'package:logging_service/utils/copy_helper.dart';
 
@@ -32,10 +33,10 @@ class CopyOptionsMenu extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[900] : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,7 +47,7 @@ class CopyOptionsMenu extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               _buildOption(
                 context,
                 isDark,
@@ -59,7 +60,7 @@ class CopyOptionsMenu extends StatelessWidget {
                   'cURL Command',
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               _buildOption(
                 context,
                 isDark,
@@ -72,7 +73,7 @@ class CopyOptionsMenu extends StatelessWidget {
                   'Postman JSON',
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               _buildOption(
                 context,
                 isDark,
@@ -85,7 +86,7 @@ class CopyOptionsMenu extends StatelessWidget {
                   'Request JSON',
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16.h),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -116,13 +117,13 @@ class CopyOptionsMenu extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: isDark ? Colors.grey[800] : Colors.grey[100],
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(8.r),
           ),
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12.w),
           child: Row(
             children: [
-              Icon(icon, size: 24),
-              const SizedBox(width: 12),
+              Icon(icon, size: 24.sp),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +134,7 @@ class CopyOptionsMenu extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2.h),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -145,7 +146,7 @@ class CopyOptionsMenu extends StatelessWidget {
               ),
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                size: 16,
+                size: 16.sp,
                 color: Colors.grey[600],
               ),
             ],

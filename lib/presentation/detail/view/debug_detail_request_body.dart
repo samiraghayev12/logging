@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:json_view/json_view.dart';
 import 'package:logging_service/storage/debug_model.dart';
 
@@ -26,7 +27,7 @@ class DebugDetailRequestBody extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -36,13 +37,13 @@ class DebugDetailRequestBody extends StatelessWidget {
             isDark: isDark,
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
                   color: isDark ? Colors.grey[900] : Colors.grey[50],
                   border: Border.all(
                     color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Row(
                   children: [
@@ -52,9 +53,9 @@ class DebugDetailRequestBody extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     IconButton(
-                      icon: const Icon(Icons.copy_rounded, size: 18),
+                      icon: const Icon(Icons.copy_rounded, size: 18.0),
                       onPressed: () => _copyToClipboard(context, debugModel.url, "URL"),
                       tooltip: "Copy URL",
                     ),
@@ -63,33 +64,33 @@ class DebugDetailRequestBody extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           _buildSection(
             context,
             title: "HTTP Method",
             isDark: isDark,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: debugModel.httpMethodColor.withValues(alpha: 0.1),
                   border: Border.all(
                     color: debugModel.httpMethodColor.withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
                 child: Text(
                   debugModel.httpMethod,
                   style: TextStyle(
                     color: debugModel.httpMethodColor,
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           _buildSection(
             context,
             title: "Request Body",
@@ -108,13 +109,13 @@ class DebugDetailRequestBody extends StatelessWidget {
             children: [
               if (debugModel.requestData is FormData)
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
                     color: Colors.orange.withValues(alpha: 0.1),
                     border: Border.all(
                       color: Colors.orange.withValues(alpha: 0.3),
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
                     children: [
@@ -123,7 +124,7 @@ class DebugDetailRequestBody extends StatelessWidget {
                         color: Colors.orange[700],
                         size: 18,
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Text(
                         "Form Data is not supported yet",
                         style: TextStyle(color: Colors.orange[700]),
@@ -138,9 +139,9 @@ class DebugDetailRequestBody extends StatelessWidget {
                     border: Border.all(
                       color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12.w),
                   child: JsonView(
                     shrinkWrap: true,
                     json: debugModel.requestData,
@@ -148,7 +149,7 @@ class DebugDetailRequestBody extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20.h),
           _buildSection(
             context,
             title: "HTTP Headers",
@@ -165,13 +166,13 @@ class DebugDetailRequestBody extends StatelessWidget {
                     return Column(
                       children: [
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: EdgeInsets.all(12.w),
                           decoration: BoxDecoration(
                             color: isDark ? Colors.grey[900] : Colors.grey[50],
                             border: Border.all(
                               color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                             ),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(8.r),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,7 +188,7 @@ class DebugDetailRequestBody extends StatelessWidget {
                                           .labelSmall
                                           ?.copyWith(fontWeight: FontWeight.w600),
                                     ),
-                                    const SizedBox(height: 6),
+                                    SizedBox(height: 6.h),
                                     Text(
                                       entry.value,
                                       style: Theme.of(context).textTheme.bodySmall,
@@ -197,9 +198,9 @@ class DebugDetailRequestBody extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              SizedBox(width: 8.w),
                               IconButton(
-                                icon: const Icon(Icons.copy_rounded, size: 18),
+                                icon: const Icon(Icons.copy_rounded, size: 18.0),
                                 onPressed: () => _copyToClipboard(
                                   context,
                                   entry.value,
@@ -245,7 +246,7 @@ class DebugDetailRequestBody extends StatelessWidget {
             if (actionButton != null) actionButton,
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8.h),
         ...children,
       ],
     );

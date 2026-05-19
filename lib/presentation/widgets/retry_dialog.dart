@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/storage/debug_model.dart';
 
 class RetryDialog extends StatefulWidget {
@@ -69,10 +70,10 @@ class _RetryDialogState extends State<RetryDialog> {
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[900] : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,20 +84,20 @@ class _RetryDialogState extends State<RetryDialog> {
                       fontWeight: FontWeight.w700,
                     ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Text(
                 widget.debugModel.path,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey[600],
                     ),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Container(
                 decoration: BoxDecoration(
                   color: isDark ? Colors.grey[800] : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -106,12 +107,12 @@ class _RetryDialogState extends State<RetryDialog> {
                             fontWeight: FontWeight.w600,
                           ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8.h),
                     Text(
                       'Method: ${widget.debugModel.httpMethod}',
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       'URL: ${widget.debugModel.url}',
                       style: Theme.of(context).textTheme.labelSmall,
@@ -122,7 +123,7 @@ class _RetryDialogState extends State<RetryDialog> {
                 ),
               ),
               if (responseMessage != null) ...[
-                const SizedBox(height: 16),
+                SizedBox(height: 16.h),
                 Container(
                   decoration: BoxDecoration(
                     color: isSuccess
@@ -133,9 +134,9 @@ class _RetryDialogState extends State<RetryDialog> {
                           ? Colors.green.withValues(alpha: 0.3)
                           : Colors.red.withValues(alpha: 0.3),
                     ),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12.w),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -144,15 +145,15 @@ class _RetryDialogState extends State<RetryDialog> {
                             ? Icons.check_circle_rounded
                             : Icons.error_rounded,
                         color: isSuccess ? Colors.green : Colors.red,
-                        size: 20,
+                        size: 20.sp,
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12.w),
                       Expanded(
                         child: Text(
                           responseMessage!,
                           style: TextStyle(
                             color: isSuccess ? Colors.green : Colors.red,
-                            fontSize: 12,
+                            fontSize: 12.sp,
                           ),
                         ),
                       ),
@@ -160,7 +161,7 @@ class _RetryDialogState extends State<RetryDialog> {
                   ),
                 ),
               ],
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -173,8 +174,8 @@ class _RetryDialogState extends State<RetryDialog> {
                     onPressed: isLoading ? null : _retryRequest,
                     icon: isLoading
                         ? SizedBox(
-                            width: 16,
-                            height: 16,
+                            width: 16.w,
+                            height: 16.h,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation(
