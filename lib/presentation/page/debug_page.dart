@@ -94,9 +94,7 @@ class _DebugPageState extends State<DebugPage> {
                         borderRadius: BorderRadius.circular(12),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: isDark
-                                ? Colors.grey[900]
-                                : Colors.grey[50],
+                            color: isDark ? Colors.grey[900] : Colors.grey[50],
                             border: Border.all(
                               color: isDark
                                   ? Colors.grey[800]!
@@ -153,7 +151,7 @@ class _DebugPageState extends State<DebugPage> {
                                         ),
                                         SizedBox(height: 4.h),
                                         Text(
-                                          request.requestTime ?? "",
+                                          request.requestTimeString,
                                           style: Theme.of(context)
                                               .textTheme
                                               .labelSmall
@@ -176,8 +174,10 @@ class _DebugPageState extends State<DebugPage> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: request.hasError
-                                              ? Colors.red.withValues(alpha: 0.1)
-                                              : Colors.green.withValues(alpha: 0.1),
+                                              ? Colors.red
+                                                  .withValues(alpha: 0.1)
+                                              : Colors.green
+                                                  .withValues(alpha: 0.1),
                                           borderRadius:
                                               BorderRadius.circular(6.r),
                                         ),
@@ -186,8 +186,7 @@ class _DebugPageState extends State<DebugPage> {
                                           children: [
                                             CircleAvatar(
                                               radius: 4.r,
-                                              backgroundColor: request
-                                                      .hasError
+                                              backgroundColor: request.hasError
                                                   ? Colors.red
                                                   : Colors.green,
                                             ),

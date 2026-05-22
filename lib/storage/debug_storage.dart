@@ -1,69 +1,111 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:logging_service/storage/debug_model.dart';
 
-class DebugStorage {
+class DebugStorage extends ChangeNotifier {
   static final DebugStorage _singleton = DebugStorage._internal();
-
   factory DebugStorage() => _singleton;
-
   DebugStorage._internal();
 
-  List<DebugModel> requests = [];
-  var _counter = 0;
+  final List<DebugModel> _requests = [];
+  int _counter = 0;
 
-  // Adds request and stores start time
+  /// Yaddaş limiti
+  static const int _maxRequests = 200;
+
+  /// Read-only liste — UI bunu görür
+  List<DebugModel> get requests => List.unmodifiable(_requests);
+
+  int get count => _requests.length;
+  int get errorCount => _requests.where((r) => r.hasError).length;
+
   void addRequest(RequestOptions requestOptions) {
-    var debugModel = DebugModel(
-      id: _counter,
+    final model = DebugModel(
+      id: _counter++,
       requestOptions: requestOptions,
       requestStartTime: DateTime.now(),
     );
-    requests.insert(0, debugModel);
-    _counter++;
+    _requests.insert(0, model);
+    _trimIfNeeded();
+    notifyListeners();
   }
 
   void addResponse(Response response) {
-    var request = requests.firstWhere(
-      (element) => element.requestOptions?.uri == response.requestOptions.uri,
-      orElse: () => DebugModel(),
-    );
-    request.response = response;
-    request.elapsedTime =
-        DateTime.now().difference(request.requestStartTime!).inMilliseconds;
-    request.requestTime = DateTime.now().toString();
+    final model = _findByRequestOptions(response.requestOptions);
+
+    if (model != null) {
+      model.response = response;
+      _markCompleted(model);
+    } else {
+      // Orphan — request log olunmayıb
+      _requests.insert(
+          0,
+          DebugModel(
+            id: _counter++,
+            requestOptions: response.requestOptions,
+            requestStartTime: DateTime.now(),
+            response: response,
+            requestEndTime: DateTime.now(),
+            elapsedTime: 0,
+          ));
+      _trimIfNeeded();
+    }
+
+    notifyListeners();
   }
 
-  // Adds error and calculates elapsed time
   void addError(DioException dioError) {
-    final requestUri = dioError.requestOptions.uri;
+    final model = _findByRequestOptions(dioError.requestOptions);
 
-    // Find matching request by URI
-    int index = requests.indexWhere(
-      (element) => element.requestOptions?.uri == requestUri,
-    );
-
-    // If found, update existing request; otherwise create new one
-    if (index != -1) {
-      var request = requests[index];
-      request.dioError = dioError;
-      if (request.requestStartTime != null) {
-        request.elapsedTime =
-            DateTime.now().difference(request.requestStartTime!).inMilliseconds;
-      }
-      request.requestTime = DateTime.now().toString();
+    if (model != null) {
+      model.dioError = dioError;
+      // dioError.response 4xx/5xx-də doludur — onu da saxla
+      model.response ??= dioError.response;
+      _markCompleted(model);
     } else {
-      // Create new request entry if not found (shouldn't happen normally)
-      var newRequest = DebugModel(
-        id: _counter,
-        requestOptions: dioError.requestOptions,
-        dioError: dioError,
-        requestStartTime: DateTime.now(),
-        requestEndTime: DateTime.now(),
-        requestTime: DateTime.now().toString(),
-      );
-      newRequest.elapsedTime = 0;
-      requests.insert(0, newRequest);
-      _counter++;
+      _requests.insert(
+          0,
+          DebugModel(
+            id: _counter++,
+            requestOptions: dioError.requestOptions,
+            requestStartTime: DateTime.now(),
+            dioError: dioError,
+            response: dioError.response,
+            requestEndTime: DateTime.now(),
+            elapsedTime: 0,
+          ));
+      _trimIfNeeded();
+    }
+
+    notifyListeners();
+  }
+
+  void clear() {
+    _requests.clear();
+    _counter = 0;
+    notifyListeners();
+  }
+
+  // ============ INTERNAL ============
+
+  /// RequestOptions reference-i ilə tap — URI yox.
+  /// Dio eyni instance-ı request → response zənciri boyu daşıyır.
+  DebugModel? _findByRequestOptions(RequestOptions options) {
+    for (final r in _requests) {
+      if (identical(r.requestOptions, options)) return r;
+    }
+    return null;
+  }
+
+  void _markCompleted(DebugModel model) {
+    final now = DateTime.now();
+    model.requestEndTime = now;
+    model.elapsedTime = now.difference(model.requestStartTime).inMilliseconds;
+  }
+
+  void _trimIfNeeded() {
+    if (_requests.length > _maxRequests) {
+      _requests.removeRange(_maxRequests, _requests.length);
     }
   }
 }

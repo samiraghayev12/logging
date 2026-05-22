@@ -4,42 +4,68 @@ import 'package:logging_service/storage/debug_storage.dart';
 
 class DebugLogging extends Interceptor {
   final debug = DebugStorage();
-  final Stopwatch stopwatch = Stopwatch();
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    stopwatch.start();
     if (kDebugMode) {
-      print('🐙 REQUEST [ ${options.method}] => URL: ${options.uri} => BODY: ${options.data} => TIME: ${DateTime.now()}');
+      debugPrint('🐙 REQUEST [${options.method}] ${options.uri}');
+      if (options.queryParameters.isNotEmpty) {
+        debugPrint('   QUERY: ${options.queryParameters}');
+      }
+      if (options.data != null) {
+        debugPrint('   BODY: ${options.data}');
+      }
     }
-    debug.addRequest(options);
-    return super.onRequest(options, handler);
+
+    try {
+      debug.addRequest(options);
+    } catch (e) {
+      if (kDebugMode) debugPrint('DebugLogging.addRequest failed: $e');
+    }
+
+    handler.next(options);
   }
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    stopwatch.stop();
-    final elapsedMilliseconds = stopwatch.elapsedMilliseconds;
-    stopwatch.reset();
-
     if (kDebugMode) {
-      print('🦑 RESPONSE [ ${response.statusCode}] => DATA: ${response.data} ] => TIME: ${DateTime.now()} => ELAPSED TIME: $elapsedMilliseconds ms');
+      debugPrint(
+          '🦑 RESPONSE [${response.statusCode}] ${response.requestOptions.uri}');
+      debugPrint('   DATA: ${response.data}');
     }
-    debug.addResponse(response);
-    return super.onResponse(response, handler);
+
+    try {
+      debug.addResponse(response);
+    } catch (e) {
+      if (kDebugMode) debugPrint('DebugLogging.addResponse failed: $e');
+    }
+
+    handler.next(response);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    stopwatch.stop();
-    final elapsedMilliseconds = stopwatch.elapsedMilliseconds;
-    stopwatch.reset();
-
     if (kDebugMode) {
-      print(
-          '🦀 ERROR [ ${err.response?.statusCode}] => PATH: ${err.requestOptions.path} ] => TIME: ${DateTime.now()} => ELAPSED TIME: $elapsedMilliseconds ms');
+      debugPrint(
+          '🦀 ERROR [${err.response?.statusCode ?? err.type.name}] ${err.requestOptions.uri}');
+      debugPrint('   TYPE: ${err.type}');
+      if (err.message != null) {
+        debugPrint('   MESSAGE: ${err.message}');
+      }
+      if (err.response?.data != null) {
+        debugPrint('   RESPONSE DATA: ${err.response?.data}');
+      }
+      if (err.error != null) {
+        debugPrint('   UNDERLYING: ${err.error}');
+      }
     }
-    debug.addError(err);
-    return super.onError(err, handler);
+
+    try {
+      debug.addError(err);
+    } catch (e) {
+      if (kDebugMode) debugPrint('DebugLogging.addError failed: $e');
+    }
+
+    handler.next(err);
   }
 }
