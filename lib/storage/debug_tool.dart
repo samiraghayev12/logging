@@ -13,12 +13,8 @@ class DebugTool {
     if (_overlayEntry != null) return;
 
     _overlayEntry = OverlayEntry(
-      builder: (overlayContext) => Positioned(
-        right: 20,
-        bottom: 100,
-        child: _DebugFloatingButton(
-          onPressed: () => _openDebugPage(overlayContext),
-        ),
+      builder: (overlayContext) => _DraggableDebugButton(
+        onPressed: () => _openDebugPage(overlayContext),
       ),
     );
 
@@ -40,6 +36,38 @@ class DebugTool {
     _overlayEntry?.remove();
     _overlayEntry = null;
     _isPageOpen = false;
+  }
+}
+
+class _DraggableDebugButton extends StatefulWidget {
+  final VoidCallback onPressed;
+  const _DraggableDebugButton({required this.onPressed});
+
+  @override
+  State<_DraggableDebugButton> createState() => _DraggableDebugButtonState();
+}
+
+class _DraggableDebugButtonState extends State<_DraggableDebugButton> {
+  double _dx = 0;
+  double _dy = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: _dx,
+      top: _dy,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            _dx += details.delta.dx;
+            _dy += details.delta.dy;
+          });
+        },
+        child: _DebugFloatingButton(
+          onPressed: widget.onPressed,
+        ),
+      ),
+    );
   }
 }
 
@@ -77,7 +105,7 @@ class _DebugFloatingButtonState extends State<_DebugFloatingButton>
         onPressed: widget.onPressed,
         tooltip: 'Network Debug',
         backgroundColor: Colors.indigo,
-        child: const Icon(Icons.bug_report_rounded, color: Colors.white),
+        child: const Icon(Icons.bug_report_rounded, color: Colors.white, size: 32),
       ),
     );
   }
