@@ -31,7 +31,8 @@ class CopyHelper {
     final postmanRequest = {
       "info": {
         "name": model.path,
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        "schema":
+            "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
       },
       "item": [
         {
@@ -39,16 +40,14 @@ class CopyHelper {
           "request": {
             "method": model.httpMethod,
             "header": model.requestHeaders.entries
-                .map((e) => {
-                      "key": e.key,
-                      "value": e.value,
-                      "type": "text"
-                    })
+                .map((e) => {"key": e.key, "value": e.value, "type": "text"})
                 .toList(),
             "body": {
               "mode": "raw",
               "raw": jsonEncode(model.requestData ?? {}),
-              "options": {"raw": {"language": "json"}}
+              "options": {
+                "raw": {"language": "json"}
+              }
             },
             "url": model.url
           },
@@ -66,7 +65,7 @@ class CopyHelper {
       "url": model.url,
       "headers": model.requestHeaders,
       "body": model.requestData,
-      "timestamp": model.requestTime,
+      "timestamp": model.requestTimeString,
       "elapsedTime": "${model.elapsedTime}ms"
     };
 
