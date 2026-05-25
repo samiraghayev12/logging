@@ -8,12 +8,12 @@ class DebugTool {
 
   bool _isPageOpen = false;
   OverlayEntry? _overlayEntry;
-  BuildContext? _appContext;
+  NavigatorState? _navigator;
 
   void start(BuildContext context, [String? apiKey]) {
     if (_overlayEntry != null) return;
 
-    _appContext = context;
+    _navigator = Navigator.of(context, rootNavigator: true);
     _overlayEntry = OverlayEntry(
       builder: (overlayContext) => _DraggableDebugButton(
         onPressed: () => _openDebugPage(),
@@ -25,10 +25,10 @@ class DebugTool {
 
   void _openDebugPage() {
     if (_isPageOpen) return;
-    if (_appContext == null) return;
+    if (_navigator == null) return;
     _isPageOpen = true;
 
-    Navigator.of(_appContext!, rootNavigator: true)
+    _navigator!
         .push(
           MaterialPageRoute(builder: (_) => const DebugPage()),
         )
@@ -39,7 +39,7 @@ class DebugTool {
     _overlayEntry?.remove();
     _overlayEntry = null;
     _isPageOpen = false;
-    _appContext = null;
+    _navigator = null;
   }
 }
 
