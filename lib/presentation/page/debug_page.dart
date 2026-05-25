@@ -50,16 +50,13 @@ class _DebugPageState extends State<DebugPage> {
   }
 
   void _deleteSelected() {
-    final sorted = selectedIndexes.toList()..sort((a, b) => b.compareTo(a));
-    for (final index in sorted) {
-      debug.requests.removeAt(index);
-    }
+    debug.deleteMultiple(selectedIndexes.toList());
     _exitSelectionMode();
   }
 
   void _deleteItem(int index) {
+    debug.deleteAt(index);
     setState(() {
-      debug.requests.removeAt(index);
       final updated = <int>{};
       for (final i in selectedIndexes) {
         if (i == index) continue;

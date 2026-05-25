@@ -86,6 +86,23 @@ class DebugStorage extends ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteAt(int index) {
+    if (index >= 0 && index < _requests.length) {
+      _requests.removeAt(index);
+      notifyListeners();
+    }
+  }
+
+  void deleteMultiple(List<int> indexes) {
+    final sorted = indexes.toList()..sort((a, b) => b.compareTo(a));
+    for (final index in sorted) {
+      if (index >= 0 && index < _requests.length) {
+        _requests.removeAt(index);
+      }
+    }
+    notifyListeners();
+  }
+
   // ============ INTERNAL ============
 
   /// RequestOptions reference-i ilə tap — URI yox.
