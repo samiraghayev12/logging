@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail.dart';
 import 'package:logging_service/storage/debug_storage.dart';
+import 'package:logging_service/utils/responsive_helper.dart';
 
 class DebugStats extends StatelessWidget {
   const DebugStats({super.key});
@@ -19,7 +19,7 @@ class DebugStats extends StatelessWidget {
           title: Text(
             "Analytics",
             style: TextStyle(
-              fontSize: 22.sp,
+              fontSize: ResponsiveHelper.getFontSize(context, 22),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -30,14 +30,14 @@ class DebugStats extends StatelessWidget {
             children: [
               Icon(
                 Icons.bar_chart_rounded,
-                size: 70.sp,
+                size: ResponsiveHelper.getFontSize(context, 70),
                 color: Colors.grey.withValues(alpha: 0.4),
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: ResponsiveHelper.getSpacing(context, 16)),
               Text(
                 'No data yet',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontSize: 20.sp,
+                      fontSize: ResponsiveHelper.getFontSize(context, 20),
                       color: Colors.grey.withValues(alpha: 0.6),
                     ),
               ),
@@ -71,25 +71,25 @@ class DebugStats extends StatelessWidget {
         title: Text(
           "Analytics",
           style: TextStyle(
-            fontSize: 22.sp,
+            fontSize: ResponsiveHelper.getFontSize(context, 22),
             fontWeight: FontWeight.w600,
           ),
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
+        padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildStatsGrid(context, isDark, totalRequests, successfulRequests,
                 failedRequests, avgElapsedTime),
-            SizedBox(height: 24.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context, 24)),
             _buildSectionTitle(context, "Slowest Requests"),
-            SizedBox(height: 12.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context, 12)),
             _buildRequestsList(context, isDark, slowestRequests),
-            SizedBox(height: 24.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context, 24)),
             _buildSectionTitle(context, "Fastest Requests"),
-            SizedBox(height: 12.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context, 12)),
             _buildRequestsList(context, isDark, fastestRequests),
           ],
         ),
@@ -109,8 +109,8 @@ class DebugStats extends StatelessWidget {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12.w,
-      crossAxisSpacing: 12.w,
+      mainAxisSpacing: ResponsiveHelper.getSpacing(context, 12),
+      crossAxisSpacing: ResponsiveHelper.getSpacing(context, 12),
       children: [
         _buildStatCard(
           context,
@@ -162,9 +162,9 @@ class DebugStats extends StatelessWidget {
         border: Border.all(
           color: color.withValues(alpha: 0.3),
         ),
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(12),
       ),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -172,7 +172,7 @@ class DebugStats extends StatelessWidget {
           Icon(
             icon,
             color: color,
-            size: 26.sp,
+            size: ResponsiveHelper.getFontSize(context, 26),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,16 +180,16 @@ class DebugStats extends StatelessWidget {
               Text(
                 value,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontSize: 20.sp,
+                      fontSize: ResponsiveHelper.getFontSize(context, 20),
                       fontWeight: FontWeight.w700,
                       color: color,
                     ),
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: ResponsiveHelper.getSpacing(context, 4)),
               Text(
                 title,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 13.sp,
+                      fontSize: ResponsiveHelper.getFontSize(context, 13),
                       color: Colors.grey[600],
                     ),
               ),
@@ -204,7 +204,7 @@ class DebugStats extends StatelessWidget {
     return Text(
       title,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontSize: 16.sp,
+            fontSize: ResponsiveHelper.getFontSize(context, 16),
             fontWeight: FontWeight.w600,
           ),
     );
@@ -221,7 +221,7 @@ class DebugStats extends StatelessWidget {
         (index) {
           final request = requests[index];
           return Padding(
-            padding: EdgeInsets.only(bottom: 8.h),
+            padding: EdgeInsets.only(bottom: ResponsiveHelper.getSpacing(context, 8)),
             child: GestureDetector(
               onTap: () {
                 Navigator.of(context).push(
@@ -236,28 +236,28 @@ class DebugStats extends StatelessWidget {
                   border: Border.all(
                     color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                   ),
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
                 child: Row(
                   children: [
                     Container(
                       padding: EdgeInsets.symmetric(
-                          horizontal: 8.w, vertical: 4.h),
+                          horizontal: ResponsiveHelper.getPadding(context, 8), vertical: ResponsiveHelper.getPadding(context, 4)),
                       decoration: BoxDecoration(
                         color: request.httpMethodColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6.r),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         request.httpMethod,
                         style: TextStyle(
                           color: request.httpMethodColor,
                           fontWeight: FontWeight.w600,
-                          fontSize: 14.sp,
+                          fontSize: ResponsiveHelper.getFontSize(context, 14),
                         ),
                       ),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: ResponsiveHelper.getSpacing(context, 12)),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,18 +270,18 @@ class DebugStats extends StatelessWidget {
                                 .textTheme
                                 .bodySmall
                                 ?.copyWith(
-                                  fontSize: 14.sp,
+                                  fontSize: ResponsiveHelper.getFontSize(context, 14),
                                   fontWeight: FontWeight.w600,
                                 ),
                           ),
-                          SizedBox(height: 2.h),
+                          SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
                           Text(
                             request.requestTime ?? "",
                             style: Theme.of(context)
                                 .textTheme
                                 .labelSmall
                                 ?.copyWith(
-                                    fontSize: 11.sp,
+                                    fontSize: ResponsiveHelper.getFontSize(context, 11),
                                     color: Colors.grey[600]),
                           ),
                         ],
@@ -296,21 +296,21 @@ class DebugStats extends StatelessWidget {
                               .textTheme
                               .labelSmall
                               ?.copyWith(
-                                fontSize: 12.sp,
+                                fontSize: ResponsiveHelper.getFontSize(context, 12),
                                 fontWeight: FontWeight.w600,
                                 color: request.elapsedTime! > 1000
                                     ? Colors.red
                                     : Colors.green,
                               ),
                         ),
-                        SizedBox(height: 2.h),
+                        SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
                         Text(
                           request.statusCode,
                           style: Theme.of(context)
                               .textTheme
                               .labelSmall
                               ?.copyWith(
-                                fontSize: 11.sp,
+                                fontSize: ResponsiveHelper.getFontSize(context, 11),
                                 color: Colors.grey[500],
                               ),
                         ),

@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:json_view/json_view.dart';
 import 'package:logging_service/storage/debug_model.dart';
+import 'package:logging_service/utils/responsive_helper.dart';
 
 class DebugDetailResponseBody extends StatelessWidget {
   final DebugModel debugModel;
@@ -30,7 +30,7 @@ class DebugDetailResponseBody extends StatelessWidget {
     final statusColor = isError || !isSuccess ? Colors.red : Colors.green;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -40,22 +40,22 @@ class DebugDetailResponseBody extends StatelessWidget {
             isDark: isDark,
             children: [
               Container(
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   border: Border.all(
                     color: statusColor.withValues(alpha: 0.3),
                   ),
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
                     Icon(
                       isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
                       color: statusColor,
-                      size: 24.sp,
+                      size: ResponsiveHelper.getFontSize(context, 24),
                     ),
-                    SizedBox(width: 12.w),
+                    SizedBox(width: ResponsiveHelper.getSpacing(context, 12)),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -64,16 +64,16 @@ class DebugDetailResponseBody extends StatelessWidget {
                           style: TextStyle(
                             color: statusColor,
                             fontWeight: FontWeight.w700,
-                            fontSize: 18.sp,
+                            fontSize: ResponsiveHelper.getFontSize(context, 18),
                           ),
                         ),
                         if (debugModel.statusMessage.isNotEmpty) ...[
-                          SizedBox(height: 4.h),
+                          SizedBox(height: ResponsiveHelper.getSpacing(context, 4)),
                           Text(
                             debugModel.statusMessage,
                             style: TextStyle(
                               color: statusColor,
-                              fontSize: 13.sp,
+                              fontSize: ResponsiveHelper.getFontSize(context, 13),
                             ),
                           ),
                         ],
@@ -85,14 +85,14 @@ class DebugDetailResponseBody extends StatelessWidget {
             ],
           ),
           if (debugModel.responseData != null) ...[
-            SizedBox(height: 20.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context, 20)),
             _buildSection(
               context,
               title: "Response Body",
               isDark: isDark,
               actionButton: debugModel.responseData is! FormData
                   ? IconButton(
-                      icon: Icon(Icons.copy_rounded, size: 20.sp),
+                      icon: Icon(Icons.copy_rounded, size: ResponsiveHelper.getFontSize(context, 20)),
                       onPressed: () => _copyToClipboard(
                         context,
                         debugModel.responseData.toString(),
@@ -104,27 +104,27 @@ class DebugDetailResponseBody extends StatelessWidget {
               children: [
                 if (debugModel.responseData is FormData)
                   Container(
-                    padding: EdgeInsets.all(12.w),
+                    padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
                     decoration: BoxDecoration(
                       color: Colors.orange.withValues(alpha: 0.1),
                       border: Border.all(
                         color: Colors.orange.withValues(alpha: 0.3),
                       ),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           Icons.info_rounded,
                           color: Colors.orange[700],
-                          size: 20.sp,
+                          size: ResponsiveHelper.getFontSize(context, 20),
                         ),
-                        SizedBox(width: 8.w),
+                        SizedBox(width: ResponsiveHelper.getSpacing(context, 8)),
                         Text(
                           "Form Data is not supported yet",
                           style: TextStyle(
                             color: Colors.orange[700],
-                            fontSize: 13.sp,
+                            fontSize: ResponsiveHelper.getFontSize(context, 13),
                           ),
                         ),
                       ],
@@ -137,9 +137,9 @@ class DebugDetailResponseBody extends StatelessWidget {
                       border: Border.all(
                         color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                       ),
-                      borderRadius: BorderRadius.circular(8.r),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: EdgeInsets.all(12.w),
+                    padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
                     child: JsonView(
                       shrinkWrap: true,
                       json: debugModel.responseData,
@@ -149,7 +149,7 @@ class DebugDetailResponseBody extends StatelessWidget {
             ),
           ],
           if (debugModel.responseHeaders.isNotEmpty) ...[
-            SizedBox(height: 20.h),
+            SizedBox(height: ResponsiveHelper.getSpacing(context, 20)),
             _buildSection(
               context,
               title: "Response Headers",
@@ -166,13 +166,13 @@ class DebugDetailResponseBody extends StatelessWidget {
                       return Column(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(12.w),
+                            padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
                             decoration: BoxDecoration(
                               color: isDark ? Colors.grey[900] : Colors.grey[50],
                               border: Border.all(
                                 color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
                               ),
-                              borderRadius: BorderRadius.circular(8.r),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -188,16 +188,16 @@ class DebugDetailResponseBody extends StatelessWidget {
                                             .labelSmall
                                             ?.copyWith(
                                               fontWeight: FontWeight.w600,
-                                              fontSize: 13.sp,
+                                              fontSize: ResponsiveHelper.getFontSize(context, 13),
                                             ),
                                       ),
-                                      SizedBox(height: 6.h),
+                                      SizedBox(height: ResponsiveHelper.getSpacing(context, 6)),
                                       Text(
                                         entry.value.toString(),
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall
-                                            ?.copyWith(fontSize: 13.sp),
+                                            ?.copyWith(fontSize: ResponsiveHelper.getFontSize(context, 13)),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -206,7 +206,7 @@ class DebugDetailResponseBody extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: Icon(Icons.copy_rounded, size: 20.sp),
+                                  icon: Icon(Icons.copy_rounded, size: ResponsiveHelper.getFontSize(context, 20)),
                                   onPressed: () => _copyToClipboard(
                                     context,
                                     entry.value.toString(),
@@ -217,7 +217,7 @@ class DebugDetailResponseBody extends StatelessWidget {
                               ],
                             ),
                           ),
-                          if (!isLast) SizedBox(height: 8.h),
+                          if (!isLast) SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),
                         ],
                       );
                     },
@@ -248,13 +248,13 @@ class DebugDetailResponseBody extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
-                    fontSize: 16.sp,
+                    fontSize: ResponsiveHelper.getFontSize(context, 16),
                   ),
             ),
             if (actionButton != null) actionButton,
           ],
         ),
-        SizedBox(height: 8.h),
+        SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),
         ...children,
       ],
     );
