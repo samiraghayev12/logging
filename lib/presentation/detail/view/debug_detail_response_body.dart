@@ -92,7 +92,7 @@ class DebugDetailResponseBody extends StatelessWidget {
               isDark: isDark,
               actionButton: debugModel.responseData is! FormData
                   ? IconButton(
-                      icon: const Icon(Icons.copy_rounded, size: 18.0),
+                      icon: Icon(Icons.copy_rounded, size: 20.sp),
                       onPressed: () => _copyToClipboard(
                         context,
                         debugModel.responseData.toString(),
@@ -117,9 +117,9 @@ class DebugDetailResponseBody extends StatelessWidget {
                         Icon(
                           Icons.info_rounded,
                           color: Colors.orange[700],
-                          size: 18,
+                          size: 20.sp,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8.w),
                         Text(
                           "Form Data is not supported yet",
                           style: TextStyle(color: Colors.orange[700]),
@@ -197,7 +197,7 @@ class DebugDetailResponseBody extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: const Icon(Icons.copy_rounded, size: 18.0),
+                                  icon: Icon(Icons.copy_rounded, size: 20.sp),
                                   onPressed: () => _copyToClipboard(
                                     context,
                                     entry.value.toString(),
@@ -239,6 +239,7 @@ class DebugDetailResponseBody extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
                   ),
             ),
             if (actionButton != null) actionButton,

@@ -60,7 +60,7 @@ class DebugDetailErrorBody extends StatelessWidget {
                             style: TextStyle(
                               color: Colors.red,
                               fontWeight: FontWeight.w600,
-                              fontSize: 13.sp,
+                              fontSize: 14.sp,
                             ),
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
@@ -91,7 +91,7 @@ class DebugDetailErrorBody extends StatelessWidget {
                       return Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(12),
+                            padding: EdgeInsets.all(12.w),
                             decoration: BoxDecoration(
                               color: isDark ? Colors.grey[900] : Colors.grey[50],
                               border: Border.all(
@@ -123,9 +123,9 @@ class DebugDetailErrorBody extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8.w),
                                 IconButton(
-                                  icon: const Icon(Icons.copy_rounded, size: 18.0),
+                                  icon: Icon(Icons.copy_rounded, size: 20.sp),
                                   onPressed: () => _copyToClipboard(
                                     context,
                                     entry.value.toString(),
@@ -167,6 +167,7 @@ class DebugDetailErrorBody extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
                   ),
             ),
             if (actionButton != null) actionButton,

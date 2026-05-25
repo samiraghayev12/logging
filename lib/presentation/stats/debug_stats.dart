@@ -16,10 +16,10 @@ class DebugStats extends StatelessWidget {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.transparent,
-          title: const Text(
+          title: Text(
             "Analytics",
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 22.sp,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -83,13 +83,13 @@ class DebugStats extends StatelessWidget {
           children: [
             _buildStatsGrid(context, isDark, totalRequests, successfulRequests,
                 failedRequests, avgElapsedTime),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             _buildSectionTitle(context, "Slowest Requests"),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             _buildRequestsList(context, isDark, slowestRequests),
-            const SizedBox(height: 24),
+            SizedBox(height: 24.h),
             _buildSectionTitle(context, "Fastest Requests"),
-            const SizedBox(height: 12),
+            SizedBox(height: 12.h),
             _buildRequestsList(context, isDark, fastestRequests),
           ],
         ),
@@ -162,7 +162,7 @@ class DebugStats extends StatelessWidget {
         border: Border.all(
           color: color.withValues(alpha: 0.3),
         ),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       padding: EdgeInsets.all(16.w),
       child: Column(
@@ -180,7 +180,7 @@ class DebugStats extends StatelessWidget {
               Text(
                 value,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontSize: 18.sp,
+                      fontSize: 20.sp,
                       fontWeight: FontWeight.w700,
                       color: color,
                     ),
@@ -189,7 +189,7 @@ class DebugStats extends StatelessWidget {
               Text(
                 title,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: 12.sp,
+                      fontSize: 13.sp,
                       color: Colors.grey[600],
                     ),
               ),
@@ -253,7 +253,7 @@ class DebugStats extends StatelessWidget {
                         style: TextStyle(
                           color: request.httpMethodColor,
                           fontWeight: FontWeight.w600,
-                          fontSize: 13.sp,
+                          fontSize: 14.sp,
                         ),
                       ),
                     ),
