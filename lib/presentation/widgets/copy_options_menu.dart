@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/storage/debug_model.dart';
 import 'package:logging_service/utils/copy_helper.dart';
+import 'package:logging_service/utils/responsive_helper.dart';
 
 class CopyOptionsMenu extends StatelessWidget {
   final DebugModel debugModel;
@@ -33,10 +33,10 @@ class CopyOptionsMenu extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[900] : Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(ResponsiveHelper.getUIElementSize(context, 16)),
         ),
         child: Padding(
-          padding: EdgeInsets.all(16.w),
+          padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,9 +45,10 @@ class CopyOptionsMenu extends StatelessWidget {
                 'Copy Request As',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w700,
+                      fontSize: ResponsiveHelper.getFontSize(context, 18),
                     ),
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: ResponsiveHelper.getSpacing(context, 16)),
               _buildOption(
                 context,
                 isDark,
@@ -60,7 +61,7 @@ class CopyOptionsMenu extends StatelessWidget {
                   'cURL Command',
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),
               _buildOption(
                 context,
                 isDark,
@@ -73,7 +74,7 @@ class CopyOptionsMenu extends StatelessWidget {
                   'Postman JSON',
                 ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),
               _buildOption(
                 context,
                 isDark,
@@ -86,7 +87,7 @@ class CopyOptionsMenu extends StatelessWidget {
                   'Request JSON',
                 ),
               ),
-              SizedBox(height: 16.h),
+              SizedBox(height: ResponsiveHelper.getSpacing(context, 16)),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -117,13 +118,13 @@ class CopyOptionsMenu extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: isDark ? Colors.grey[800] : Colors.grey[100],
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: BorderRadius.circular(ResponsiveHelper.getUIElementSize(context, 8)),
           ),
-          padding: EdgeInsets.all(12.w),
+          padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
           child: Row(
             children: [
-              Icon(icon, size: 24.sp),
-              SizedBox(width: 12.w),
+              Icon(icon, size: ResponsiveHelper.getFontSize(context, 24)),
+              SizedBox(width: ResponsiveHelper.getSpacing(context, 12)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,13 +133,15 @@ class CopyOptionsMenu extends StatelessWidget {
                       title,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
+                            fontSize: ResponsiveHelper.getFontSize(context, 14),
                           ),
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
                     Text(
                       subtitle,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: Colors.grey[600],
+                            fontSize: ResponsiveHelper.getFontSize(context, 12),
                           ),
                     ),
                   ],
@@ -146,7 +149,7 @@ class CopyOptionsMenu extends StatelessWidget {
               ),
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                size: 16.sp,
+                size: ResponsiveHelper.getUIElementSize(context, 16),
                 color: Colors.grey[600],
               ),
             ],

@@ -34,4 +34,18 @@ class ResponsiveHelper {
   static double getSpacing(BuildContext context, double baseSpacing) {
     return baseSpacing * _getScaleFactor(context);
   }
+
+  // UI öğeleri için az aggressive scaling (TabBar, AppBar vb)
+  static double getUIElementSize(BuildContext context, double baseSize) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (_isTablet(context)) {
+      // Planşet: 1.4x (çok az scaling)
+      return baseSize * 1.4;
+    } else {
+      // Telefon: normal ratio
+      final ratio = screenWidth / 360;
+      return baseSize * ratio.clamp(0.85, 1.2);
+    }
+  }
 }
