@@ -191,6 +191,8 @@ class DebugModel {
   String get requestTimeString =>
       requestEndTime?.toString() ?? requestStartTime.toString();
 
+  String get requestTime => requestTimeString;
+
   // ============ INTERNAL ============
 
   static String _errorTypeLabel(DioExceptionType type) {

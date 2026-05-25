@@ -6,9 +6,12 @@ class DebugTool {
   factory DebugTool() => _instance;
   DebugTool._internal();
 
+  static bool _isButtonVisible = true;
   bool _isPageOpen = false;
   OverlayEntry? _overlayEntry;
   NavigatorState? _navigator;
+
+  static bool get isButtonVisible => _isButtonVisible;
 
   void start(BuildContext context, [String? apiKey]) {
     if (_overlayEntry != null) return;
@@ -27,12 +30,18 @@ class DebugTool {
     if (_isPageOpen) return;
     if (_navigator == null) return;
     _isPageOpen = true;
+    _isButtonVisible = false;
+    _overlayEntry?.markNeedsBuild();
 
     _navigator!
         .push(
           MaterialPageRoute(builder: (_) => const DebugPage()),
         )
-        .then((_) => _isPageOpen = false);
+        .then((_) {
+          _isPageOpen = false;
+          _isButtonVisible = true;
+          _overlayEntry?.markNeedsBuild();
+        });
   }
 
   void dispose() {
@@ -57,6 +66,10 @@ class _DraggableDebugButtonState extends State<_DraggableDebugButton> {
 
   @override
   Widget build(BuildContext context) {
+    if (!DebugTool.isButtonVisible) {
+      return const SizedBox.shrink();
+    }
+
     return Positioned(
       left: _dx,
       top: _dy,
