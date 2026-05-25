@@ -40,7 +40,8 @@ class DebugDetailResponseBody extends StatelessWidget {
             isDark: isDark,
             children: [
               Container(
-                padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
+                padding:
+                    EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
                 decoration: BoxDecoration(
                   color: statusColor.withValues(alpha: 0.1),
                   border: Border.all(
@@ -51,7 +52,9 @@ class DebugDetailResponseBody extends StatelessWidget {
                 child: Row(
                   children: [
                     Icon(
-                      isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
+                      isSuccess
+                          ? Icons.check_circle_rounded
+                          : Icons.error_rounded,
                       color: statusColor,
                       size: ResponsiveHelper.getFontSize(context, 24),
                     ),
@@ -68,12 +71,14 @@ class DebugDetailResponseBody extends StatelessWidget {
                           ),
                         ),
                         if (debugModel.statusMessage.isNotEmpty) ...[
-                          SizedBox(height: ResponsiveHelper.getSpacing(context, 4)),
+                          SizedBox(
+                              height: ResponsiveHelper.getSpacing(context, 4)),
                           Text(
                             debugModel.statusMessage,
                             style: TextStyle(
                               color: statusColor,
-                              fontSize: ResponsiveHelper.getFontSize(context, 13),
+                              fontSize:
+                                  ResponsiveHelper.getFontSize(context, 13),
                             ),
                           ),
                         ],
@@ -92,7 +97,8 @@ class DebugDetailResponseBody extends StatelessWidget {
               isDark: isDark,
               actionButton: debugModel.responseData is! FormData
                   ? IconButton(
-                      icon: Icon(Icons.copy_rounded, size: ResponsiveHelper.getFontSize(context, 20)),
+                      icon: Icon(Icons.copy_rounded,
+                          size: ResponsiveHelper.getFontSize(context, 20)),
                       onPressed: () => _copyToClipboard(
                         context,
                         debugModel.responseData.toString(),
@@ -104,7 +110,8 @@ class DebugDetailResponseBody extends StatelessWidget {
               children: [
                 if (debugModel.responseData is FormData)
                   Container(
-                    padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
+                    padding: EdgeInsets.all(
+                        ResponsiveHelper.getPadding(context, 12)),
                     decoration: BoxDecoration(
                       color: Colors.orange.withValues(alpha: 0.1),
                       border: Border.all(
@@ -119,7 +126,8 @@ class DebugDetailResponseBody extends StatelessWidget {
                           color: Colors.orange[700],
                           size: ResponsiveHelper.getFontSize(context, 20),
                         ),
-                        SizedBox(width: ResponsiveHelper.getSpacing(context, 8)),
+                        SizedBox(
+                            width: ResponsiveHelper.getSpacing(context, 8)),
                         Text(
                           "Form Data is not supported yet",
                           style: TextStyle(
@@ -139,8 +147,24 @@ class DebugDetailResponseBody extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
+                    padding: EdgeInsets.all(
+                        ResponsiveHelper.getPadding(context, 12)),
                     child: JsonView(
+                      styleScheme: JsonStyleScheme(
+                        keysStyle: TextStyle(
+                          color: isDark
+                              ? const Color(0xFF79C0FF)
+                              : const Color(0xFF0550AE),
+                          fontSize: ResponsiveHelper.getFontSize(context, 14),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        valuesStyle: TextStyle(
+                          color: isDark
+                              ? const Color(0xFF85E89D)
+                              : const Color(0xFF033A16),
+                          fontSize: ResponsiveHelper.getFontSize(context, 14),
+                        ),
+                      ),
                       shrinkWrap: true,
                       json: debugModel.responseData,
                     ),
@@ -159,18 +183,24 @@ class DebugDetailResponseBody extends StatelessWidget {
                   children: List.generate(
                     debugModel.responseHeaders.length,
                     (index) {
-                      final entries = debugModel.responseHeaders.entries.toList();
+                      final entries =
+                          debugModel.responseHeaders.entries.toList();
                       final entry = entries[index];
-                      final isLast = index == debugModel.responseHeaders.length - 1;
+                      final isLast =
+                          index == debugModel.responseHeaders.length - 1;
 
                       return Column(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
+                            padding: EdgeInsets.all(
+                                ResponsiveHelper.getPadding(context, 12)),
                             decoration: BoxDecoration(
-                              color: isDark ? Colors.grey[900] : Colors.grey[50],
+                              color:
+                                  isDark ? Colors.grey[900] : Colors.grey[50],
                               border: Border.all(
-                                color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                                color: isDark
+                                    ? Colors.grey[800]!
+                                    : Colors.grey[200]!,
                               ),
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -179,7 +209,8 @@ class DebugDetailResponseBody extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         entry.key,
@@ -188,16 +219,22 @@ class DebugDetailResponseBody extends StatelessWidget {
                                             .labelSmall
                                             ?.copyWith(
                                               fontWeight: FontWeight.w600,
-                                              fontSize: ResponsiveHelper.getFontSize(context, 13),
+                                              fontSize:
+                                                  ResponsiveHelper.getFontSize(
+                                                      context, 13),
                                             ),
                                       ),
-                                      SizedBox(height: ResponsiveHelper.getSpacing(context, 6)),
+                                      SizedBox(
+                                          height: ResponsiveHelper.getSpacing(
+                                              context, 6)),
                                       Text(
                                         entry.value.toString(),
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodySmall
-                                            ?.copyWith(fontSize: ResponsiveHelper.getFontSize(context, 13)),
+                                            ?.copyWith(
+                                                fontSize: ResponsiveHelper
+                                                    .getFontSize(context, 13)),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -206,7 +243,9 @@ class DebugDetailResponseBody extends StatelessWidget {
                                 ),
                                 const SizedBox(width: 8),
                                 IconButton(
-                                  icon: Icon(Icons.copy_rounded, size: ResponsiveHelper.getFontSize(context, 20)),
+                                  icon: Icon(Icons.copy_rounded,
+                                      size: ResponsiveHelper.getFontSize(
+                                          context, 20)),
                                   onPressed: () => _copyToClipboard(
                                     context,
                                     entry.value.toString(),
@@ -217,7 +256,10 @@ class DebugDetailResponseBody extends StatelessWidget {
                               ],
                             ),
                           ),
-                          if (!isLast) SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),
+                          if (!isLast)
+                            SizedBox(
+                                height:
+                                    ResponsiveHelper.getSpacing(context, 8)),
                         ],
                       );
                     },

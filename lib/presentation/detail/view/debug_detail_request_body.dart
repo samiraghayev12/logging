@@ -150,6 +150,17 @@ class DebugDetailRequestBody extends StatelessWidget {
                   ),
                   padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
                   child: JsonView(
+                    styleScheme: JsonStyleScheme(
+                      keysStyle: TextStyle(
+                        color: isDark ? const Color(0xFF79C0FF) : const Color(0xFF0550AE),
+                        fontSize: ResponsiveHelper.getFontSize(context, 13),
+                        fontWeight: FontWeight.w600,
+                      ),
+                      valuesStyle: TextStyle(
+                        color: isDark ? const Color(0xFF85E89D) : const Color(0xFF033A16),
+                        fontSize: ResponsiveHelper.getFontSize(context, 13),
+                      ),
+                    ),
                     shrinkWrap: true,
                     json: debugModel.requestData,
                   ),
