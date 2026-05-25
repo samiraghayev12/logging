@@ -139,13 +139,13 @@ class _DebugPageState extends State<DebugPage> {
                                       children: [
                                         Text(
                                           request.path,
-                                          maxLines: 1,
+                                          maxLines: 2,
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
-                                                fontSize: 15.sp,
+                                                fontSize: 13.sp,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                         ),
