@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 
 class ResponsiveHelper {
-  static double getResponsiveSize(BuildContext context, double baseSize) {
+  static bool _isTablet(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth > 600;
+  }
+
+  static double _getScaleFactor(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // Telefon: 360-430px, Planşet: 600px+
-    // Ratio hesabla
-    final widthRatio = screenWidth / 360;
+    if (_isTablet(context)) {
+      // Planşet: 2x büyütme
+      return 2.0;
+    } else {
+      // Telefon: width ratiosu
+      final ratio = screenWidth / 360;
+      return ratio.clamp(0.85, 1.2);
+    }
+  }
 
-    return baseSize * widthRatio;
+  static double getResponsiveSize(BuildContext context, double baseSize) {
+    return baseSize * _getScaleFactor(context);
   }
 
   static double getFontSize(BuildContext context, double baseSize) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final ratio = screenWidth / 360;
-
-    // Minimum 0.8, maksimum 1.5 ratio
-    final clampedRatio = ratio.clamp(0.8, 1.5);
-
-    return baseSize * clampedRatio;
+    return baseSize * _getScaleFactor(context);
   }
 
   static double getPadding(BuildContext context, double basePadding) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final ratio = screenWidth / 360;
-
-    return basePadding * ratio.clamp(0.8, 1.5);
+    return basePadding * _getScaleFactor(context);
   }
 
   static double getSpacing(BuildContext context, double baseSpacing) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final ratio = screenWidth / 360;
-
-    return baseSpacing * ratio.clamp(0.8, 1.5);
+    return baseSpacing * _getScaleFactor(context);
   }
 }
