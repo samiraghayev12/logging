@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/storage/debug_model.dart';
+import 'package:logging_service/utils/responsive_helper.dart';
 
 class RetryDialog extends StatefulWidget {
   final DebugModel debugModel;
@@ -70,10 +70,12 @@ class _RetryDialogState extends State<RetryDialog> {
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[900] : Colors.white,
-          borderRadius: BorderRadius.circular(16.r),
+          borderRadius: BorderRadius.circular(
+              ResponsiveHelper.getUIElementSize(context, 16)),
         ),
         child: Padding(
-          padding: EdgeInsets.all(24.w),
+          padding: EdgeInsets.all(
+              ResponsiveHelper.getPadding(context, 24)),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,20 +86,26 @@ class _RetryDialogState extends State<RetryDialog> {
                       fontWeight: FontWeight.w700,
                     ),
               ),
-              SizedBox(height: 8.h),
+              SizedBox(
+                  height:
+                      ResponsiveHelper.getSpacing(context, 8)),
               Text(
                 widget.debugModel.path,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey[600],
                     ),
               ),
-              SizedBox(height: 20.h),
+              SizedBox(
+                  height:
+                      ResponsiveHelper.getSpacing(context, 20)),
               Container(
                 decoration: BoxDecoration(
                   color: isDark ? Colors.grey[800] : Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8.r),
+                  borderRadius: BorderRadius.circular(
+                      ResponsiveHelper.getUIElementSize(context, 8)),
                 ),
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.all(
+                    ResponsiveHelper.getPadding(context, 12)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -107,12 +115,16 @@ class _RetryDialogState extends State<RetryDialog> {
                             fontWeight: FontWeight.w600,
                           ),
                     ),
-                    SizedBox(height: 8.h),
+                    SizedBox(
+                        height: ResponsiveHelper.getSpacing(
+                            context, 8)),
                     Text(
                       'Method: ${widget.debugModel.httpMethod}',
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(
+                        height: ResponsiveHelper.getSpacing(
+                            context, 4)),
                     Text(
                       'URL: ${widget.debugModel.url}',
                       style: Theme.of(context).textTheme.labelSmall,
@@ -123,7 +135,9 @@ class _RetryDialogState extends State<RetryDialog> {
                 ),
               ),
               if (responseMessage != null) ...[
-                SizedBox(height: 16.h),
+                SizedBox(
+                    height:
+                        ResponsiveHelper.getSpacing(context, 16)),
                 Container(
                   decoration: BoxDecoration(
                     color: isSuccess
@@ -134,9 +148,12 @@ class _RetryDialogState extends State<RetryDialog> {
                           ? Colors.green.withValues(alpha: 0.3)
                           : Colors.red.withValues(alpha: 0.3),
                     ),
-                    borderRadius: BorderRadius.circular(8.r),
+                    borderRadius: BorderRadius.circular(
+                        ResponsiveHelper.getUIElementSize(
+                            context, 8)),
                   ),
-                  padding: EdgeInsets.all(12.w),
+                  padding: EdgeInsets.all(
+                      ResponsiveHelper.getPadding(context, 12)),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -145,15 +162,19 @@ class _RetryDialogState extends State<RetryDialog> {
                             ? Icons.check_circle_rounded
                             : Icons.error_rounded,
                         color: isSuccess ? Colors.green : Colors.red,
-                        size: 20.sp,
+                        size: ResponsiveHelper.getFontSize(
+                            context, 20),
                       ),
-                      SizedBox(width: 12.w),
+                      SizedBox(
+                          width: ResponsiveHelper.getPadding(
+                              context, 12)),
                       Expanded(
                         child: Text(
                           responseMessage!,
                           style: TextStyle(
                             color: isSuccess ? Colors.green : Colors.red,
-                            fontSize: 12.sp,
+                            fontSize: ResponsiveHelper.getFontSize(
+                                context, 12),
                           ),
                         ),
                       ),
@@ -161,7 +182,9 @@ class _RetryDialogState extends State<RetryDialog> {
                   ),
                 ),
               ],
-              SizedBox(height: 24.h),
+              SizedBox(
+                  height:
+                      ResponsiveHelper.getSpacing(context, 24)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -174,8 +197,11 @@ class _RetryDialogState extends State<RetryDialog> {
                     onPressed: isLoading ? null : _retryRequest,
                     icon: isLoading
                         ? SizedBox(
-                            width: 16.w,
-                            height: 16.h,
+                            width: ResponsiveHelper.getPadding(
+                                context, 16),
+                            height:
+                                ResponsiveHelper.getSpacing(
+                                    context, 16),
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation(

@@ -85,7 +85,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
           tabs: [
             Tab(
               text: 'Request',
-              icon: Icon(Icons.send_rounded, size: ResponsiveHelper.getFontSize(context, 20)),
+              icon: Icon(Icons.send_rounded, size: ResponsiveHelper.getUIElementSize(context, 18)),
             ),
             Tab(
               text: widget.debugModel.hasError ? 'Error' : 'Response',
@@ -93,7 +93,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
                 widget.debugModel.hasError
                     ? Icons.error_rounded
                     : Icons.check_circle_rounded,
-                size: ResponsiveHelper.getFontSize(context, 20),
+                size: ResponsiveHelper.getUIElementSize(context, 18),
               ),
             ),
           ],
