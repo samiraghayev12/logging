@@ -73,7 +73,7 @@ class DebugDetailResponseBody extends StatelessWidget {
                             debugModel.statusMessage,
                             style: TextStyle(
                               color: statusColor,
-                              fontSize: 12.sp,
+                              fontSize: 13.sp,
                             ),
                           ),
                         ],
@@ -122,7 +122,10 @@ class DebugDetailResponseBody extends StatelessWidget {
                         SizedBox(width: 8.w),
                         Text(
                           "Form Data is not supported yet",
-                          style: TextStyle(color: Colors.orange[700]),
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontSize: 13.sp,
+                          ),
                         ),
                       ],
                     ),
@@ -183,12 +186,18 @@ class DebugDetailResponseBody extends StatelessWidget {
                                         style: Theme.of(context)
                                             .textTheme
                                             .labelSmall
-                                            ?.copyWith(fontWeight: FontWeight.w600),
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13.sp,
+                                            ),
                                       ),
                                       SizedBox(height: 6.h),
                                       Text(
                                         entry.value.toString(),
-                                        style: Theme.of(context).textTheme.bodySmall,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(fontSize: 13.sp),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),

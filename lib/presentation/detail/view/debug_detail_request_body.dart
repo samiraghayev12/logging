@@ -50,13 +50,17 @@ class DebugDetailRequestBody extends StatelessWidget {
                     Expanded(
                       child: Text(
                         debugModel.url,
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(fontSize: 14.sp),
                       ),
                     ),
                     SizedBox(width: 8.w),
                     IconButton(
-                      icon: Icon(Icons.copy_rounded, size: 20.sp),
-                      onPressed: () => _copyToClipboard(context, debugModel.url, "URL"),
+                      icon: Icon(Icons.copy_rounded, size: 18.sp),
+                      onPressed: () =>
+                          _copyToClipboard(context, debugModel.url, "URL"),
                       tooltip: "Copy URL",
                     ),
                   ],
@@ -97,7 +101,7 @@ class DebugDetailRequestBody extends StatelessWidget {
             isDark: isDark,
             actionButton: debugModel.requestData is! FormData
                 ? IconButton(
-                    icon: const Icon(Icons.copy_rounded, size: 18),
+                    icon: Icon(Icons.copy_rounded, size: 20.sp),
                     onPressed: () => _copyToClipboard(
                       context,
                       debugModel.requestData.toString(),
@@ -127,7 +131,10 @@ class DebugDetailRequestBody extends StatelessWidget {
                       SizedBox(width: 8.w),
                       Text(
                         "Form Data is not supported yet",
-                        style: TextStyle(color: Colors.orange[700]),
+                        style: TextStyle(
+                          color: Colors.orange[700],
+                          fontSize: 13.sp,
+                        ),
                       ),
                     ],
                   ),
@@ -161,7 +168,8 @@ class DebugDetailRequestBody extends StatelessWidget {
                   (index) {
                     final entries = debugModel.requestHeaders.entries.toList();
                     final entry = entries[index];
-                    final isLast = index == debugModel.requestHeaders.length - 1;
+                    final isLast =
+                        index == debugModel.requestHeaders.length - 1;
 
                     return Column(
                       children: [
@@ -170,7 +178,9 @@ class DebugDetailRequestBody extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: isDark ? Colors.grey[900] : Colors.grey[50],
                             border: Border.all(
-                              color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                              color: isDark
+                                  ? Colors.grey[800]!
+                                  : Colors.grey[200]!,
                             ),
                             borderRadius: BorderRadius.circular(8.r),
                           ),
@@ -186,12 +196,18 @@ class DebugDetailRequestBody extends StatelessWidget {
                                       style: Theme.of(context)
                                           .textTheme
                                           .labelSmall
-                                          ?.copyWith(fontWeight: FontWeight.w600),
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13.sp,
+                                          ),
                                     ),
                                     SizedBox(height: 6.h),
                                     Text(
                                       entry.value,
-                                      style: Theme.of(context).textTheme.bodySmall,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(fontSize: 13.sp),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -200,7 +216,8 @@ class DebugDetailRequestBody extends StatelessWidget {
                               ),
                               SizedBox(width: 8.w),
                               IconButton(
-                                icon: const Icon(Icons.copy_rounded, size: 18.0),
+                                icon:
+                                    const Icon(Icons.copy_rounded, size: 18.0),
                                 onPressed: () => _copyToClipboard(
                                   context,
                                   entry.value,
