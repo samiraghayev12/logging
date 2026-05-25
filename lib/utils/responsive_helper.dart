@@ -11,7 +11,7 @@ class ResponsiveHelper {
 
     if (_isTablet(context)) {
       // Planşet: 2x büyütme
-      return 2.0;
+      return 4.0;
     } else {
       // Telefon: width ratiosu
       final ratio = screenWidth / 360;
