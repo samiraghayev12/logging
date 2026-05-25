@@ -79,13 +79,19 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
           indicatorSize: TabBarIndicatorSize.label,
           labelColor: Theme.of(context).primaryColor,
           unselectedLabelColor: Colors.grey[600],
-          labelStyle: const TextStyle(fontWeight: FontWeight.w600),
-          unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
+          labelStyle: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: ResponsiveHelper.getFontSize(context, 16),
+          ),
+          unselectedLabelStyle: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: ResponsiveHelper.getFontSize(context, 16),
+          ),
           indicatorColor: Theme.of(context).primaryColor,
           tabs: [
             Tab(
               text: 'Request',
-              icon: Icon(Icons.send_rounded, size: ResponsiveHelper.getUIElementSize(context, 18)),
+              icon: Icon(Icons.send_rounded, size: ResponsiveHelper.getUIElementSize(context, 24)),
             ),
             Tab(
               text: widget.debugModel.hasError ? 'Error' : 'Response',
@@ -93,7 +99,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
                 widget.debugModel.hasError
                     ? Icons.error_rounded
                     : Icons.check_circle_rounded,
-                size: ResponsiveHelper.getUIElementSize(context, 18),
+                size: ResponsiveHelper.getUIElementSize(context, 24),
               ),
             ),
           ],
