@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/presentation/detail/model/debug_detail_view_model.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail_error_body.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail_request_body.dart';
@@ -40,10 +41,10 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
-        title: const Text(
+        title: Text(
           "Request Details",
           style: TextStyle(
-            fontSize: 20.0,
+            fontSize: 22.sp,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -82,9 +83,9 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
           unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
           indicatorColor: Theme.of(context).primaryColor,
           tabs: [
-            const Tab(
+            Tab(
               text: 'Request',
-              icon: Icon(Icons.send_rounded, size: 18.0),
+              icon: Icon(Icons.send_rounded, size: 20.sp),
             ),
             Tab(
               text: widget.debugModel.hasError ? 'Error' : 'Response',
@@ -92,7 +93,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
                 widget.debugModel.hasError
                     ? Icons.error_rounded
                     : Icons.check_circle_rounded,
-                size: 18.0,
+                size: 20.sp,
               ),
             ),
           ],

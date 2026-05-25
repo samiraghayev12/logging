@@ -55,7 +55,7 @@ class DebugDetailRequestBody extends StatelessWidget {
                     ),
                     SizedBox(width: 8.w),
                     IconButton(
-                      icon: const Icon(Icons.copy_rounded, size: 18.0),
+                      icon: Icon(Icons.copy_rounded, size: 20.sp),
                       onPressed: () => _copyToClipboard(context, debugModel.url, "URL"),
                       tooltip: "Copy URL",
                     ),
@@ -122,7 +122,7 @@ class DebugDetailRequestBody extends StatelessWidget {
                       Icon(
                         Icons.info_rounded,
                         color: Colors.orange[700],
-                        size: 18,
+                        size: 20.sp,
                       ),
                       SizedBox(width: 8.w),
                       Text(
@@ -241,6 +241,7 @@ class DebugDetailRequestBody extends StatelessWidget {
               title,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
                   ),
             ),
             if (actionButton != null) actionButton,

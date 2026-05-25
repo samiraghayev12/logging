@@ -75,12 +75,12 @@ class _DebugPageState extends State<DebugPage> {
               ),
             )
           : Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: EdgeInsets.all(16.w),
               child: ListView.builder(
                 itemBuilder: (_, index) {
                   final request = debug.requests[index];
                   return Padding(
-                    padding: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.only(bottom: 12.h),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
@@ -103,7 +103,7 @@ class _DebugPageState extends State<DebugPage> {
                             ),
                             borderRadius: BorderRadius.circular(12.r),
                           ),
-                          padding: EdgeInsets.all(12.w),
+                          padding: EdgeInsets.all(16.w),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -126,7 +126,7 @@ class _DebugPageState extends State<DebugPage> {
                                         style: TextStyle(
                                           color: request.httpMethodColor,
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 13.sp,
+                                          fontSize: 14.sp,
                                         ),
                                       ),
                                     ),
@@ -145,18 +145,18 @@ class _DebugPageState extends State<DebugPage> {
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
-                                                fontSize: 13.sp,
+                                                fontSize: 15.sp,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                         ),
-                                        SizedBox(height: 4.h),
+                                        SizedBox(height: 6.h),
                                         Text(
                                           request.requestTimeString,
                                           style: Theme.of(context)
                                               .textTheme
                                               .labelSmall
                                               ?.copyWith(
-                                                fontSize: 12.sp,
+                                                fontSize: 13.sp,
                                                 color: Colors.grey[600],
                                               ),
                                         ),
@@ -200,7 +200,7 @@ class _DebugPageState extends State<DebugPage> {
                                                     ? Colors.red
                                                     : Colors.green,
                                                 fontWeight: FontWeight.w600,
-                                                fontSize: 13.sp,
+                                                fontSize: 14.sp,
                                               ),
                                             ),
                                           ],
@@ -213,7 +213,7 @@ class _DebugPageState extends State<DebugPage> {
                                             .textTheme
                                             .labelSmall
                                             ?.copyWith(
-                                              fontSize: 12.sp,
+                                              fontSize: 13.sp,
                                               color: Colors.grey[500],
                                             ),
                                       ),
