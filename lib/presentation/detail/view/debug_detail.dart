@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/presentation/detail/model/debug_detail_view_model.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail_error_body.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail_request_body.dart';
@@ -8,6 +7,7 @@ import 'package:logging_service/presentation/detail/view/debug_detail_response_b
 import 'package:logging_service/presentation/widgets/copy_options_menu.dart';
 import 'package:logging_service/presentation/widgets/retry_dialog.dart';
 import 'package:logging_service/storage/debug_model.dart';
+import 'package:logging_service/utils/responsive_helper.dart';
 
 class DebugDetail extends StatefulWidget {
   final DebugModel debugModel;
@@ -44,7 +44,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
         title: Text(
           "Request Details",
           style: TextStyle(
-            fontSize: 22.sp,
+            fontSize: ResponsiveHelper.getFontSize(context, 22),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -85,7 +85,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
           tabs: [
             Tab(
               text: 'Request',
-              icon: Icon(Icons.send_rounded, size: 20.sp),
+              icon: Icon(Icons.send_rounded, size: ResponsiveHelper.getFontSize(context, 20)),
             ),
             Tab(
               text: widget.debugModel.hasError ? 'Error' : 'Response',
@@ -93,7 +93,7 @@ class _DebugDetailState extends State<DebugDetail> with SingleTickerProviderStat
                 widget.debugModel.hasError
                     ? Icons.error_rounded
                     : Icons.check_circle_rounded,
-                size: 20.sp,
+                size: ResponsiveHelper.getFontSize(context, 20),
               ),
             ),
           ],

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/presentation/detail/view/debug_detail.dart';
 import 'package:logging_service/presentation/stats/debug_stats.dart';
 import 'package:logging_service/storage/debug_storage.dart';
+import 'package:logging_service/utils/responsive_helper.dart';
 
 class DebugPage extends StatefulWidget {
   const DebugPage({super.key});
@@ -24,6 +24,19 @@ class _DebugPageState extends State<DebugPage> {
     final debug = DebugStorage();
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    // Responsive sizes
+    final titleFontSize = ResponsiveHelper.getFontSize(context, 22);
+    final iconSize = ResponsiveHelper.getFontSize(context, 24);
+    final methodFontSize = ResponsiveHelper.getFontSize(context, 14);
+    final statusFontSize = ResponsiveHelper.getFontSize(context, 14);
+    final timestampFontSize = ResponsiveHelper.getFontSize(context, 13);
+    final timeFontSize = ResponsiveHelper.getFontSize(context, 13);
+
+    final paddingAll = ResponsiveHelper.getPadding(context, 12);
+    final paddingLarge = ResponsiveHelper.getPadding(context, 16);
+    final spacing = ResponsiveHelper.getSpacing(context, 12);
+    final smallSpacing = ResponsiveHelper.getSpacing(context, 8);
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -36,7 +49,7 @@ class _DebugPageState extends State<DebugPage> {
         title: Text(
           "Network Logs",
           style: TextStyle(
-            fontSize: 22.sp,
+            fontSize: ResponsiveHelper.getFontSize(context, 22),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -60,14 +73,14 @@ class _DebugPageState extends State<DebugPage> {
                 children: [
                   Icon(
                     Icons.cloud_off_rounded,
-                    size: 70.sp,
+                    size: ResponsiveHelper.getFontSize(context, 70),
                     color: Colors.grey.withValues(alpha: 0.4),
                   ),
-                  SizedBox(height: 16.h),
+                  SizedBox(height: ResponsiveHelper.getSpacing(context, 16)),
                   Text(
                     'No network calls yet',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontSize: 20.sp,
+                          fontSize: ResponsiveHelper.getFontSize(context, 20),
                           color: Colors.grey.withValues(alpha: 0.6),
                         ),
                   ),
@@ -75,12 +88,12 @@ class _DebugPageState extends State<DebugPage> {
               ),
             )
           : Padding(
-              padding: EdgeInsets.all(16.w),
+              padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
               child: ListView.builder(
                 itemBuilder: (_, index) {
                   final request = debug.requests[index];
                   return Padding(
-                    padding: EdgeInsets.only(bottom: 12.h),
+                    padding: EdgeInsets.only(bottom: ResponsiveHelper.getSpacing(context, 12)),
                     child: Material(
                       color: Colors.transparent,
                       child: InkWell(
@@ -101,24 +114,24 @@ class _DebugPageState extends State<DebugPage> {
                                   : Colors.grey[200]!,
                               width: 1,
                             ),
-                            borderRadius: BorderRadius.circular(12.r),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: EdgeInsets.all(16.w),
+                          padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
                                 children: [
                                   Container(
-                                    height: 32.h,
+                                    height: ResponsiveHelper.getFontSize(context, 32),
                                     padding: EdgeInsets.symmetric(
-                                      horizontal: 8.w,
-                                      vertical: 4.h,
+                                      horizontal: ResponsiveHelper.getPadding(context, 8),
+                                      vertical: ResponsiveHelper.getPadding(context, 4),
                                     ),
                                     decoration: BoxDecoration(
                                       color: request.httpMethodColor
                                           .withValues(alpha: 0.15),
-                                      borderRadius: BorderRadius.circular(6.r),
+                                      borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Center(
                                       child: Text(
@@ -126,12 +139,12 @@ class _DebugPageState extends State<DebugPage> {
                                         style: TextStyle(
                                           color: request.httpMethodColor,
                                           fontWeight: FontWeight.w700,
-                                          fontSize: 14.sp,
+                                          fontSize: ResponsiveHelper.getFontSize(context, 14),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: 12.w),
+                                  SizedBox(width: ResponsiveHelper.getSpacing(context, 12)),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -145,32 +158,32 @@ class _DebugPageState extends State<DebugPage> {
                                               .textTheme
                                               .bodyMedium
                                               ?.copyWith(
-                                                fontSize: 15.sp,
+                                                fontSize: ResponsiveHelper.getFontSize(context, 15),
                                                 fontWeight: FontWeight.w600,
                                               ),
                                         ),
-                                        SizedBox(height: 6.h),
+                                        SizedBox(height: ResponsiveHelper.getSpacing(context, 6)),
                                         Text(
                                           request.requestTimeString,
                                           style: Theme.of(context)
                                               .textTheme
                                               .labelSmall
                                               ?.copyWith(
-                                                fontSize: 13.sp,
+                                                fontSize: ResponsiveHelper.getFontSize(context, 13),
                                                 color: Colors.grey[600],
                                               ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  SizedBox(width: 12.w),
+                                  SizedBox(width: ResponsiveHelper.getSpacing(context, 12)),
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Container(
                                         padding: EdgeInsets.symmetric(
-                                          horizontal: 8.w,
-                                          vertical: 4.h,
+                                          horizontal: ResponsiveHelper.getPadding(context, 8),
+                                          vertical: ResponsiveHelper.getPadding(context, 4),
                                         ),
                                         decoration: BoxDecoration(
                                           color: request.hasError
@@ -179,18 +192,18 @@ class _DebugPageState extends State<DebugPage> {
                                               : Colors.green
                                                   .withValues(alpha: 0.1),
                                           borderRadius:
-                                              BorderRadius.circular(6.r),
+                                              BorderRadius.circular(6),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             CircleAvatar(
-                                              radius: 4.r,
+                                              radius: 4,
                                               backgroundColor: request.hasError
                                                   ? Colors.red
                                                   : Colors.green,
                                             ),
-                                            SizedBox(width: 6.w),
+                                            SizedBox(width: ResponsiveHelper.getSpacing(context, 6)),
                                             Text(
                                               request.hasError
                                                   ? "Error"
@@ -200,20 +213,20 @@ class _DebugPageState extends State<DebugPage> {
                                                     ? Colors.red
                                                     : Colors.green,
                                                 fontWeight: FontWeight.w600,
-                                                fontSize: 14.sp,
+                                                fontSize: ResponsiveHelper.getFontSize(context, 14),
                                               ),
                                             ),
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 6.h),
+                                      SizedBox(height: ResponsiveHelper.getSpacing(context, 6)),
                                       Text(
                                         "${request.elapsedTime} ms",
                                         style: Theme.of(context)
                                             .textTheme
                                             .labelSmall
                                             ?.copyWith(
-                                              fontSize: 13.sp,
+                                              fontSize: ResponsiveHelper.getFontSize(context, 13),
                                               color: Colors.grey[500],
                                             ),
                                       ),
