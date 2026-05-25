@@ -298,7 +298,7 @@ class DebugStats extends StatelessWidget {
                               ?.copyWith(
                                 fontSize: ResponsiveHelper.getFontSize(context, 12),
                                 fontWeight: FontWeight.w600,
-                                color: request.elapsedTime! > 1000
+                                color: (request.elapsedTime ?? 0) > 1000
                                     ? Colors.red
                                     : Colors.green,
                               ),
