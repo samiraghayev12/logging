@@ -16,6 +16,7 @@ Run: `flutter pub get`
 
 ```dart
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging_service/logging_service.dart';
 import 'package:dio/dio.dart';
 
@@ -26,8 +27,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomePage(),
+    return ScreenUtilInit(
+      designSize: const Size(360, 690),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          home: HomePage(),
+        );
+      },
     );
   }
 }
