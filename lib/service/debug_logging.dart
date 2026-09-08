@@ -1,43 +1,65 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:logging_service/storage/debug_storage.dart';
 
+import '../storage/debug_storage.dart';
+import '../utils/log_formatter.dart';
+
+/// Dio interceptor — bütün sorğuları `DebugStorage`-a yazır və
+/// debug rejimində konsola çap edir.
+///
+/// İstifadə (dəyişməyib):
+/// ```dart
+/// dio.interceptors.add(DebugLogging());
+/// ```
 class DebugLogging extends Interceptor {
-  final debug = DebugStorage();
+  DebugLogging({
+    this.printToConsole = kDebugMode,
+    this.redactSensitiveHeaders = true,
+    this.maxConsoleBodyLength = 2000,
+  });
+
+  /// Konsola çap edilsin?
+  final bool printToConsole;
+
+  /// `Authorization` və s. header-lər konsolda maskalansın?
+  final bool redactSensitiveHeaders;
+
+  /// Konsola yazılan body-nin maksimum uzunluğu.
+  final int maxConsoleBodyLength;
+
+  final DebugStorage debug = DebugStorage();
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (kDebugMode) {
+    _guard(() => debug.addRequest(options), 'addRequest');
+
+    if (printToConsole) {
       debugPrint('🐙 REQUEST [${options.method}] ${options.uri}');
       if (options.queryParameters.isNotEmpty) {
         debugPrint('   QUERY: ${options.queryParameters}');
       }
-      if (options.data != null) {
-        debugPrint('   BODY: ${options.data}');
+      if (options.headers.isNotEmpty) {
+        debugPrint(
+          '   HEADERS: ${LogFormatter.normalizeHeaders(options.headers, redact: redactSensitiveHeaders)}',
+        );
       }
-    }
-
-    try {
-      debug.addRequest(options);
-    } catch (e) {
-      if (kDebugMode) debugPrint('DebugLogging.addRequest failed: $e');
+      if (options.data != null) {
+        debugPrint('   BODY: ${_truncate(LogFormatter.encode(options.data))}');
+      }
     }
 
     handler.next(options);
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (kDebugMode) {
-      debugPrint(
-          '🦑 RESPONSE [${response.statusCode}] ${response.requestOptions.uri}');
-      debugPrint('   DATA: ${response.data}');
-    }
+  void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
+    _guard(() => debug.addResponse(response), 'addResponse');
 
-    try {
-      debug.addResponse(response);
-    } catch (e) {
-      if (kDebugMode) debugPrint('DebugLogging.addResponse failed: $e');
+    if (printToConsole) {
+      debugPrint(
+        '🦑 RESPONSE [${response.statusCode}] ${response.requestOptions.uri}',
+      );
+      debugPrint('   DATA: ${_truncate(LogFormatter.encode(response.data))}');
     }
 
     handler.next(response);
@@ -45,27 +67,35 @@ class DebugLogging extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (kDebugMode) {
-      debugPrint(
-          '🦀 ERROR [${err.response?.statusCode ?? err.type.name}] ${err.requestOptions.uri}');
-      debugPrint('   TYPE: ${err.type}');
-      if (err.message != null) {
-        debugPrint('   MESSAGE: ${err.message}');
-      }
-      if (err.response?.data != null) {
-        debugPrint('   RESPONSE DATA: ${err.response?.data}');
-      }
-      if (err.error != null) {
-        debugPrint('   UNDERLYING: ${err.error}');
-      }
-    }
+    _guard(() => debug.addError(err), 'addError');
 
-    try {
-      debug.addError(err);
-    } catch (e) {
-      if (kDebugMode) debugPrint('DebugLogging.addError failed: $e');
+    if (printToConsole) {
+      debugPrint(
+        '🦀 ERROR [${err.response?.statusCode ?? err.type.name}] ${err.requestOptions.uri}',
+      );
+      debugPrint('   TYPE: ${err.type}');
+      if (err.message != null) debugPrint('   MESSAGE: ${err.message}');
+      if (err.response?.data != null) {
+        debugPrint(
+          '   RESPONSE DATA: ${_truncate(LogFormatter.encode(err.response?.data))}',
+        );
+      }
+      if (err.error != null) debugPrint('   UNDERLYING: ${err.error}');
     }
 
     handler.next(err);
+  }
+
+  String _truncate(String value) {
+    if (value.length <= maxConsoleBodyLength) return value;
+    return '${value.substring(0, maxConsoleBodyLength)}… (${value.length} chars)';
+  }
+
+  void _guard(VoidCallback action, String label) {
+    try {
+      action();
+    } catch (e) {
+      if (kDebugMode) debugPrint('DebugLogging.$label failed: $e');
+    }
   }
 }

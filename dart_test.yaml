@@ -1,0 +1,7 @@
+tags:
+  golden:
+    # Golden şəkillər Flutter versiyası/renderer dəyişəndə fərqlənə bilər,
+    # ona görə default `flutter test` axınından kənarda saxlanılır.
+    # İşə salmaq üçün:   flutter test --tags golden
+    # Yeniləmək üçün:    flutter test --tags golden --update-goldens
+    skip: "yalnız `--tags golden` ilə işə düşür"

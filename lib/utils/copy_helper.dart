@@ -1,74 +1,138 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:logging_service/storage/debug_model.dart';
 
+import '../storage/debug_model.dart';
+import 'log_formatter.dart';
+
+/// Sorğunu müxtəlif formatlarda mətnə çevirir.
 class CopyHelper {
-  static String generateCurlCommand(DebugModel model) {
-    final method = model.httpMethod;
-    final url = model.url;
-    final headers = model.requestHeaders;
-    final body = model.requestData;
+  const CopyHelper._();
 
-    StringBuffer curl = StringBuffer('curl -X $method');
+  /// Shell üçün təhlükəsiz tək dırnaqlı sətir.
+  static String _shellQuote(String value) =>
+      "'${value.replaceAll("'", r"'\''")}'";
 
-    // Add headers
-    headers.forEach((key, value) {
-      curl.write(" \\\n  -H '$key: $value'");
+  static String generateCurlCommand(DebugModel model, {bool redact = false}) {
+    final buffer = StringBuffer('curl -X ${model.httpMethod}');
+
+    model.requestHeadersView(redact: redact).forEach((key, value) {
+      buffer.write(" \\\n  -H ${_shellQuote('$key: $value')}");
     });
 
-    // Add body if exists
-    if (body != null && body is! FormData) {
-      final bodyJson = jsonEncode(body);
-      curl.write(" \\\n  -d '$bodyJson'");
+    final body = model.requestData;
+    if (body != null) {
+      if (body is FormData) {
+        for (final field in body.fields) {
+          buffer.write(" \\\n  -F ${_shellQuote('${field.key}=${field.value}')}");
+        }
+        for (final file in body.files) {
+          buffer.write(
+            " \\\n  -F ${_shellQuote('${file.key}=@${file.value.filename ?? 'file'}')}",
+          );
+        }
+      } else {
+        final encoded = body is String ? body : LogFormatter.encode(body);
+        buffer.write(" \\\n  -d ${_shellQuote(encoded)}");
+      }
     }
 
-    curl.write(" \\\n  '$url'");
-
-    return curl.toString();
+    buffer.write(" \\\n  ${_shellQuote(model.url)}");
+    return buffer.toString();
   }
 
-  static String generatePostmanJson(DebugModel model) {
-    final postmanRequest = {
-      "info": {
-        "name": model.path,
-        "schema":
-            "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  static String generatePostmanJson(DebugModel model, {bool redact = false}) {
+    final uri = model.uri;
+    final collection = <String, dynamic>{
+      'info': <String, dynamic>{
+        'name': model.shortPath,
+        'schema':
+            'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
       },
-      "item": [
-        {
-          "name": model.path,
-          "request": {
-            "method": model.httpMethod,
-            "header": model.requestHeaders.entries
-                .map((e) => {"key": e.key, "value": e.value, "type": "text"})
+      'item': <dynamic>[
+        <String, dynamic>{
+          'name': model.shortPath,
+          'request': <String, dynamic>{
+            'method': model.httpMethod,
+            'header': model
+                .requestHeadersView(redact: redact)
+                .entries
+                .map((e) => <String, dynamic>{
+                      'key': e.key,
+                      'value': e.value,
+                      'type': 'text',
+                    })
                 .toList(),
-            "body": {
-              "mode": "raw",
-              "raw": jsonEncode(model.requestData ?? {}),
-              "options": {
-                "raw": {"language": "json"}
-              }
+            'body': <String, dynamic>{
+              'mode': 'raw',
+              'raw': LogFormatter.pretty(model.requestData),
+              'options': <String, dynamic>{
+                'raw': <String, dynamic>{'language': 'json'},
+              },
             },
-            "url": model.url
+            'url': <String, dynamic>{
+              'raw': model.url,
+              'protocol': uri.scheme,
+              'host': uri.host.split('.'),
+              if (uri.hasPort) 'port': '${uri.port}',
+              'path': uri.pathSegments,
+              if (uri.hasQuery)
+                'query': uri.queryParameters.entries
+                    .map((e) => <String, dynamic>{
+                          'key': e.key,
+                          'value': e.value,
+                        })
+                    .toList(),
+            },
           },
-          "response": []
-        }
-      ]
+          'response': <dynamic>[],
+        },
+      ],
     };
 
-    return jsonEncode(postmanRequest);
+    return LogFormatter.pretty(collection);
   }
 
-  static String generateJsonRequest(DebugModel model) {
-    final request = {
-      "method": model.httpMethod,
-      "url": model.url,
-      "headers": model.requestHeaders,
-      "body": model.requestData,
-      "timestamp": model.requestTimeString,
-      "elapsedTime": "${model.elapsedTime}ms"
-    };
+  static String generateJsonRequest(DebugModel model, {bool redact = false}) =>
+      LogFormatter.pretty(model.toJson(redact: redact));
 
-    return jsonEncode(request);
+  /// Yalnız response body.
+  static String generateResponseBody(DebugModel model) =>
+      LogFormatter.pretty(model.responseData);
+
+  /// Sorğu + cavabın oxunaqlı mətn xülasəsi (bug report üçün).
+  static String generateSummary(DebugModel model, {bool redact = true}) {
+    final buffer = StringBuffer()
+      ..writeln('${model.httpMethod} ${model.url}')
+      ..writeln('Status : ${model.statusCode} (${model.statusLabel})')
+      ..writeln('Time   : ${model.requestTimeString}')
+      ..writeln('Took   : ${model.elapsedTimeInMs}')
+      ..writeln('Size   : ↑ ${model.requestSizeLabel} · ↓ ${model.responseSizeLabel}')
+      ..writeln()
+      ..writeln('--- Request headers ---')
+      ..writeln(LogFormatter.pretty(model.requestHeadersView(redact: redact)));
+
+    if (model.hasRequestData) {
+      buffer
+        ..writeln()
+        ..writeln('--- Request body ---')
+        ..writeln(LogFormatter.pretty(model.requestData));
+    }
+
+    if (model.hasError) {
+      buffer
+        ..writeln()
+        ..writeln('--- Error ---')
+        ..writeln(model.errorStatusMessage);
+      final underlying = model.underlyingError;
+      if (underlying != null) buffer.writeln(underlying);
+    }
+
+    if (model.hasResponseData) {
+      buffer
+        ..writeln()
+        ..writeln('--- Response body ---')
+        ..writeln(LogFormatter.pretty(model.responseData));
+    }
+
+    return buffer.toString();
   }
 }

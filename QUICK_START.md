@@ -1,99 +1,41 @@
-# ⚡ Quick Start - Copy & Paste
+# ⚡ Quick Start
 
-30 saniyəlik qurulum!
-
-## 1️⃣ pubspec.yaml-ı Dəyişin
+## 1. pubspec.yaml
 
 ```yaml
 dependencies:
   logging_service:
-    path: ../logging
+    git:
+      url: https://github.com/samiraghayev12/logging.git
 ```
-
-Run: `flutter pub get`
-
-## 2️⃣ main.dart
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:logging_service/logging_service.dart';
-import 'package:dio/dio.dart';
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(360, 690),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (context, child) {
-        return MaterialApp(
-          home: HomePage(),
-        );
-      },
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  late Dio dio;
-  late DebugTool debugTool;
-
-  @override
-  void initState() {
-    super.initState();
-    dio = Dio();
-    dio.interceptors.add(DebugLogging());
-    
-    debugTool = DebugTool();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      debugTool.start(context, '');
-    });
-  }
-
-  @override
-  void dispose() {
-    debugTool.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('App')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => dio.get('https://jsonplaceholder.typicode.com/posts/1'),
-          child: Text('Test Request'),
-        ),
-      ),
-    );
-  }
-}
-```
-
-## 3️⃣ Çalıştırın
 
 ```bash
-flutter run
+flutter pub get
 ```
 
-## 4️⃣ Nəticə
+## 2. Dio
 
-- ✅ Sağ alt köşədə kəpənək görünəcək 🦋
-- ✅ Düymə klikləyin → Sorqular göstərilər
-- ✅ Sorgu klikləyin → Detallar göstərilər
+```dart
+import 'package:logging_service/logging_service.dart';
 
----
+final dio = Dio();
+dio.interceptors.add(DebugLogging());
+```
 
-**Seçim:** Daha çox məlumat üçün `README.md` oxuyun
+## 3. MaterialApp
+
+```dart
+MaterialApp(
+  builder: NetworkLogger.overlayBuilder(enabled: kDebugMode),
+  home: const HomePage(),
+);
+```
+
+## 4. Nəticə
+
+- Ekranda sürüklənən 🐞 düyməsi görünür (üstündə sorğu/xəta sayı)
+- Klik → şəbəkə logları
+- Loga klik → detallar (Request / Response / Error)
+- ⋮ → Analytics, Pause, Copy all, Clear
+
+Daha çox: [README.md](README.md)
