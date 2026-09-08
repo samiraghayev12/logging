@@ -1,210 +1,94 @@
-# Integration Guide - Logging Service Plugin
+# İnteqrasiya Bələdçisi
 
-Bu sənəd başqa Flutter layihəsinə `logging_service` əlavə etməyin ən sadə yolunu göstərir.
-
-## 📁 Layihə Strukturu
-
-```
-home/
-├── my_flutter_app/          ← Sizin layihəniz
-│   ├── lib/
-│   │   └── main.dart
-│   ├── pubspec.yaml
-│   └── ...
-│
-└── logging_service/         ← Bu plugin
-    ├── lib/
-    ├── pubspec.yaml
-    └── README.md
-```
-
-## 🚀 5 Addım
-
-### Addım 1: pubspec.yaml-ı Dəyişin
-
-`my_flutter_app/pubspec.yaml` açın:
-
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  dio: ^5.8.0+1                    # ← Əlavə edin (lazım varsa)
-  logging_service:
-    path: ../logging_service       # ← ÜÇ BÖLMƏ: Yolu doğru göstərin!
-```
-
-### Addım 2: Paketləri Yükləyin
-
-```bash
-cd my_flutter_app
-flutter pub get
-```
-
-Əgər xəta alırsa:
-```bash
-flutter clean
-flutter pub get
-```
-
-### Addım 3: main.dart-ı Yazın
-
-Minimum misal:
+## Minimum (yeni app)
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:logging_service/logging_service.dart';
-import 'package:dio/dio.dart';
+// main.dart
+MaterialApp(
+  builder: NetworkLogger.overlayBuilder(enabled: kDebugMode),
+  home: const HomePage(),
+);
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  late Dio dio;
-  late DebugTool debugTool;
-
-  @override
-  void initState() {
-    super.initState();
-    
-    // 1️⃣ Dio yaradın və loqqlaşdırın
-    dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'));
-    dio.interceptors.add(DebugLogging());
-    
-    // 2️⃣ DebugTool başladın
-    debugTool = DebugTool();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      debugTool.start(context, '');
-    });
-  }
-
-  @override
-  void dispose() {
-    debugTool.dispose();
-    super.dispose();
-  }
-
-  void _testRequest() async {
-    try {
-      final response = await dio.get('/posts/1');
-      print('✅ Success: ${response.statusCode}');
-    } on DioException catch (e) {
-      print('❌ Error: ${e.message}');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Network Logging')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: _testRequest,
-          child: const Text('Make API Request'),
-        ),
-      ),
-    );
-  }
-}
-```
-
-### Addım 4: Uygulamayı Çalıştırın
-
-```bash
-flutter run
-```
-
-### Addım 5: Test Edin
-
-1. **"Make API Request" düyməsinə klikləyin**
-2. **Sağ altkötən kəpənək iconuna klikləyin** 🦋
-3. **Sorğunun detallarını görmək üçün tıklayın**
-
-## 📱 Ekran Axışı
-
-```
-main() 
-  ↓
-MyApp (MaterialApp)
-  ↓
-HomePage (DebugTool.start() burada çalışır)
-  ↓
-┌─────────────────────────────┐
-│ Floating Floating Button 🦋  │ (Sağ alt)
-└─────────────────────────────┘
-  ↓
-DebugPage (Network Logs)
-  ├── All Requests List
-  ├── Request Details (Klikləyin)
-  └── Analytics Page 📊
-```
-
-## 🔑 Əsas Konseptlər
-
-| Komponent | Funksiyası |
-|-----------|-----------|
-| **Dio** | HTTP istəqləri göndərən kitabxana |
-| **DebugLogging** | Dio-ya əlavə olunan interceptor - bütün sorğuları qeyd edir |
-| **DebugStorage** | Sorguları saxlayan Singleton |
-| **DebugTool** | Floating button göstərən və UI-yönetən sınıf |
-| **DebugPage** | Loqları gösrən UI səhifəsi |
-
-## 🎯 Bir Baxışda
-
-```dart
-// 1. Import edin
-import 'package:logging_service/logging_service.dart';
-
-// 2. Dio yaradın və DebugLogging əlavə edin
-dio = Dio();
+// api.dart
 dio.interceptors.add(DebugLogging());
-
-// 3. DebugTool başladın
-debugTool = DebugTool();
-debugTool.start(context, '');
-
-// 4. İstifadə edin
-await dio.get('/api/data');
-
-// 5. Kəpənəyə klikləyin 🦋 → Loqları görün
 ```
 
-## ⚠️ Ümumi Xətalar
-
-| Xəta | Həll |
-|------|------|
-| "Package not found" | `flutter pub get` çalıştırın |
-| "Null context" | `WidgetsBinding.instance.addPostFrameCallback()` istifadə edin |
-| "No logs showing" | `DebugLogging()` əlavə etdiyinizə əmin olun |
-| "Button doesn't appear" | `dispose()` çağırma unudmayın |
-
-## 📚 Daha Çox
-
-- Dəqiq API dəyişiklikləri üçün `../logging/README.md` oxuyun
-- Kod nümunələri üçün `../logging/lib/` qovluğuna baxın
-- Xəta həlli üçün README-nin "Troubleshooting" bölməsinə baxın
+Başqa heç nə lazım deyil — FAB, route idarəsi, canlı yenilənmə kitabxanadadır.
 
 ---
 
-**Hazırlamış: Samir Aghayev**  
-**Tarix: 2024-05-22**
+## Mövcud `builder` ilə birlikdə
+
+`MediaQuery`, `ScreenUtil` və s. artıq `builder`-dədirsə, sadəcə ən xarici widget kimi
+`DebugOverlay` əlavə et:
+
+```dart
+builder: (context, child) {
+  return MediaQuery(
+    data: MediaQuery.of(context).copyWith(textScaler: ...),
+    child: DebugOverlay(
+      enabled: EnvironmentConfig.instance.environment.isDev,
+      backgroundColor: UIColor.primary,
+      child: child ?? const SizedBox.shrink(),
+    ),
+  );
+},
+```
+
+---
+
+## v0.0.x-dən v0.1.0-a keçid
+
+Köhnə API işləməyə davam edir — heç nəyi dəyişmək **məcburi deyil**:
+
+| Köhnə | Vəziyyət |
+|---|---|
+| `dio.interceptors.add(DebugLogging())` | dəyişməyib |
+| `DebugStorage()` | dəyişməyib (yeni metodlar əlavə olunub) |
+| `openDebugPage(context)` | dəyişməyib (indi təkrar açılışdan qorunur) |
+| `const DebugPage()` | dəyişməyib |
+
+Silinə bilən köhnə app kodu:
+
+| Appdakı kod | Səbəb |
+|---|---|
+| `ListenableBuilder(listenable: DebugStorage(), ...)` sarğısı | `DebugPage` özü qulaq asır |
+| Öz `DebugRouteObserver`-in | `NetworkLogger` təkrar açılışı özü bloklayır |
+| Öz FAB / `DebugButtonOverlay` widget-in | `DebugOverlay` içindədir |
+| `AppProvider.isDebugPageOpen`, `openDebugPage1()` | `NetworkLogger.isOpenNotifier` / `NetworkLogger.open()` |
+| `PopScope` + `popUntil` sarğısı | tək route push olunur, adi `pop` kifayətdir |
+
+---
+
+## Prod-da gizlətmək
+
+```dart
+builder: NetworkLogger.overlayBuilder(
+  enabled: EnvironmentConfig.instance.environment.isDev,
+),
+```
+
+`enabled: false` olduqda overlay ümumiyyətlə qurulmur — `child` birbaşa qaytarılır.
+
+---
+
+## Retry üçün öz Dio-nu ver
+
+Sertifikat pinning və ya xüsusi `BaseOptions` varsa:
+
+```dart
+void main() {
+  NetworkLogger.retryClientBuilder = () => ApiClient.instance.dio;
+  runApp(const App());
+}
+```
+
+---
+
+## Həssas məlumat
+
+- Konsol logunda `Authorization`, `Cookie`, `X-Api-Key` və s. avtomatik maskalanır
+  (`DebugLogging(redactSensitiveHeaders: false)` ilə söndürülə bilər).
+- Kopyalama dialoqundakı **Hide tokens** açarı defolt olaraq açıqdır.
+- `DebugStorage().exportAll()` defolt `redact: true` ilə işləyir.
+- UI-də header-lər tam görünür — bu, developer alətidir; prod-da `enabled: false` ver.

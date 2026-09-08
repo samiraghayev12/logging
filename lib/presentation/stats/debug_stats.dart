@@ -1,44 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:logging_service/presentation/detail/view/debug_detail.dart';
-import 'package:logging_service/storage/debug_storage.dart';
-import 'package:logging_service/utils/responsive_helper.dart';
+
+import '../../storage/debug_model.dart';
+import '../../storage/debug_storage.dart';
+import '../../utils/responsive_helper.dart';
+import '../detail/view/debug_detail.dart';
+import '../widgets/debug_section.dart';
 
 class DebugStats extends StatelessWidget {
   const DebugStats({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final debug = DebugStorage();
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return ResponsiveHelper.clampTextScale(
+      context,
+      ListenableBuilder(
+        listenable: DebugStorage(),
+        builder: (context, _) => _buildScaffold(context),
+      ),
+    );
+  }
 
-    if (debug.requests.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-          title: Text(
-            "Analytics",
-            style: TextStyle(
-              fontSize: ResponsiveHelper.getFontSize(context, 22),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+  Widget _buildScaffold(BuildContext context) {
+    final debug = DebugStorage();
+    final requests = debug.requests;
+    final padding = ResponsiveHelper.getPadding(context, 16);
+
+    final appBar = AppBar(
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      centerTitle: false,
+      title: Text(
+        'Analytics',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: ResponsiveHelper.getFontSize(context, 20),
+          fontWeight: FontWeight.w600,
         ),
+      ),
+    );
+
+    if (requests.isEmpty) {
+      return Scaffold(
+        appBar: appBar,
         body: Center(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.bar_chart_rounded,
-                size: ResponsiveHelper.getFontSize(context, 70),
+                size: ResponsiveHelper.getFontSize(context, 64),
                 color: Colors.grey.withValues(alpha: 0.4),
               ),
               SizedBox(height: ResponsiveHelper.getSpacing(context, 16)),
               Text(
                 'No data yet',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontSize: ResponsiveHelper.getFontSize(context, 20),
-                      color: Colors.grey.withValues(alpha: 0.6),
+                      fontSize: ResponsiveHelper.getFontSize(context, 18),
+                      color: Colors.grey.withValues(alpha: 0.7),
                     ),
               ),
             ],
@@ -47,281 +66,357 @@ class DebugStats extends StatelessWidget {
       );
     }
 
-    // Calculate statistics
-    final totalRequests = debug.requests.length;
-    final successfulRequests =
-        debug.requests.where((r) => !r.hasError).length;
-    final failedRequests = debug.requests.where((r) => r.hasError).length;
-    final totalElapsedTime =
-        debug.requests.fold<int>(0, (sum, r) => sum + (r.elapsedTime ?? 0));
-    final avgElapsedTime = (totalElapsedTime / totalRequests).toInt();
+    final completed = requests.where((r) => r.elapsedTime != null).toList();
+    final slowest = List<DebugModel>.from(completed)
+      ..sort((a, b) => b.elapsedTime!.compareTo(a.elapsedTime!));
+    final fastest = slowest.reversed.toList();
 
-    final sortedByTime = List.from(debug.requests)
-      ..sort((a, b) => (b.elapsedTime ?? 0).compareTo(a.elapsedTime ?? 0));
-    final slowestRequests = sortedByTime.take(3).toList();
+    final byMethod = <String, int>{};
+    for (final request in requests) {
+      byMethod[request.httpMethod] = (byMethod[request.httpMethod] ?? 0) + 1;
+    }
 
-    final sortedByTimeFastest = List.from(debug.requests)
-      ..sort((a, b) => (a.elapsedTime ?? 0).compareTo(b.elapsedTime ?? 0));
-    final fastestRequests = sortedByTimeFastest.take(3).toList();
+    final errorRate = requests.isEmpty
+        ? 0
+        : (debug.errorCount / requests.length * 100).round();
 
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          "Analytics",
-          style: TextStyle(
-            fontSize: ResponsiveHelper.getFontSize(context, 22),
-            fontWeight: FontWeight.w600,
+      appBar: appBar,
+      body: SafeArea(
+        top: false,
+        child: ResponsiveHelper.constrain(
+          context,
+          ListView(
+            padding: EdgeInsets.fromLTRB(
+              padding,
+              padding,
+              padding,
+              padding + MediaQuery.paddingOf(context).bottom,
+            ),
+            children: [
+              _StatsGrid(
+                total: requests.length,
+                successful: debug.successCount,
+                failed: debug.errorCount,
+                pending: debug.pendingCount,
+                avgMs: debug.averageElapsedMs,
+                errorRate: errorRate,
+              ),
+              SizedBox(height: ResponsiveHelper.getSpacing(context, 24)),
+              DebugSection(
+                title: 'Requests by Method',
+                children: [
+                  Wrap(
+                    spacing: ResponsiveHelper.getSpacing(context, 8),
+                    runSpacing: ResponsiveHelper.getSpacing(context, 8),
+                    children: byMethod.entries
+                        .map(
+                          (entry) => InfoChip(
+                            icon: Icons.http_rounded,
+                            label: '${entry.key} · ${entry.value}',
+                            color: _methodColor(entry.key),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
+              ),
+              if (slowest.isNotEmpty) ...[
+                SizedBox(height: ResponsiveHelper.getSpacing(context, 24)),
+                DebugSection(
+                  title: 'Slowest Requests',
+                  children: [_RequestList(requests: slowest.take(5).toList())],
+                ),
+                SizedBox(height: ResponsiveHelper.getSpacing(context, 24)),
+                DebugSection(
+                  title: 'Fastest Requests',
+                  children: [_RequestList(requests: fastest.take(5).toList())],
+                ),
+              ],
+            ],
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildStatsGrid(context, isDark, totalRequests, successfulRequests,
-                failedRequests, avgElapsedTime),
-            SizedBox(height: ResponsiveHelper.getSpacing(context, 24)),
-            _buildSectionTitle(context, "Slowest Requests"),
-            SizedBox(height: ResponsiveHelper.getSpacing(context, 12)),
-            _buildRequestsList(context, isDark, slowestRequests),
-            SizedBox(height: ResponsiveHelper.getSpacing(context, 24)),
-            _buildSectionTitle(context, "Fastest Requests"),
-            SizedBox(height: ResponsiveHelper.getSpacing(context, 12)),
-            _buildRequestsList(context, isDark, fastestRequests),
-          ],
-        ),
+    );
+  }
+
+  static Color _methodColor(String method) {
+    switch (method) {
+      case 'GET':
+        return Colors.green;
+      case 'POST':
+        return Colors.orange;
+      case 'PUT':
+        return Colors.blueAccent;
+      case 'PATCH':
+        return Colors.purple;
+      case 'DELETE':
+        return Colors.red;
+      default:
+        return Colors.blueGrey;
+    }
+  }
+}
+
+class _StatsGrid extends StatelessWidget {
+  const _StatsGrid({
+    required this.total,
+    required this.successful,
+    required this.failed,
+    required this.pending,
+    required this.avgMs,
+    required this.errorRate,
+  });
+
+  final int total;
+  final int successful;
+  final int failed;
+  final int pending;
+  final int avgMs;
+  final int errorRate;
+
+  @override
+  Widget build(BuildContext context) {
+    final columns = ResponsiveHelper.gridColumns(context);
+    final spacing = ResponsiveHelper.getSpacing(context, 12);
+
+    final cards = <Widget>[
+      _StatCard(
+        title: 'Total',
+        value: '$total',
+        icon: Icons.list_rounded,
+        color: Colors.blue,
       ),
+      _StatCard(
+        title: 'Successful',
+        value: '$successful',
+        icon: Icons.check_circle_rounded,
+        color: Colors.green,
+      ),
+      _StatCard(
+        title: 'Failed',
+        value: '$failed',
+        icon: Icons.error_rounded,
+        color: Colors.red,
+      ),
+      _StatCard(
+        title: 'Pending',
+        value: '$pending',
+        icon: Icons.hourglass_top_rounded,
+        color: Colors.blueGrey,
+      ),
+      _StatCard(
+        title: 'Avg Time',
+        value: '$avgMs ms',
+        icon: Icons.speed_rounded,
+        color: Colors.orange,
+      ),
+      _StatCard(
+        title: 'Error Rate',
+        value: '$errorRate%',
+        icon: Icons.percent_rounded,
+        color: errorRate > 20 ? Colors.red : Colors.teal,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth =
+            (constraints.maxWidth - spacing * (columns - 1)) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: [
+            for (final card in cards)
+              SizedBox(width: cardWidth, child: card),
+          ],
+        );
+      },
     );
   }
+}
 
-  Widget _buildStatsGrid(
-    BuildContext context,
-    bool isDark,
-    int total,
-    int successful,
-    int failed,
-    int avgTime,
-  ) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: ResponsiveHelper.getSpacing(context, 12),
-      crossAxisSpacing: ResponsiveHelper.getSpacing(context, 12),
-      children: [
-        _buildStatCard(
-          context,
-          isDark,
-          title: "Total Requests",
-          value: total.toString(),
-          icon: Icons.list_rounded,
-          color: Colors.blue,
-        ),
-        _buildStatCard(
-          context,
-          isDark,
-          title: "Successful",
-          value: successful.toString(),
-          icon: Icons.check_circle_rounded,
-          color: Colors.green,
-        ),
-        _buildStatCard(
-          context,
-          isDark,
-          title: "Failed",
-          value: failed.toString(),
-          icon: Icons.error_rounded,
-          color: Colors.red,
-        ),
-        _buildStatCard(
-          context,
-          isDark,
-          title: "Avg Time",
-          value: "${avgTime}ms",
-          icon: Icons.speed_rounded,
-          color: Colors.orange,
-        ),
-      ],
-    );
-  }
+class _StatCard extends StatelessWidget {
+  const _StatCard({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
 
-  Widget _buildStatCard(
-    BuildContext context,
-    bool isDark, {
-    required String title,
-    required String value,
-    required IconData icon,
-    required Color color,
-  }) {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
         borderRadius: BorderRadius.circular(12),
       ),
-      padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 16)),
+      padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: ResponsiveHelper.getFontSize(context, 26),
+          Icon(icon, color: color, size: ResponsiveHelper.getFontSize(context, 22)),
+          SizedBox(height: ResponsiveHelper.getSpacing(context, 10)),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontSize: ResponsiveHelper.getFontSize(context, 19),
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+            ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontSize: ResponsiveHelper.getFontSize(context, 20),
-                      fontWeight: FontWeight.w700,
-                      color: color,
-                    ),
-              ),
-              SizedBox(height: ResponsiveHelper.getSpacing(context, 4)),
-              Text(
-                title,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: ResponsiveHelper.getFontSize(context, 13),
-                      color: Colors.grey[600],
-                    ),
-              ),
-            ],
+          SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  fontSize: ResponsiveHelper.getFontSize(context, 11),
+                  color: Colors.grey[600],
+                ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontSize: ResponsiveHelper.getFontSize(context, 16),
-            fontWeight: FontWeight.w600,
-          ),
+class _RequestList extends StatelessWidget {
+  const _RequestList({required this.requests});
+
+  final List<DebugModel> requests;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var i = 0; i < requests.length; i++) ...[
+          _StatRequestTile(request: requests[i]),
+          if (i != requests.length - 1)
+            SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),
+        ],
+      ],
     );
   }
+}
 
-  Widget _buildRequestsList(
-    BuildContext context,
-    bool isDark,
-    List requests,
-  ) {
-    return Column(
-      children: List.generate(
-        requests.length,
-        (index) {
-          final request = requests[index];
-          return Padding(
-            padding: EdgeInsets.only(bottom: ResponsiveHelper.getSpacing(context, 8)),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => DebugDetail(debugModel: request),
-                  ),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.grey[900] : Colors.grey[50],
-                  border: Border.all(
-                    color: isDark ? Colors.grey[800]! : Colors.grey[200]!,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
+class _StatRequestTile extends StatelessWidget {
+  const _StatRequestTile({required this.request});
+
+  final DebugModel request;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => DebugDetail(debugModel: request),
+          ),
+        ),
+        child: DebugCard(
+          child: Row(
+            children: [
+              Container(
+                width: ResponsiveHelper.getUIElementSize(context, 54),
+                padding: EdgeInsets.symmetric(
+                  horizontal: ResponsiveHelper.getPadding(context, 6),
+                  vertical: ResponsiveHelper.getPadding(context, 4),
                 ),
-                padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
-                child: Row(
+                decoration: BoxDecoration(
+                  color: request.httpMethodColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    request.httpMethod,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: request.httpMethodColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: ResponsiveHelper.getFontSize(context, 11),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: ResponsiveHelper.getSpacing(context, 10)),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: ResponsiveHelper.getPadding(context, 8), vertical: ResponsiveHelper.getPadding(context, 4)),
-                      decoration: BoxDecoration(
-                        color: request.httpMethodColor.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        request.httpMethod,
-                        style: TextStyle(
-                          color: request.httpMethodColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: ResponsiveHelper.getFontSize(context, 14),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: ResponsiveHelper.getSpacing(context, 12)),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            request.path,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                  fontSize: ResponsiveHelper.getFontSize(context, 14),
-                                  fontWeight: FontWeight.w600,
-                                ),
+                    Text(
+                      request.shortPath,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: ResponsiveHelper.getFontSize(context, 13),
+                            fontWeight: FontWeight.w600,
                           ),
-                          SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
-                          Text(
-                            request.requestTime ?? "",
-                            style: Theme.of(context)
-                                .textTheme
-                                .labelSmall
-                                ?.copyWith(
-                                    fontSize: ResponsiveHelper.getFontSize(context, 11),
-                                    color: Colors.grey[600]),
-                          ),
-                        ],
-                      ),
                     ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "${request.elapsedTime} ms",
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                fontSize: ResponsiveHelper.getFontSize(context, 12),
-                                fontWeight: FontWeight.w600,
-                                color: (request.elapsedTime ?? 0) > 1000
-                                    ? Colors.red
-                                    : Colors.green,
-                              ),
-                        ),
-                        SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
-                        Text(
-                          request.statusCode,
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                fontSize: ResponsiveHelper.getFontSize(context, 11),
-                                color: Colors.grey[500],
-                              ),
-                        ),
-                      ],
+                    SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
+                    Text(
+                      request.startClockLabel,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            fontSize: ResponsiveHelper.getFontSize(context, 10),
+                            color: Colors.grey[600],
+                          ),
                     ),
                   ],
                 ),
               ),
-            ),
-          );
-        },
+              SizedBox(width: ResponsiveHelper.getSpacing(context, 8)),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: ResponsiveHelper.getUIElementSize(context, 80),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      request.elapsedTimeInMs,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            fontSize: ResponsiveHelper.getFontSize(context, 12),
+                            fontWeight: FontWeight.w700,
+                            color: request.durationColor,
+                          ),
+                    ),
+                    SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
+                    Text(
+                      request.statusCode,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            fontSize: ResponsiveHelper.getFontSize(context, 10),
+                            color: request.statusColor,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

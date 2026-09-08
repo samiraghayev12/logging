@@ -1,46 +1,20 @@
 name: logging_service
-description: "A new Flutter project."
-version: 0.0.3
+description: "Dio üçün şəbəkə log/debug aləti — sürüklənən FAB, log siyahısı, detal, statistika və kopyalama formatları."
+version: 0.1.0
 
 environment:
-
   sdk: ^3.5.2
   flutter: '>=3.3.0'
-
-
 
 dependencies:
   flutter:
     sdk: flutter
-  json_view: ^0.4.2
   dio: ^5.8.0+1
-  intl: ^0.20.2
-  flutter_web_plugins:
-    sdk: flutter
-  web: ^1.0.0
-  plugin_platform_interface: ^2.1.8
-  flutter_screenutil: ^5.9.0
+  json_view: ^0.4.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
 flutter:
-  plugin:
-    platforms:
-      android:
-        package: com.aghyv.samir.logging_service
-        pluginClass: LoggingServicePlugin
-      ios:
-        pluginClass: LoggingServicePlugin
-      linux:
-        pluginClass: LoggingServicePlugin
-      macos:
-        pluginClass: LoggingServicePlugin
-      windows:
-        pluginClass: LoggingServicePluginCApi
-      web:
-        pluginClass: LoggingServiceWeb
-        fileName: logging_service_web.dart
-
-
