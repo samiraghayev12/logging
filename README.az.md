@@ -6,6 +6,10 @@ statistika, retry və cURL / Postman / JSON kopyalama.
 
 **Quraşdırma 2 sətirdir və hər ikisi release build-də avtomatik söndürülür.**
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/demo.webp" alt="dio_debug_logger demo" width="320">
+</p>
+
 [🇬🇧 English](README.md)
 
 ## Quraşdırma

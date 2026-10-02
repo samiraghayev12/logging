@@ -36,3 +36,7 @@ test/goldens/*
 !test/goldens/list_phone.png
 !test/goldens/detail_ok.png
 !test/goldens/stats_phone.png
+
+# Source videos (the published demo is doc/demo.webp)
+*.mov
+*.mp4
