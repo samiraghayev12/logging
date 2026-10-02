@@ -47,7 +47,7 @@ void _seed() {
     ),
   );
 
-  // Hələ cavabı gəlməmiş sorğu.
+  // A request with no response yet.
   storage.addRequest(
     RequestOptions(path: '/api/v1/pending', baseUrl: 'https://example.com'),
   );
@@ -87,7 +87,7 @@ void main() {
     });
   }
 
-  testWidgets('böyük sistem font ölçüsündə də daşma olmur', (tester) async {
+  testWidgets('no overflow with a large system font size', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -97,7 +97,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('detal səhifəsi request/response tablarını göstərir',
+  testWidgets('detail page shows request/response tabs',
       (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -115,7 +115,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('analitika səhifəsi render olunur', (tester) async {
+  testWidgets('analytics page renders', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -127,7 +127,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('DebugOverlay FAB-ı göstərir və enabled=false-da gizlədir',
+  testWidgets('DebugOverlay shows the button and hides it when enabled=false',
       (tester) async {
     await tester.pumpWidget(
       _host(const DebugOverlay(child: Scaffold(body: Text('app')))),
@@ -149,7 +149,38 @@ void main() {
 
   _overlayOnlyIntegration();
 
-  testWidgets('siyahı status filtri ilə süzülür', (tester) async {
+  testWidgets('DioDebugLogger.builder wraps an existing builder', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: DioDebugLogger.builder(
+          builder: (context, child) => KeyedSubtree(
+            key: const ValueKey('inner-builder'),
+            child: child!,
+          ),
+        ),
+        home: const Scaffold(body: Text('app')),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('app'), findsOneWidget);
+    expect(find.byKey(const ValueKey('inner-builder')), findsOneWidget);
+    expect(find.byIcon(Icons.bug_report_rounded), findsOneWidget);
+  });
+
+  testWidgets('DioDebugLogger.builder(enabled: false) shows no button',
+      (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: DioDebugLogger.builder(enabled: false),
+        home: const Scaffold(body: Text('app')),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('app'), findsOneWidget);
+    expect(find.byIcon(Icons.bug_report_rounded), findsNothing);
+  });
+
+  testWidgets('list is filtered by status', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -171,16 +202,16 @@ void main() {
 
 void _overlayOnlyIntegration() {
   testWidgets(
-      'MaterialApp.builder içindəki FAB heç bir əlavə konfiqurasiya olmadan '
-      'log səhifəsini açır', (tester) async {
+      'button in MaterialApp.builder opens the log page without extra setup',
+      (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
       MaterialApp(
-        // Qəsdən: navigatorObservers YOXDUR, navigatorKey YOXDUR.
-        builder: NetworkLogger.overlayBuilder(),
+        // Intentionally no navigatorObservers and no navigatorKey.
+        builder: DioDebugLogger.builder(),
         home: const Scaffold(body: Center(child: Text('app'))),
       ),
     );
@@ -191,11 +222,11 @@ void _overlayOnlyIntegration() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Network Logs'), findsOneWidget);
-    expect(NetworkLogger.isOpen, isTrue);
+    expect(DioDebugLogger.isOpen, isTrue);
 
     await tester.tap(find.byIcon(Icons.close_rounded).first);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(NetworkLogger.isOpen, isFalse);
+    expect(DioDebugLogger.isOpen, isFalse);
   });
 }

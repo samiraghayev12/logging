@@ -8,7 +8,7 @@ import '../../utils/responsive_helper.dart';
 import '../detail/view/debug_detail.dart';
 import '../stats/debug_stats.dart';
 
-/// Loglar üçün status filtri.
+/// Status filter for the log list.
 enum DebugFilter { all, success, error, pending }
 
 extension on DebugFilter {
@@ -26,9 +26,9 @@ extension on DebugFilter {
   }
 }
 
-/// Şəbəkə loglarının siyahısı.
+/// The network log list.
 ///
-/// `DebugStorage`-a özü qulaq asır — appda əlavə `ListenableBuilder` lazım deyil.
+/// Listens to `DebugStorage` itself — no extra `ListenableBuilder` needed.
 class DebugPage extends StatefulWidget {
   const DebugPage({super.key});
 
@@ -186,7 +186,7 @@ class _DebugPageState extends State<DebugPage> {
     final visible = _visibleRequests;
     final padding = ResponsiveHelper.getPadding(context, 16);
 
-    // Silinmiş elementlər seçimdə qalmasın.
+    // Drop deleted items from the selection.
     _selectedIds.removeWhere((id) => debug.findById(id) == null);
 
     return Scaffold(

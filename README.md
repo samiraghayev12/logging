@@ -2,166 +2,179 @@
 
 [![pub package](https://img.shields.io/pub/v/dio_debug_logger.svg)](https://pub.dev/packages/dio_debug_logger)
 
-> In-app network inspector for [Dio](https://pub.dev/packages/dio): a draggable debug button,
-> request list with search and filters, request/response/error details, statistics, retry and
-> cURL / Postman / JSON export — integrated with two lines of code.
+An in-app network inspector for [Dio](https://pub.dev/packages/dio). Adds a draggable debug
+button to your app that opens a full log viewer: request list with search and filters,
+request / response / error details, statistics, retry, and cURL / Postman / JSON export.
 
-Dio üçün şəbəkə log/debug aləti. Bütün UI kitabxananın içindədir — inteqrasiya etdiyin appda
-**iki sətir** kifayət edir.
+**Setup takes two lines, and both are automatically disabled in release builds.**
 
-| | |
+[🇦🇿 Azərbaycan dilində](README.az.md)
+
+| Feature | |
 |---|---|
-| Sürüklənən FAB (badge ilə) | ✅ kitabxanada |
-| Log siyahısı + axtarış + filtr | ✅ |
-| Detal (Request / Response / Error) | ✅ |
-| Analitika | ✅ |
-| cURL / Postman / JSON / Summary kopyalama | ✅ |
-| Retry | ✅ |
-| Responsive (telefon → planşet, böyük font) | ✅ |
+| Draggable floating button with request/error badge | ✅ |
+| Log list with search and status filter | ✅ |
+| Request / Response / Error details with JSON tree view | ✅ |
+| Statistics (success rate, slowest/fastest, by method) | ✅ |
+| Copy as cURL / Postman / JSON / readable summary | ✅ |
+| Retry a request | ✅ |
+| Sensitive header masking (`Authorization`, `Cookie`, …) | ✅ |
+| Responsive (phone → tablet, large fonts) | ✅ |
 
 ---
 
-## 1. Quraşdırma
-
-```yaml
-dependencies:
-  dio_debug_logger: ^0.1.0
-```
-
-və ya terminaldan:
+## Installation
 
 ```bash
 flutter pub add dio_debug_logger
 ```
 
-## 2. İnteqrasiya (2 sətir)
+## Setup (2 lines)
 
 ```dart
 import 'package:dio_debug_logger/dio_debug_logger.dart';
 
-// 1) Dio-ya interceptor
-dio.interceptors.add(DebugLogging());
+// 1) Record the requests of your Dio instance
+final dio = Dio()..addDebugLogger();
 
-// 2) MaterialApp-a overlay
+// 2) Show the debug button
 MaterialApp(
-  builder: NetworkLogger.overlayBuilder(enabled: isDevEnvironment),
-  home: ...,
+  builder: DioDebugLogger.builder(),
+  home: const HomePage(),
 );
 ```
 
-Bu qədər. FAB, təkrar açılış qoruması, canlı yenilənmə, bağlama düyməsi — hamısı kitabxanadadır.
-`navigatorKey` və ya `navigatorObservers` **məcburi deyil**: Navigator alt ağacda avtomatik tapılır.
+That's it. Tap the 🐞 button to open the logs.
 
-### Mövcud `builder` varsa
+- Both lines do nothing in **release builds** (`kDebugMode` is the default), so you don't need
+  to remove them before shipping.
+- No `navigatorKey` or `navigatorObservers` needed — the navigator is found automatically.
+
+### Already have a `builder`?
+
+Pass it in — the debug button is placed on top of it:
 
 ```dart
-builder: (context, child) {
-  return MediaQuery(
-    data: ...,
-    child: DebugOverlay(
-      enabled: isDevEnvironment,
-      child: child ?? const SizedBox.shrink(),
+MaterialApp(
+  builder: DioDebugLogger.builder(
+    builder: (context, child) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: TextScaler.noScaling),
+      child: child!,
     ),
-  );
-},
+  ),
+);
+```
+
+### Enable it in other environments
+
+Pass `enabled` to both lines, for example to show it in a staging build:
+
+```dart
+dio.addDebugLogger(enabled: isStaging);
+
+MaterialApp(builder: DioDebugLogger.builder(enabled: isStaging));
 ```
 
 ---
 
-## 3. Konfiqurasiya
+## Configuration
 
 ```dart
-NetworkLogger.overlayBuilder(
-  enabled: true,                       // prod-da false ver
-  backgroundColor: UIColor.primary,
+DioDebugLogger.builder(
+  enabled: kDebugMode,                   // default
+  backgroundColor: Colors.indigo,
   foregroundColor: Colors.white,
   icon: Icons.bug_report_rounded,
   buttonSize: 56,
-  showBadge: true,                     // sorğu/xəta sayı
+  showBadge: true,                       // request / error count
   initialAlignment: Alignment.centerLeft,
-  snapToEdge: true,                    // buraxdıqda kənara yapışsın
+  snapToEdge: true,                      // snap to the nearest edge when released
 );
-```
 
-```dart
-// Yaddaşda saxlanılan sorğu limiti (default 200)
-NetworkLogger.configure(maxRequests: 500);
-
-// "Retry" düyməsi öz Dio-nu istifadə etsin (cert pinning, baseOptions və s.)
-NetworkLogger.retryClientBuilder = () => myDio;
-
-// Interceptor parametrləri
-dio.interceptors.add(DebugLogging(
-  printToConsole: kDebugMode,
-  redactSensitiveHeaders: true,   // konsolda Authorization maskalanır
+dio.addDebugLogger(
+  enabled: kDebugMode,                   // default
+  printToConsole: kDebugMode,            // default
+  redactSensitiveHeaders: true,          // mask Authorization etc. in the console
   maxConsoleBodyLength: 2000,
-));
+);
+
+// How many requests are kept in memory (default 200)
+DioDebugLogger.configure(maxRequests: 500);
+
+// Use your own Dio for the "Retry" button (certificate pinning, base options, ...)
+DioDebugLogger.retryClientBuilder = () => myDio;
 ```
 
 ---
 
-## 4. Proqramla açmaq
+## Opening the logs from code
 
 ```dart
-NetworkLogger.open(context);    // və ya köhnə API: openDebugPage(context)
-NetworkLogger.close(context);
-NetworkLogger.isOpen;           // bool
-NetworkLogger.isOpenNotifier;   // ValueListenable<bool>
+DioDebugLogger.open(context);
+DioDebugLogger.close(context);
+DioDebugLogger.isOpen;           // bool
+DioDebugLogger.isOpenNotifier;   // ValueListenable<bool>
 ```
 
 ---
 
-## 5. Loglara birbaşa müraciət
+## Accessing the logs directly
 
 ```dart
-final storage = DebugStorage();      // singleton, ChangeNotifier
+final storage = DioDebugLogger.storage;   // singleton ChangeNotifier
 
-storage.count;             // ümumi
-storage.errorCount;        // xətalı
+storage.count;
+storage.errorCount;
 storage.successCount;
 storage.pendingCount;
 storage.averageElapsedMs;
-storage.requests;          // List<DebugModel> (ən yenisi əvvəldə)
+storage.requests;                // List<DebugModel>, newest first
 
-storage.setRecording(false);         // müvəqqəti dayandır
+storage.setRecording(false);     // pause recording
 storage.clear();
 storage.deleteById(id);
-storage.exportAll(redact: true);     // List<Map<String, dynamic>>
+storage.exportAll(redact: true); // List<Map<String, dynamic>>
 ```
 
-`DebugStorage` `ChangeNotifier`-dir — UI-də `ListenableBuilder(listenable: DebugStorage(), ...)`
-ilə istifadə edə bilərsən. **Kitabxananın öz səhifələri artıq özləri qulaq asır**, ona görə
-`DebugPage`-i sarımağa ehtiyac yoxdur.
+---
+
+## What's on the log page
+
+- **Search** by URL, method or status code
+- **Filter** — All / Success / Errors / Pending
+- **Multi-select** — long press to select, delete in bulk
+- **Swipe** to delete a single log
+- **⋮ menu** — Analytics, Pause recording, Copy all as JSON, Clear all
+- **Details** — Request / Response / Error tabs, JSON tree ↔ raw text, headers, size and duration
+- **Copy** — cURL, Postman collection, JSON, readable summary, response body only
+  (the **Hide tokens** switch masks `Authorization` / `Cookie`)
+- **Retry** — resend the request and see the result in place
 
 ---
 
-## 6. Debug səhifəsindəki imkanlar
+## Security notes
 
-- **Axtarış** — URL, metod, status kodu üzrə
-- **Filtr** — All / Success / Errors / Pending
-- **Çoxlu seçim** — uzun basıb seç, toplu sil
-- **Sağa sürüşdür** — tək logu sil
-- **⋮ menyusu** — Analytics, Pause recording, Copy all as JSON, Clear all
-- **Detal** — Request / Response / Error tabları, JSON ağacı ↔ xam mətn keçidi,
-  header-lər, ölçü və müddət göstəriciləri
-- **Kopyala** — cURL, Postman collection, JSON, oxunaqlı xülasə, yalnız response body
-  (`Hide tokens` açarı ilə `Authorization`/`cookie` maskalanır)
-- **Retry** — sorğunu yenidən göndər, cavabı yerində gör
+- Sensitive headers (`Authorization`, `Cookie`, `X-Api-Key`, …) are masked in console output,
+  in copied text (when **Hide tokens** is on, the default) and in `exportAll()`.
+- The UI shows headers in full — this is a developer tool. Keep it disabled in production
+  (the default).
 
 ---
 
-## 7. Responsive davranış
+## Migrating from 0.1.x
 
-- Telefon: ekran genişliyinə görə `0.85–1.15` arası ölçüləndirmə
-- Planşet: `1.12` (≥600dp) / `1.25` (≥900dp) — əvvəlki `3.0` əmsalı mətnləri daşırırdı
-- Geniş ekranda məzmun mərkəzləşir və maksimum 1000dp genişlikdə saxlanılır
-- Sistemin "font size" ayarı `1.25`-lə məhdudlaşdırılır ki, mətn qutulardan çıxmasın
-- Bütün mətnlərdə `maxLines` + `ellipsis`, uzun dəyərlər `SelectableText` ilə sarılır
+The old API still works but is deprecated:
 
----
+| Old | New |
+|---|---|
+| `dio.interceptors.add(DebugLogging())` | `dio.addDebugLogger()` (the old form is still fine) |
+| `NetworkLogger.overlayBuilder(...)` | `DioDebugLogger.builder(...)` |
+| `NetworkLogger.open/close/...` | `DioDebugLogger.open/close/...` |
+| `openDebugPage(context)` | `DioDebugLogger.open(context)` |
 
-## Testlər
+> Note: `NetworkLogger.overlayBuilder()` was enabled by default; `DioDebugLogger.builder()`
+> is only enabled in debug builds unless you pass `enabled`.
 
-```bash
-flutter test
-```
+## License
+
+[MIT](LICENSE)

@@ -5,7 +5,7 @@ import 'package:json_view/json_view.dart';
 import '../../utils/log_formatter.dart';
 import '../../utils/responsive_helper.dart';
 
-/// Detal səhifələrində istifadə olunan ortaq UI parçaları.
+/// Shared UI pieces used by the detail pages.
 class DebugSection extends StatelessWidget {
   const DebugSection({
     super.key,
@@ -63,7 +63,7 @@ class DebugSection extends StatelessWidget {
   }
 }
 
-/// Sərhədli, açıq fonlu qutu.
+/// A bordered box with a light background.
 class DebugCard extends StatelessWidget {
   const DebugCard({
     super.key,
@@ -98,7 +98,7 @@ class DebugCard extends StatelessWidget {
   }
 }
 
-/// Uzun mətnlərin daşmadan göstərildiyi açar/dəyər sətri.
+/// A key/value row that shows long values without overflowing.
 class KeyValueTile extends StatelessWidget {
   const KeyValueTile({
     super.key,
@@ -156,7 +156,7 @@ class KeyValueTile extends StatelessWidget {
   }
 }
 
-/// Header siyahısı — həm request, həm response üçün.
+/// Header list, for both requests and responses.
 class HeaderList extends StatelessWidget {
   const HeaderList({super.key, required this.headers});
 
@@ -183,7 +183,7 @@ class HeaderList extends StatelessWidget {
   }
 }
 
-/// Kopyalama düyməsi — SnackBar-ı təhlükəsiz göstərir.
+/// Copy button that shows a SnackBar safely.
 class CopyIconButton extends StatelessWidget {
   const CopyIconButton({
     super.key,
@@ -221,8 +221,8 @@ void copyToClipboard(BuildContext context, String text, String label) {
   );
 }
 
-/// Dialoq bağlandıqdan sonra da SnackBar göstərə bilmək üçün messenger
-/// əvvəlcədən alınıb ötürülür.
+/// The messenger is captured up front so a SnackBar can still be shown
+/// after the dialog is closed.
 void copyToClipboardWithMessenger(
   ScaffoldMessengerState? messenger,
   String text,
@@ -239,7 +239,7 @@ void copyToClipboardWithMessenger(
   );
 }
 
-/// JSON body — ağac / xam mətn arasında keçid edir və heç vaxt daşmır.
+/// JSON body that toggles between tree and raw text and never overflows.
 class JsonBody extends StatefulWidget {
   const JsonBody({super.key, required this.data, required this.emptyLabel});
 
@@ -352,7 +352,7 @@ class _JsonBodyState extends State<JsonBody> {
   }
 }
 
-/// Kiçik məlumat çipi (status, müddət, ölçü və s.).
+/// Small info chip (status, duration, size, etc.).
 class InfoChip extends StatelessWidget {
   const InfoChip({
     super.key,

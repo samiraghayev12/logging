@@ -3,7 +3,7 @@ description: >-
   In-app network inspector for Dio: draggable debug button, request list with
   search and filters, request/response details, stats, retry and cURL/Postman
   export.
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/samiraghayev12/logging
 repository: https://github.com/samiraghayev12/logging
 issue_tracker: https://github.com/samiraghayev12/logging/issues

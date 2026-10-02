@@ -1,14 +1,12 @@
-/// Dio əsaslı şəbəkə log/debug aləti.
+/// In-app network inspector for Dio.
 ///
-/// Minimum inteqrasiya:
 /// ```dart
 /// // 1) Dio
-/// dio.interceptors.add(DebugLogging());
+/// dio.addDebugLogger();
 ///
 /// // 2) MaterialApp
 /// MaterialApp(
-///   navigatorObservers: [NetworkLogger.observer],
-///   builder: NetworkLogger.overlayBuilder(enabled: isDev),
+///   builder: DioDebugLogger.builder(),
 /// );
 /// ```
 library;

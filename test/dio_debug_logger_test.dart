@@ -18,7 +18,7 @@ void main() {
   });
 
   group('DebugStorage', () {
-    test('request → response eyni modelə yazılır', () {
+    test('request → response is written to the same model', () {
       final storage = DebugStorage();
       final options = _options();
 
@@ -30,12 +30,12 @@ void main() {
         Response<dynamic>(requestOptions: options, statusCode: 200),
       );
 
-      expect(storage.count, 1, reason: 'dublikat sətir yaranmamalıdır');
+      expect(storage.count, 1, reason: 'no duplicate row should be created');
       expect(storage.requests.first.isSuccess, isTrue);
       expect(storage.requests.first.elapsedTime, isNotNull);
     });
 
-    test('clear() sonrası id-lər təkrarlanmır', () {
+    test('ids are not reused after clear()', () {
       final storage = DebugStorage();
       storage.addRequest(_options());
       final firstId = storage.requests.first.id;
@@ -46,7 +46,7 @@ void main() {
       expect(storage.requests.first.id, isNot(firstId));
     });
 
-    test('deleteById siyahı sürüşəndə də düzgün elementi silir', () {
+    test('deleteById removes the right item when the list shifts', () {
       final storage = DebugStorage();
       storage
         ..addRequest(_options(path: '/a'))
@@ -60,7 +60,7 @@ void main() {
       expect(storage.requests.any((r) => r.id == target.id), isFalse);
     });
 
-    test('maxRequests limiti tətbiq olunur', () {
+    test('maxRequests limit is applied', () {
       final storage = DebugStorage()..configure(maxRequests: 3);
       for (var i = 0; i < 10; i++) {
         storage.addRequest(_options(path: '/p$i'));
@@ -69,7 +69,7 @@ void main() {
       storage.configure(maxRequests: 200);
     });
 
-    test('recording dayandırılanda log yığılmır', () {
+    test('nothing is logged while recording is paused', () {
       final storage = DebugStorage()..setRecording(false);
       storage.addRequest(_options());
       expect(storage.count, 0);
@@ -78,7 +78,7 @@ void main() {
   });
 
   group('DebugModel', () {
-    test('4xx cavab error sayılır, pending isə yox', () {
+    test('4xx response counts as error, pending does not', () {
       final options = _options();
       final pending = DebugModel(
         id: 1,
@@ -97,7 +97,7 @@ void main() {
       expect(pending.status, DebugStatus.clientError);
     });
 
-    test('backend error body-dən mesaj çıxarılır', () {
+    test('message is extracted from the backend error body', () {
       final options = _options();
       final model = DebugModel(
         id: 1,
@@ -110,16 +110,16 @@ void main() {
           response: Response<dynamic>(
             requestOptions: options,
             statusCode: 400,
-            data: {'detail': 'Xəstə tapılmadı'},
+            data: {'detail': 'Patient not found'},
           ),
         ),
       );
 
       expect(model.errorStatusCode, '400');
-      expect(model.errorStatusMessage, 'Xəstə tapılmadı');
+      expect(model.errorStatusMessage, 'Patient not found');
     });
 
-    test('string JSON error body də parse olunur', () {
+    test('string JSON error body is parsed too', () {
       final options = _options();
       final model = DebugModel(
         id: 1,
@@ -135,7 +135,7 @@ void main() {
       expect(model.errorStatusMessage, 'Server error');
     });
 
-    test('axtarış metod və url üzrə işləyir', () {
+    test('search matches method and url', () {
       final model = DebugModel(
         id: 1,
         requestOptions: _options(method: 'POST', path: '/api/appointments'),
@@ -149,7 +149,7 @@ void main() {
   });
 
   group('LogFormatter', () {
-    test('int header dəyəri sətrə çevrilir', () {
+    test('int header value is converted to string', () {
       final headers = LogFormatter.normalizeHeaders({
         'content-length': 120,
         'accept': ['a', 'b'],
@@ -158,7 +158,7 @@ void main() {
       expect(headers['accept'], 'a, b');
     });
 
-    test('həssas header maskalanır', () {
+    test('sensitive header is masked', () {
       final headers = LogFormatter.normalizeHeaders(
         {'Authorization': 'Bearer abcdefghijklmnop'},
         redact: true,
@@ -166,12 +166,12 @@ void main() {
       expect(headers['Authorization'], isNot(contains('abcdefghijklmnop')));
     });
 
-    test('kodlana bilməyən obyekt exception atmır', () {
+    test('unencodable object does not throw', () {
       expect(LogFormatter.encode(Object()), isA<String>());
       expect(LogFormatter.pretty(DateTime(2026)), isA<String>());
     });
 
-    test('FormData map-ə çevrilir', () {
+    test('FormData is converted to a map', () {
       final formData = FormData.fromMap({'name': 'Samir'});
       final map = LogFormatter.formDataToMap(formData);
       expect((map['fields'] as Map)['name'], 'Samir');
@@ -179,7 +179,7 @@ void main() {
   });
 
   group('CopyHelper', () {
-    test('cURL-də tək dırnaq escape olunur', () {
+    test('single quotes are escaped in cURL', () {
       final model = DebugModel(
         id: 1,
         requestOptions: _options(method: 'POST', data: {"note": "it's ok"}),
@@ -190,7 +190,7 @@ void main() {
       expect(curl, contains('curl -X POST'));
     });
 
-    test('FormData body -F ilə yazılır', () {
+    test('FormData body is written with -F', () {
       final model = DebugModel(
         id: 1,
         requestOptions: _options(
@@ -200,6 +200,28 @@ void main() {
         requestStartTime: DateTime.now(),
       );
       expect(CopyHelper.generateCurlCommand(model), contains('-F'));
+    });
+  });
+
+  group('Setup API', () {
+    test('addDebugLogger adds the interceptor only once', () {
+      final dio = Dio()
+        ..addDebugLogger()
+        ..addDebugLogger();
+      expect(dio.interceptors.whereType<DebugLogging>().length, 1);
+    });
+
+    test('addDebugLogger(enabled: false) adds nothing', () {
+      final dio = Dio()..addDebugLogger(enabled: false);
+      expect(dio.interceptors.whereType<DebugLogging>(), isEmpty);
+    });
+
+    test('deprecated NetworkLogger forwards to DioDebugLogger', () {
+      final custom = Dio();
+      // ignore: deprecated_member_use_from_same_package
+      NetworkLogger.retryClientBuilder = () => custom;
+      addTearDown(() => DioDebugLogger.retryClientBuilder = null);
+      expect(DioDebugLogger.createRetryClient(), same(custom));
     });
   });
 }

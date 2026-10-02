@@ -4,10 +4,10 @@ import 'package:flutter/foundation.dart';
 import '../storage/debug_storage.dart';
 import '../utils/log_formatter.dart';
 
-/// Dio interceptor — bütün sorğuları `DebugStorage`-a yazır və
-/// debug rejimində konsola çap edir.
+/// Dio interceptor that records every request in `DebugStorage` and prints
+/// it to the console in debug mode.
 ///
-/// İstifadə (dəyişməyib):
+/// Usually added with `dio.addDebugLogger()`; adding it directly also works:
 /// ```dart
 /// dio.interceptors.add(DebugLogging());
 /// ```
@@ -18,13 +18,13 @@ class DebugLogging extends Interceptor {
     this.maxConsoleBodyLength = 2000,
   });
 
-  /// Konsola çap edilsin?
+  /// Whether to print to the console.
   final bool printToConsole;
 
-  /// `Authorization` və s. header-lər konsolda maskalansın?
+  /// Whether `Authorization` and similar headers are masked in the console.
   final bool redactSensitiveHeaders;
 
-  /// Konsola yazılan body-nin maksimum uzunluğu.
+  /// Maximum body length printed to the console.
   final int maxConsoleBodyLength;
 
   final DebugStorage debug = DebugStorage();

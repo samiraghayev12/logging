@@ -7,8 +7,8 @@ import '../presentation/page/debug_page.dart';
 import '../storage/debug_storage.dart';
 import 'debug_logging.dart';
 
-/// Debug route-larını izləyir: təkrar push-un qarşısını alır və
-/// `NetworkLogger`-ə `NavigatorState` verir.
+/// Tracks debug routes: prevents pushing the log page twice and gives
+/// [DioDebugLogger] access to a [NavigatorState].
 class DebugNavigatorObserver extends NavigatorObserver {
   DebugNavigatorObserver();
 
@@ -17,7 +17,7 @@ class DebugNavigatorObserver extends NavigatorObserver {
   bool get hasActiveRoute => _activeRoutes > 0;
 
   bool _isDebugRoute(Route<dynamic>? route) =>
-      route?.settings.name == NetworkLogger.routeName;
+      route?.settings.name == DioDebugLogger.routeName;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -45,57 +45,91 @@ class DebugNavigatorObserver extends NavigatorObserver {
   }
 }
 
-/// Kitabxananın ümumi giriş nöqtəsi.
-///
-/// Appda görülməli iş minimumdur:
-/// ```dart
-/// MaterialApp(
-///   navigatorObservers: [NetworkLogger.observer],
-///   builder: NetworkLogger.overlayBuilder(enabled: isDev),
-/// );
-/// // və Dio üçün:
-/// dio.interceptors.add(DebugLogging());
-/// ```
-class NetworkLogger {
-  const NetworkLogger._();
+/// Adds the network logger to a [Dio] instance.
+extension DioDebugLoggerExtension on Dio {
+  /// Records every request of this [Dio] instance in the debug logger.
+  ///
+  /// ```dart
+  /// final dio = Dio()..addDebugLogger();
+  /// ```
+  ///
+  /// Does nothing when [enabled] is `false` (defaults to `false` in release
+  /// builds) or when the logger is already attached.
+  void addDebugLogger({
+    bool enabled = kDebugMode,
+    bool printToConsole = kDebugMode,
+    bool redactSensitiveHeaders = true,
+    int maxConsoleBodyLength = 2000,
+  }) {
+    if (!enabled) return;
+    if (interceptors.any((interceptor) => interceptor is DebugLogging)) return;
+    interceptors.add(
+      DebugLogging(
+        printToConsole: printToConsole,
+        redactSensitiveHeaders: redactSensitiveHeaders,
+        maxConsoleBodyLength: maxConsoleBodyLength,
+      ),
+    );
+  }
+}
 
-  /// Debug səhifəsinin route adı.
+/// Main entry point of the package.
+///
+/// ```dart
+/// // 1) Dio
+/// dio.addDebugLogger();
+///
+/// // 2) MaterialApp
+/// MaterialApp(
+///   builder: DioDebugLogger.builder(),
+/// );
+/// ```
+///
+/// Both are disabled in release builds by default.
+class DioDebugLogger {
+  const DioDebugLogger._();
+
+  /// Route name of the log page.
   static const String routeName = '/dio_debug_logger/network-logs';
 
-  /// `MaterialApp.navigatorObservers` siyahısına əlavə edilir.
+  /// Optional: add to `MaterialApp.navigatorObservers`. Not required — the
+  /// navigator is found automatically.
   static final DebugNavigatorObserver observer = DebugNavigatorObserver();
 
-  /// Observer istifadə edilmirsə alternativ olaraq təyin edilə bilər.
+  /// Optional alternative to [observer] for locating the navigator.
   static GlobalKey<NavigatorState>? navigatorKey;
 
-  /// Debug səhifəsi açıqdırmı — FAB özünü gizlətmək üçün buna baxır.
+  /// Whether the log page is open. The floating button hides itself while it is.
   static final ValueNotifier<bool> isOpenNotifier = ValueNotifier<bool>(false);
 
   static bool get isOpen => isOpenNotifier.value;
 
+  /// The in-memory log storage.
   static DebugStorage get storage => DebugStorage();
 
-  /// "Retry" düyməsi üçün Dio yaradır. Təyin edilməsə sadə `Dio()` istifadə olunur.
+  /// Creates the [Dio] used by the "Retry" button. Defaults to a plain `Dio()`.
   ///
-  /// Sertifikat pinning və ya xüsusi `BaseOptions` lazımdırsa appda bir dəfə:
+  /// Set it once if you need certificate pinning or custom `BaseOptions`:
   /// ```dart
-  /// NetworkLogger.retryClientBuilder = () => myDio;
+  /// DioDebugLogger.retryClientBuilder = () => myDio;
   /// ```
   static Dio Function()? retryClientBuilder;
 
   static Dio createRetryClient() => retryClientBuilder?.call() ?? Dio();
 
-  /// Dio interceptor-u — `DebugLogging()` ilə eynidir.
+  /// The Dio interceptor. Prefer `dio.addDebugLogger()`.
   static Interceptor interceptor({
-    bool? printToConsole,
+    bool printToConsole = kDebugMode,
     bool redactSensitiveHeaders = true,
+    int maxConsoleBodyLength = 2000,
   }) =>
       DebugLogging(
-        printToConsole: printToConsole ?? kDebugMode,
+        printToConsole: printToConsole,
         redactSensitiveHeaders: redactSensitiveHeaders,
+        maxConsoleBodyLength: maxConsoleBodyLength,
       );
 
-  /// Yaddaş limitini dəyişir.
+  /// Changes how many requests are kept in memory (default 200).
   static void configure({int? maxRequests}) =>
       storage.configure(maxRequests: maxRequests);
 
@@ -108,13 +142,13 @@ class NetworkLogger {
 
     if (context == null) return null;
 
-    // Adi hal: overlay hansısa səhifənin içindədir.
+    // Common case: the caller is inside a page.
     final fromAncestor = Navigator.maybeOf(context, rootNavigator: true);
     if (fromAncestor != null) return fromAncestor;
 
-    // `MaterialApp.builder` halı: Navigator bu context-dən AŞAĞIDA olur,
-    // ona görə alt ağacda axtarılır. Bu sayədə appda `navigatorObservers`
-    // və ya `navigatorKey` təyin etmək məcburi deyil.
+    // `MaterialApp.builder` case: the Navigator is BELOW this context, so the
+    // subtree is searched. This is why `navigatorObservers` and
+    // `navigatorKey` are optional.
     return _findDescendantNavigator(context);
   }
 
@@ -138,7 +172,7 @@ class NetworkLogger {
     return found;
   }
 
-  /// Şəbəkə loglarını açır. Artıq açıqdırsa heç nə etmir.
+  /// Opens the log page. Does nothing if it is already open.
   static Future<void> open([BuildContext? context]) async {
     if (isOpenNotifier.value || observer.hasActiveRoute) return;
 
@@ -146,8 +180,9 @@ class NetworkLogger {
     if (navigator == null) {
       assert(() {
         debugPrint(
-          'NetworkLogger: Navigator tapılmadı. `MaterialApp.navigatorObservers`-ə '
-          '`NetworkLogger.observer` əlavə edin və ya `NetworkLogger.navigatorKey` təyin edin.',
+          'DioDebugLogger: Navigator not found. Pass a BuildContext, add '
+          '`DioDebugLogger.observer` to `MaterialApp.navigatorObservers` or '
+          'set `DioDebugLogger.navigatorKey`.',
         );
         return true;
       }());
@@ -167,7 +202,7 @@ class NetworkLogger {
     }
   }
 
-  /// Açıq olan bütün debug route-larını bağlayır.
+  /// Closes all open debug routes.
   static void close([BuildContext? context]) {
     final navigator = _resolveNavigator(context);
     if (navigator == null) return;
@@ -176,11 +211,94 @@ class NetworkLogger {
     );
   }
 
-  /// `MaterialApp.builder`-ə birbaşa verilə bilən builder.
+  /// A builder for `MaterialApp.builder` that shows the draggable debug button.
   ///
   /// ```dart
-  /// MaterialApp(builder: NetworkLogger.overlayBuilder(enabled: isDev));
+  /// MaterialApp(builder: DioDebugLogger.builder());
   /// ```
+  ///
+  /// [enabled] defaults to `false` in release builds. If the app already has
+  /// a `builder`, pass it as [builder]:
+  /// ```dart
+  /// MaterialApp(
+  ///   builder: DioDebugLogger.builder(
+  ///     builder: (context, child) => MediaQuery(..., child: child!),
+  ///   ),
+  /// );
+  /// ```
+  static TransitionBuilder builder({
+    bool enabled = kDebugMode,
+    TransitionBuilder? builder,
+    Color? backgroundColor,
+    Color? foregroundColor,
+    IconData icon = Icons.bug_report_rounded,
+    double buttonSize = 56,
+    bool showBadge = true,
+    Alignment initialAlignment = Alignment.centerLeft,
+    bool snapToEdge = true,
+  }) {
+    return (BuildContext context, Widget? child) {
+      final content = builder != null ? builder(context, child) : child;
+      return DebugOverlay(
+        enabled: enabled,
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        icon: icon,
+        buttonSize: buttonSize,
+        showBadge: showBadge,
+        initialAlignment: initialAlignment,
+        snapToEdge: snapToEdge,
+        child: content ?? const SizedBox.shrink(),
+      );
+    };
+  }
+}
+
+/// Old name of [DioDebugLogger], kept for backward compatibility.
+@Deprecated('Use DioDebugLogger instead. Will be removed in 1.0.0.')
+class NetworkLogger {
+  const NetworkLogger._();
+
+  static const String routeName = DioDebugLogger.routeName;
+
+  static DebugNavigatorObserver get observer => DioDebugLogger.observer;
+
+  static GlobalKey<NavigatorState>? get navigatorKey =>
+      DioDebugLogger.navigatorKey;
+  static set navigatorKey(GlobalKey<NavigatorState>? value) =>
+      DioDebugLogger.navigatorKey = value;
+
+  static ValueNotifier<bool> get isOpenNotifier => DioDebugLogger.isOpenNotifier;
+
+  static bool get isOpen => DioDebugLogger.isOpen;
+
+  static DebugStorage get storage => DioDebugLogger.storage;
+
+  static Dio Function()? get retryClientBuilder =>
+      DioDebugLogger.retryClientBuilder;
+  static set retryClientBuilder(Dio Function()? value) =>
+      DioDebugLogger.retryClientBuilder = value;
+
+  static Dio createRetryClient() => DioDebugLogger.createRetryClient();
+
+  static Interceptor interceptor({
+    bool? printToConsole,
+    bool redactSensitiveHeaders = true,
+  }) =>
+      DioDebugLogger.interceptor(
+        printToConsole: printToConsole ?? kDebugMode,
+        redactSensitiveHeaders: redactSensitiveHeaders,
+      );
+
+  static void configure({int? maxRequests}) =>
+      DioDebugLogger.configure(maxRequests: maxRequests);
+
+  static Future<void> open([BuildContext? context]) =>
+      DioDebugLogger.open(context);
+
+  static void close([BuildContext? context]) => DioDebugLogger.close(context);
+
+  /// Unlike [DioDebugLogger.builder], [enabled] defaults to `true` here.
   static TransitionBuilder overlayBuilder({
     bool enabled = true,
     Color? backgroundColor,
@@ -190,17 +308,15 @@ class NetworkLogger {
     bool showBadge = true,
     Alignment initialAlignment = Alignment.centerLeft,
     bool snapToEdge = true,
-  }) {
-    return (BuildContext context, Widget? child) => DebugOverlay(
-          enabled: enabled,
-          backgroundColor: backgroundColor,
-          foregroundColor: foregroundColor,
-          icon: icon,
-          buttonSize: buttonSize,
-          showBadge: showBadge,
-          initialAlignment: initialAlignment,
-          snapToEdge: snapToEdge,
-          child: child ?? const SizedBox.shrink(),
-        );
-  }
+  }) =>
+      DioDebugLogger.builder(
+        enabled: enabled,
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        icon: icon,
+        buttonSize: buttonSize,
+        showBadge: showBadge,
+        initialAlignment: initialAlignment,
+        snapToEdge: snapToEdge,
+      );
 }

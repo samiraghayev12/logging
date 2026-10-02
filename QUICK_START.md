@@ -1,20 +1,9 @@
 # ⚡ Quick Start
 
-## 1. pubspec.yaml
-
-```yaml
-dependencies:
-  dio_debug_logger: ^0.1.0
-```
-
-və ya terminaldan:
+## 1. Install
 
 ```bash
 flutter pub add dio_debug_logger
-```
-
-```bash
-flutter pub get
 ```
 
 ## 2. Dio
@@ -22,24 +11,25 @@ flutter pub get
 ```dart
 import 'package:dio_debug_logger/dio_debug_logger.dart';
 
-final dio = Dio();
-dio.interceptors.add(DebugLogging());
+final dio = Dio()..addDebugLogger();
 ```
 
 ## 3. MaterialApp
 
 ```dart
 MaterialApp(
-  builder: NetworkLogger.overlayBuilder(enabled: kDebugMode),
+  builder: DioDebugLogger.builder(),
   home: const HomePage(),
 );
 ```
 
-## 4. Nəticə
+## 4. Result
 
-- Ekranda sürüklənən 🐞 düyməsi görünür (üstündə sorğu/xəta sayı)
-- Klik → şəbəkə logları
-- Loga klik → detallar (Request / Response / Error)
+- A draggable 🐞 button appears (with the request/error count)
+- Tap → network logs
+- Tap a log → details (Request / Response / Error)
 - ⋮ → Analytics, Pause, Copy all, Clear
 
-Daha çox: [README.md](README.md)
+Both lines are disabled in release builds automatically.
+
+More: [README.md](README.md)

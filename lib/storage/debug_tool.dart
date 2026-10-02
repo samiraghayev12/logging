@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../service/network_logger.dart';
 
-/// Şəbəkə loglarını açır (köhnə API — dəyişməyib).
-///
-/// Daxildə `NetworkLogger.open` çağırılır: təkrar açılışın qarşısı alınır.
+/// Opens the log page.
+@Deprecated('Use DioDebugLogger.open(context) instead. Will be removed in 1.0.0.')
 void openDebugPage(BuildContext context) {
-  NetworkLogger.open(context);
+  DioDebugLogger.open(context);
 }
 
-/// Açıq debug səhifələrini bağlayır.
+/// Closes open debug pages.
+@Deprecated('Use DioDebugLogger.close(context) instead. Will be removed in 1.0.0.')
 void closeDebugPage(BuildContext context) {
-  NetworkLogger.close(context);
+  DioDebugLogger.close(context);
 }
