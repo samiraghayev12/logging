@@ -8,6 +8,10 @@ request / response / error details, statistics, retry, and cURL / Postman / JSON
 
 **Setup takes two lines, and both are automatically disabled in release builds.**
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/demo.webp" alt="dio_debug_logger demo" width="320">
+</p>
+
 [🇦🇿 Azərbaycan dilində](README.az.md)
 
 | Feature | |

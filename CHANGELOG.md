@@ -17,6 +17,7 @@
 
 ### Other
 
+- Demo app with a built-in fake API (`example/`) and an animated demo on the pub.dev page.
 - Documentation, API docs, example app and remaining UI strings translated to English.
   Azerbaijani README: `README.az.md`.
 
