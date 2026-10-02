@@ -226,7 +226,7 @@ class _DebugPageState extends State<DebugPage> {
                           padding + MediaQuery.paddingOf(context).bottom,
                         ),
                         itemCount: visible.length,
-                        separatorBuilder: (_, __) => SizedBox(
+                        separatorBuilder: (_, _) => SizedBox(
                           height: ResponsiveHelper.getSpacing(context, 10),
                         ),
                         itemBuilder: (_, index) {
@@ -475,7 +475,7 @@ class _FilterBar extends StatelessWidget {
           horizontal: ResponsiveHelper.getPadding(context, 16),
         ),
         itemCount: DebugFilter.values.length,
-        separatorBuilder: (_, __) => SizedBox(width: spacing),
+        separatorBuilder: (_, _) => SizedBox(width: spacing),
         itemBuilder: (_, index) {
           final filter = DebugFilter.values[index];
           final count = counts[filter] ?? 0;

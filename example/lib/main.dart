@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:logging_service/logging_service.dart';
+import 'package:dio_debug_logger/dio_debug_logger.dart';
 
 void main() => runApp(const ExampleApp());
 
@@ -10,7 +10,7 @@ class ExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'logging_service example',
+      title: 'dio_debug_logger example',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorSchemeSeed: Colors.indigo,
@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
       connectTimeout: const Duration(seconds: 10),
       headers: {
         'Authorization': 'Bearer super-secret-token-value-1234567890',
-        'X-Client': 'logging_service-example',
+        'X-Client': 'dio_debug_logger-example',
       },
     ),
   )..interceptors.add(DebugLogging());
@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('logging_service example')),
+      appBar: AppBar(title: const Text('dio_debug_logger example')),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         children: [

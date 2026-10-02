@@ -1,4 +1,10 @@
-# logging_service
+# dio_debug_logger
+
+[![pub package](https://img.shields.io/pub/v/dio_debug_logger.svg)](https://pub.dev/packages/dio_debug_logger)
+
+> In-app network inspector for [Dio](https://pub.dev/packages/dio): a draggable debug button,
+> request list with search and filters, request/response/error details, statistics, retry and
+> cURL / Postman / JSON export — integrated with two lines of code.
 
 Dio üçün şəbəkə log/debug aləti. Bütün UI kitabxananın içindədir — inteqrasiya etdiyin appda
 **iki sətir** kifayət edir.
@@ -19,14 +25,20 @@ Dio üçün şəbəkə log/debug aləti. Bütün UI kitabxananın içindədir �
 
 ```yaml
 dependencies:
-  logging_service:
-    git:
-      url: https://github.com/samiraghayev12/logging.git
+  dio_debug_logger: ^0.1.0
+```
+
+və ya terminaldan:
+
+```bash
+flutter pub add dio_debug_logger
 ```
 
 ## 2. İnteqrasiya (2 sətir)
 
 ```dart
+import 'package:dio_debug_logger/dio_debug_logger.dart';
+
 // 1) Dio-ya interceptor
 dio.interceptors.add(DebugLogging());
 

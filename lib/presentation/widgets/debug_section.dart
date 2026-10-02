@@ -53,7 +53,7 @@ class DebugSection extends StatelessWidget {
                       ),
                 ),
               ),
-            if (actionButton != null) actionButton!,
+            ?actionButton,
           ],
         ),
         SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),

@@ -4,9 +4,13 @@
 
 ```yaml
 dependencies:
-  logging_service:
-    git:
-      url: https://github.com/samiraghayev12/logging.git
+  dio_debug_logger: ^0.1.0
+```
+
+və ya terminaldan:
+
+```bash
+flutter pub add dio_debug_logger
 ```
 
 ```bash
@@ -16,7 +20,7 @@ flutter pub get
 ## 2. Dio
 
 ```dart
-import 'package:logging_service/logging_service.dart';
+import 'package:dio_debug_logger/dio_debug_logger.dart';
 
 final dio = Dio();
 dio.interceptors.add(DebugLogging());

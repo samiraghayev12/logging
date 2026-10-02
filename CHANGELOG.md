@@ -1,5 +1,12 @@
 ## 0.1.0
 
+### pub.dev
+
+- Paket `logging_service` → `dio_debug_logger` adlandırıldı (`logging_service` adı pub.dev-də artıq
+  məşğuldur). Import: `package:dio_debug_logger/dio_debug_logger.dart`.
+- MIT lisenziyası, `repository` / `issue_tracker` / `topics` / `screenshots` sahələri əlavə olundu.
+- İstifadə olunmayan native plugin şablonları `.pubignore` ilə paketdən çıxarıldı.
+
 ### Bug fix
 
 - `DebugPage` `DebugStorage`-a qulaq asmırdı — səhifə açıq ikən yeni sorğular görünmürdü.

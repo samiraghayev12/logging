@@ -1,10 +1,31 @@
-name: logging_service
-description: "Dio üçün şəbəkə log/debug aləti — sürüklənən FAB, log siyahısı, detal, statistika və kopyalama formatları."
+name: dio_debug_logger
+description: >-
+  In-app network inspector for Dio: draggable debug button, request list with
+  search and filters, request/response details, stats, retry and cURL/Postman
+  export.
 version: 0.1.0
+homepage: https://github.com/samiraghayev12/logging
+repository: https://github.com/samiraghayev12/logging
+issue_tracker: https://github.com/samiraghayev12/logging/issues
+
+topics:
+  - dio
+  - network
+  - logging
+  - debugging
+  - http
+
+screenshots:
+  - description: Network log list
+    path: test/goldens/list_phone.png
+  - description: Request details
+    path: test/goldens/detail_ok.png
+  - description: Statistics
+    path: test/goldens/stats_phone.png
 
 environment:
-  sdk: ^3.5.2
-  flutter: '>=3.3.0'
+  sdk: ^3.8.0
+  flutter: '>=3.32.0'
 
 dependencies:
   flutter:
@@ -16,5 +37,3 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-
-flutter:

@@ -60,7 +60,7 @@ class NetworkLogger {
   const NetworkLogger._();
 
   /// Debug səhifəsinin route adı.
-  static const String routeName = '/logging_service/network-logs';
+  static const String routeName = '/dio_debug_logger/network-logs';
 
   /// `MaterialApp.navigatorObservers` siyahısına əlavə edilir.
   static final DebugNavigatorObserver observer = DebugNavigatorObserver();
