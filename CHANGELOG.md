@@ -1,3 +1,10 @@
+## 0.2.1
+
+- New demo app in `example/` with a built-in fake API: GET / POST / PUT / PATCH / DELETE,
+  auth tokens, FormData upload, slow and large responses, HTTP errors (400–503), timeouts,
+  connection errors and cancelled requests.
+- Animated demo on the pub.dev page and in the README.
+
 ## 0.2.0
 
 ### Simpler setup
@@ -17,7 +24,6 @@
 
 ### Other
 
-- Demo app with a built-in fake API (`example/`) and an animated demo on the pub.dev page.
 - Documentation, API docs, example app and remaining UI strings translated to English.
   Azerbaijani README: `README.az.md`.
 

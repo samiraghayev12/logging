@@ -54,7 +54,7 @@ builder: (context, child) {
 
 ## Migrating from `logging_service` (git) / 0.1.x
 
-1. Replace the git dependency with `dio_debug_logger: ^0.2.0`.
+1. Replace the git dependency with `dio_debug_logger: ^0.2.1`.
 2. Update the import:
 
    ```dart
