@@ -226,7 +226,7 @@ class _DebugPageState extends State<DebugPage> {
                           padding + MediaQuery.paddingOf(context).bottom,
                         ),
                         itemCount: visible.length,
-                        separatorBuilder: (_, _) => SizedBox(
+                        separatorBuilder: (_, i) => SizedBox(
                           height: ResponsiveHelper.getSpacing(context, 10),
                         ),
                         itemBuilder: (_, index) {
@@ -336,7 +336,8 @@ class _DebugPageState extends State<DebugPage> {
             ),
       actions: [
         IconButton(
-          icon: Icon(_isSearching ? Icons.search_off_rounded : Icons.search_rounded),
+          icon: Icon(
+              _isSearching ? Icons.search_off_rounded : Icons.search_rounded),
           tooltip: _isSearching ? 'Close search' : 'Search',
           onPressed: _toggleSearch,
         ),
@@ -387,7 +388,8 @@ class _DebugPageState extends State<DebugPage> {
                       ? Icons.pause_circle_rounded
                       : Icons.play_circle_rounded,
                 ),
-                title: Text(debug.isRecording ? 'Pause recording' : 'Resume recording'),
+                title: Text(
+                    debug.isRecording ? 'Pause recording' : 'Resume recording'),
               ),
             ),
             PopupMenuItem(
@@ -475,7 +477,7 @@ class _FilterBar extends StatelessWidget {
           horizontal: ResponsiveHelper.getPadding(context, 16),
         ),
         itemCount: DebugFilter.values.length,
-        separatorBuilder: (_, _) => SizedBox(width: spacing),
+        separatorBuilder: (_, i) => SizedBox(width: spacing),
         itemBuilder: (_, index) {
           final filter = DebugFilter.values[index];
           final count = counts[filter] ?? 0;
@@ -578,9 +580,8 @@ class _RequestTile extends StatelessWidget {
 
     return Dismissible(
       key: ValueKey<int>(request.id),
-      direction: isSelectionMode
-          ? DismissDirection.none
-          : DismissDirection.endToStart,
+      direction:
+          isSelectionMode ? DismissDirection.none : DismissDirection.endToStart,
       onDismissed: (_) => onDismissed(),
       background: Container(
         decoration: BoxDecoration(
@@ -659,7 +660,8 @@ class _RequestTile extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: spacing10),
-                _StatusBadge(request: request, fontSize: font12, smallFontSize: font11),
+                _StatusBadge(
+                    request: request, fontSize: font12, smallFontSize: font11),
               ],
             ),
           ),
@@ -742,13 +744,15 @@ class _StatusBadge extends StatelessWidget {
                   SizedBox(
                     width: fontSize * 0.7,
                     height: fontSize * 0.7,
-                    child: CircularProgressIndicator(strokeWidth: 1.6, color: color),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 1.6, color: color),
                   )
                 else
                   Container(
                     width: fontSize * 0.55,
                     height: fontSize * 0.55,
-                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                    decoration:
+                        BoxDecoration(color: color, shape: BoxShape.circle),
                   ),
                 SizedBox(width: ResponsiveHelper.getSpacing(context, 5)),
                 Flexible(
