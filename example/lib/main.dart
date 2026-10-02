@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:dio_debug_logger/dio_debug_logger.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(const ExampleApp());
 
@@ -16,8 +16,8 @@ class ExampleApp extends StatelessWidget {
         colorSchemeSeed: Colors.indigo,
         useMaterial3: true,
       ),
-      // İnteqrasiyanın tək sətri.
-      builder: NetworkLogger.overlayBuilder(),
+      // Setup step 2 of 2: show the debug button (debug builds only).
+      builder: DioDebugLogger.builder(),
       home: const HomePage(),
     );
   }
@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
         'X-Client': 'dio_debug_logger-example',
       },
     ),
-  )..interceptors.add(DebugLogging());
+  )..addDebugLogger(); // Setup step 1 of 2: record this Dio's requests.
 
   bool _busy = false;
 
@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
     try {
       await action();
     } catch (_) {
-      // Loglara düşür — burada udmaq kifayətdir.
+      // The error is in the logs — nothing else to do here.
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -63,7 +63,7 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
         children: [
           const Text(
-            'Aşağıdakı sorğuları işə sal, sonra sürüklənən 🐞 düyməsinə bas.',
+            'Send some requests below, then tap the draggable 🐞 button.',
             style: TextStyle(fontSize: 13),
           ),
           const SizedBox(height: 16),
@@ -73,19 +73,19 @@ class _HomePageState extends State<HomePage> {
             onTap: () => _run(() => _dio.get<dynamic>('/posts/1')),
           ),
           _Action(
-            label: 'GET /posts (böyük cavab)',
+            label: 'GET /posts (large response)',
             enabled: !_busy,
             onTap: () => _run(() => _dio.get<dynamic>('/posts')),
           ),
           _Action(
-            label: 'POST /posts (body ilə)',
+            label: 'POST /posts (with body)',
             enabled: !_busy,
             onTap: () => _run(
               () => _dio.post<dynamic>(
                 '/posts',
                 data: {
                   'title': "it's a test",
-                  'body': 'Uzun mətn ' * 20,
+                  'body': 'Long text ' * 20,
                   'userId': 1,
                 },
               ),
@@ -102,12 +102,12 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           _Action(
-            label: '404 xətası',
+            label: '404 error',
             enabled: !_busy,
             onTap: () => _run(() => _dio.get<dynamic>('/does-not-exist')),
           ),
           _Action(
-            label: 'Şəbəkə xətası (DNS)',
+            label: 'Network error (DNS)',
             enabled: !_busy,
             onTap: () => _run(
               () => _dio
@@ -127,9 +127,9 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 12),
           FilledButton.tonalIcon(
-            onPressed: () => NetworkLogger.open(context),
+            onPressed: () => DioDebugLogger.open(context),
             icon: const Icon(Icons.list_alt_rounded),
-            label: const Text('Logları proqramla aç'),
+            label: const Text('Open logs from code'),
           ),
         ],
       ),

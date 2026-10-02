@@ -3,11 +3,11 @@ import 'package:dio/dio.dart';
 import '../storage/debug_model.dart';
 import 'log_formatter.dart';
 
-/// Sorğunu müxtəlif formatlarda mətnə çevirir.
+/// Converts a request to text in various formats.
 class CopyHelper {
   const CopyHelper._();
 
-  /// Shell üçün təhlükəsiz tək dırnaqlı sətir.
+  /// Shell-safe single-quoted string.
   static String _shellQuote(String value) =>
       "'${value.replaceAll("'", r"'\''")}'";
 
@@ -94,11 +94,11 @@ class CopyHelper {
   static String generateJsonRequest(DebugModel model, {bool redact = false}) =>
       LogFormatter.pretty(model.toJson(redact: redact));
 
-  /// Yalnız response body.
+  /// Response body only.
   static String generateResponseBody(DebugModel model) =>
       LogFormatter.pretty(model.responseData);
 
-  /// Sorğu + cavabın oxunaqlı mətn xülasəsi (bug report üçün).
+  /// Readable summary of the request and response (for bug reports).
   static String generateSummary(DebugModel model, {bool redact = true}) {
     final buffer = StringBuffer()
       ..writeln('${model.httpMethod} ${model.url}')

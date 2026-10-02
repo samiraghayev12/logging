@@ -1,34 +1,49 @@
-# İnteqrasiya Bələdçisi
+# Integration Guide
 
-## Minimum (yeni app)
+## Minimum (new app)
 
 ```dart
 // main.dart
 MaterialApp(
-  builder: NetworkLogger.overlayBuilder(enabled: kDebugMode),
+  builder: DioDebugLogger.builder(),
   home: const HomePage(),
 );
 
 // api.dart
-dio.interceptors.add(DebugLogging());
+final dio = Dio()..addDebugLogger();
 ```
 
-Başqa heç nə lazım deyil — FAB, route idarəsi, canlı yenilənmə kitabxanadadır.
+Nothing else is needed — the button, routing and live updates are handled by the package.
+Both lines are disabled in release builds.
 
 ---
 
-## Mövcud `builder` ilə birlikdə
+## With an existing `builder`
 
-`MediaQuery`, `ScreenUtil` və s. artıq `builder`-dədirsə, sadəcə ən xarici widget kimi
-`DebugOverlay` əlavə et:
+If `MediaQuery`, `ScreenUtil`, etc. are already in your `builder`, pass it to
+`DioDebugLogger.builder`:
+
+```dart
+MaterialApp(
+  builder: DioDebugLogger.builder(
+    enabled: EnvironmentConfig.instance.environment.isDev,
+    backgroundColor: UIColor.primary,
+    builder: (context, child) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: ...),
+      child: child!,
+    ),
+  ),
+);
+```
+
+Or use the `DebugOverlay` widget directly as the outermost widget:
 
 ```dart
 builder: (context, child) {
-  return MediaQuery(
-    data: MediaQuery.of(context).copyWith(textScaler: ...),
-    child: DebugOverlay(
-      enabled: EnvironmentConfig.instance.environment.isDev,
-      backgroundColor: UIColor.primary,
+  return DebugOverlay(
+    enabled: kDebugMode,
+    child: MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: ...),
       child: child ?? const SizedBox.shrink(),
     ),
   );
@@ -37,68 +52,58 @@ builder: (context, child) {
 
 ---
 
-## v0.0.x-dən v0.1.0-a keçid
+## Migrating from `logging_service` (git) / 0.1.x
 
-Paketin adı dəyişib (`logging_service` → `dio_debug_logger`). `pubspec.yaml`-da git
-asılılığını `dio_debug_logger: ^0.1.0` ilə əvəz et və importları yenilə:
+1. Replace the git dependency with `dio_debug_logger: ^0.2.0`.
+2. Update the import:
 
-```dart
-// köhnə
-import 'package:logging_service/logging_service.dart';
-// yeni
-import 'package:dio_debug_logger/dio_debug_logger.dart';
-```
+   ```dart
+   // old
+   import 'package:logging_service/logging_service.dart';
+   // new
+   import 'package:dio_debug_logger/dio_debug_logger.dart';
+   ```
 
-Köhnə API işləməyə davam edir — heç nəyi dəyişmək **məcburi deyil**:
+3. Optionally move to the new API (the old one still works but is deprecated):
 
-| Köhnə | Vəziyyət |
+| Old | New |
 |---|---|
-| `dio.interceptors.add(DebugLogging())` | dəyişməyib |
-| `DebugStorage()` | dəyişməyib (yeni metodlar əlavə olunub) |
-| `openDebugPage(context)` | dəyişməyib (indi təkrar açılışdan qorunur) |
-| `const DebugPage()` | dəyişməyib |
+| `dio.interceptors.add(DebugLogging())` | `dio.addDebugLogger()` |
+| `NetworkLogger.overlayBuilder(enabled: isDev)` | `DioDebugLogger.builder(enabled: isDev)` |
+| `NetworkLogger.open(context)` / `openDebugPage(context)` | `DioDebugLogger.open(context)` |
+| `NetworkLogger.retryClientBuilder` | `DioDebugLogger.retryClientBuilder` |
 
-Silinə bilən köhnə app kodu:
+> `NetworkLogger.overlayBuilder()` is enabled by default; `DioDebugLogger.builder()` is
+> enabled only in debug builds. Pass `enabled` explicitly if you need it elsewhere.
 
-| Appdakı kod | Səbəb |
+App code you can delete:
+
+| Code in your app | Why |
 |---|---|
-| `ListenableBuilder(listenable: DebugStorage(), ...)` sarğısı | `DebugPage` özü qulaq asır |
-| Öz `DebugRouteObserver`-in | `NetworkLogger` təkrar açılışı özü bloklayır |
-| Öz FAB / `DebugButtonOverlay` widget-in | `DebugOverlay` içindədir |
-| `AppProvider.isDebugPageOpen`, `openDebugPage1()` | `NetworkLogger.isOpenNotifier` / `NetworkLogger.open()` |
-| `PopScope` + `popUntil` sarğısı | tək route push olunur, adi `pop` kifayətdir |
+| `ListenableBuilder(listenable: DebugStorage(), ...)` around `DebugPage` | `DebugPage` listens itself |
+| Your own `DebugRouteObserver` | the package blocks double opening |
+| Your own FAB / `DebugButtonOverlay` widget | built into `DioDebugLogger.builder()` |
+| `PopScope` + `popUntil` wrappers | a single route is pushed, a plain `pop` is enough |
 
 ---
 
-## Prod-da gizlətmək
+## Retry with your own Dio
 
-```dart
-builder: NetworkLogger.overlayBuilder(
-  enabled: EnvironmentConfig.instance.environment.isDev,
-),
-```
-
-`enabled: false` olduqda overlay ümumiyyətlə qurulmur — `child` birbaşa qaytarılır.
-
----
-
-## Retry üçün öz Dio-nu ver
-
-Sertifikat pinning və ya xüsusi `BaseOptions` varsa:
+For certificate pinning or custom `BaseOptions`:
 
 ```dart
 void main() {
-  NetworkLogger.retryClientBuilder = () => ApiClient.instance.dio;
+  DioDebugLogger.retryClientBuilder = () => ApiClient.instance.dio;
   runApp(const App());
 }
 ```
 
 ---
 
-## Həssas məlumat
+## Sensitive data
 
-- Konsol logunda `Authorization`, `Cookie`, `X-Api-Key` və s. avtomatik maskalanır
-  (`DebugLogging(redactSensitiveHeaders: false)` ilə söndürülə bilər).
-- Kopyalama dialoqundakı **Hide tokens** açarı defolt olaraq açıqdır.
-- `DebugStorage().exportAll()` defolt `redact: true` ilə işləyir.
-- UI-də header-lər tam görünür — bu, developer alətidir; prod-da `enabled: false` ver.
+- `Authorization`, `Cookie`, `X-Api-Key`, etc. are masked in console output
+  (disable with `dio.addDebugLogger(redactSensitiveHeaders: false)`).
+- The **Hide tokens** switch in the copy dialog is on by default.
+- `DebugStorage().exportAll()` uses `redact: true` by default.
+- The UI shows headers in full — it is a developer tool; keep it disabled in production.

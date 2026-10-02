@@ -1,11 +1,11 @@
 # dio_debug_logger example
 
-`dio_debug_logger` paketinin istifadəsini göstərən nümunə app.
+A small app that shows how to use `dio_debug_logger`.
 
 ```bash
 cd example
 flutter run
 ```
 
-Ekranda sürüklənən 🐞 düyməsi görünür. Sorğu göndərmə düymələrinə basın, sonra 🐞-yə klik edib
-logları, detalları və statistikanı görün.
+Tap the buttons to send a few requests, then tap the draggable 🐞 button to see the logs,
+request details and statistics.

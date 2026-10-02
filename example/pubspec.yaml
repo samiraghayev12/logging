@@ -1,5 +1,5 @@
 name: dio_debug_logger_example
-description: "dio_debug_logger üçün nümunə app."
+description: "Example app for dio_debug_logger."
 publish_to: 'none'
 version: 1.0.0
 

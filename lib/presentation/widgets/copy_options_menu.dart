@@ -71,7 +71,7 @@ class _CopyOptionsMenuState extends State<CopyOptionsMenu> {
                   ),
                 ),
                 subtitle: Text(
-                  'Authorization / cookie header-lərini maskala',
+                  'Mask Authorization / cookie headers',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -114,7 +114,7 @@ class _CopyOptionsMenuState extends State<CopyOptionsMenu> {
                     _Option(
                       icon: Icons.description_rounded,
                       title: 'Readable Summary',
-                      subtitle: 'Bug report üçün mətn',
+                      subtitle: 'Readable text for bug reports',
                       onTap: () => _copy(
                         CopyHelper.generateSummary(model, redact: _redact),
                         'Summary',
@@ -123,7 +123,7 @@ class _CopyOptionsMenuState extends State<CopyOptionsMenu> {
                     _Option(
                       icon: Icons.download_rounded,
                       title: 'Response Body',
-                      subtitle: 'Yalnız cavab məzmunu',
+                      subtitle: 'Response body only',
                       enabled: model.hasResponseData,
                       onTap: () => _copy(
                         CopyHelper.generateResponseBody(model),

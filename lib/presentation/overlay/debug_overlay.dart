@@ -3,19 +3,19 @@ import 'package:flutter/material.dart';
 import '../../service/network_logger.dart';
 import '../../storage/debug_storage.dart';
 
-/// FAB mövqeyini rebuild-lər və səhifə keçidləri arasında saxlayır.
+/// Keeps the button position across rebuilds and page transitions.
 class _FabPosition {
   static Offset? offset;
 }
 
-/// Appın üzərinə sürüklənə bilən debug düyməsi əlavə edir.
+/// Adds a draggable debug button on top of the app.
 ///
-/// `MaterialApp.builder` içində istifadə olunur — appda başqa heç nə lazım deyil:
+/// Usually created by `DioDebugLogger.builder()`. Use it directly only if
+/// you need full control:
 /// ```dart
 /// MaterialApp(
-///   navigatorObservers: [NetworkLogger.observer],
 ///   builder: (context, child) => DebugOverlay(
-///     enabled: isDev,
+///     enabled: kDebugMode,
 ///     child: child ?? const SizedBox.shrink(),
 ///   ),
 /// );
@@ -37,7 +37,7 @@ class DebugOverlay extends StatefulWidget {
 
   final Widget child;
 
-  /// `false` olduqda düymə tamamilə gizlənir (məs. prod mühiti).
+  /// When `false`, the button is not built at all (e.g. in production).
   final bool enabled;
 
   final Color? backgroundColor;
@@ -45,12 +45,12 @@ class DebugOverlay extends StatefulWidget {
   final IconData icon;
   final double buttonSize;
 
-  /// Sorğu/xəta sayını göstərən nişan.
+  /// Shows a badge with the request/error count.
   final bool showBadge;
 
   final Alignment initialAlignment;
 
-  /// Buraxdıqda ən yaxın kənara yapışsın?
+  /// Whether the button snaps to the nearest edge when released.
   final bool snapToEdge;
 
   final double edgeMargin;
@@ -92,9 +92,9 @@ class _DebugOverlayState extends State<DebugOverlay> {
     );
   }
 
-  /// Həmişə State-in öz context-i istifadə olunur: Navigator alt ağacda
-  /// axtarıldığı üçün context `widget.child`-ın valideyni olmalıdır.
-  void _openLogs() => NetworkLogger.open(context);
+  /// Always uses the State's own context: the Navigator is searched in the
+  /// subtree, so the context must be a parent of `widget.child`.
+  void _openLogs() => DioDebugLogger.open(context);
 
   void _store(Offset value) {
     _FabPosition.offset = value;
@@ -140,7 +140,7 @@ class _DebugOverlayState extends State<DebugOverlay> {
                 final position = _clamp(_offset ?? _defaultOffset(area), area);
 
                 return ValueListenableBuilder<bool>(
-                  valueListenable: NetworkLogger.isOpenNotifier,
+                  valueListenable: DioDebugLogger.isOpenNotifier,
                   builder: (context, isOpen, _) {
                     if (isOpen) return const SizedBox.shrink();
                     return Stack(

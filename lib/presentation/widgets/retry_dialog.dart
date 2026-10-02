@@ -26,7 +26,7 @@ class _RetryDialogState extends State<RetryDialog> {
   String? _resultTitle;
   String? _resultBody;
 
-  /// `content-length` kimi header-lər yeni sorğunu pozur — təmizlənir.
+  /// Headers like `content-length` break the new request, so they are removed.
   static const Set<String> _strippedHeaders = {
     'content-length',
     'host',
@@ -56,7 +56,7 @@ class _RetryDialogState extends State<RetryDialog> {
         options: Options(
           method: widget.debugModel.httpMethod,
           headers: _retryHeaders,
-          // 4xx/5xx exception atmasın — nəticəni özümüz göstəririk.
+          // Don't throw on 4xx/5xx — the result is shown in the dialog.
           validateStatus: (_) => true,
         ),
         data: widget.debugModel.requestData,

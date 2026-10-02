@@ -1,65 +1,82 @@
+## 0.2.0
+
+### Simpler setup
+
+- New `dio.addDebugLogger()` extension — adds the interceptor once (repeated calls are ignored).
+- New `DioDebugLogger` class — the single entry point, named after the package.
+  `DioDebugLogger.builder()` replaces `NetworkLogger.overlayBuilder()`.
+- `DioDebugLogger.builder(builder: ...)` wraps an existing `MaterialApp.builder`.
+- **Safe by default:** `addDebugLogger()` and `DioDebugLogger.builder()` are disabled in
+  release builds (`enabled` defaults to `kDebugMode`).
+
+### Deprecated
+
+- `NetworkLogger` → use `DioDebugLogger`. It still works and keeps its old defaults
+  (`overlayBuilder()` is enabled by default).
+- `openDebugPage` / `closeDebugPage` → use `DioDebugLogger.open` / `DioDebugLogger.close`.
+
+### Other
+
+- Documentation, API docs, example app and remaining UI strings translated to English.
+  Azerbaijani README: `README.az.md`.
+
 ## 0.1.0
 
 ### pub.dev
 
-- Paket `logging_service` → `dio_debug_logger` adlandırıldı (`logging_service` adı pub.dev-də artıq
-  məşğuldur). Import: `package:dio_debug_logger/dio_debug_logger.dart`.
-- MIT lisenziyası, `repository` / `issue_tracker` / `topics` / `screenshots` sahələri əlavə olundu.
-- İstifadə olunmayan native plugin şablonları `.pubignore` ilə paketdən çıxarıldı.
+- Package renamed `logging_service` → `dio_debug_logger` (the old name is taken on pub.dev).
+  Import: `package:dio_debug_logger/dio_debug_logger.dart`.
+- Added MIT license, `repository` / `issue_tracker` / `topics` / `screenshots`.
+- Unused native plugin templates are excluded from the package via `.pubignore`.
 
-### Bug fix
+### Bug fixes
 
-- `DebugPage` `DebugStorage`-a qulaq asmırdı — səhifə açıq ikən yeni sorğular görünmürdü.
-  Artıq bütün səhifələr (siyahı, detal, analitika) canlı yenilənir.
-- `Dismissible` açarı `id-index` idi; siyahı dəyişəndə açar sürüşür və səhv element silinirdi.
-  İndi açar yalnız `id`-dir və silmə də `id` üzrə gedir.
-- `DebugStorage.clear()` sayğacı sıfırlayırdı → hələ cavabı gəlməmiş sorğu ilə eyni `id`
-  yaranırdı (dublikat açar → render xətası). Sayğac artıq sıfırlanmır.
-- Header dəyəri `String` olmayanda (`content-length: 120`, `accept: [a, b]`) `Text(entry.value)`
-  runtime-da tip xətası atırdı. Bütün header-lər normallaşdırılır.
-- `hasError` hələ cavabı gəlməmiş sorğunu bəzən xəta sayırdı; `Pending` vəziyyəti əlavə olundu
-  (`null ms` / yanlış "Success" nişanı aradan qalxdı).
-- `CopyHelper.generateCurlCommand` tək dırnaqları escape etmirdi — çıxan cURL sınırdı;
-  `jsonEncode` kodlana bilməyən body-də exception atırdı. Hər ikisi düzəldildi, `FormData`
-  artıq `-F` ilə yazılır.
-- `RetryDialog` `dispose`-dan sonra `setState` çağıra bilirdi; `content-length` header-i
-  yenidən göndərilirdi; 4xx/5xx nəticəsi görünmürdü.
-- Kopyalama dialoqu `Navigator.pop`-dan sonra `ScaffoldMessenger.of(context)` çağırırdı.
-- `pubspec.yaml` mövcud olmayan `logging_service_web.dart` faylına istinad edirdi (web build sınırdı).
-  İstifadə olunmayan platform plugin təyinatı və dependency-lər (`flutter_screenutil`, `intl`,
-  `web`, `plugin_platform_interface`) silindi.
+- `DebugPage` did not listen to `DebugStorage`, so new requests did not appear while it was open.
+  All pages (list, details, analytics) now update live.
+- The `Dismissible` key was `id-index`; when the list changed the key shifted and the wrong item
+  was deleted. The key is now the `id` only, and deletion is by `id`.
+- `DebugStorage.clear()` reset the counter, so a pending request could share an `id` with a new
+  one (duplicate key → render error). The counter is no longer reset.
+- Non-`String` header values (`content-length: 120`, `accept: [a, b]`) caused a type error in
+  `Text(entry.value)`. All headers are normalized now.
+- `hasError` sometimes counted pending requests as errors; a `Pending` state was added
+  (no more `null ms` / wrong "Success" label).
+- `CopyHelper.generateCurlCommand` did not escape single quotes (broken cURL), and `jsonEncode`
+  threw on unencodable bodies. Both fixed; `FormData` is now written with `-F`.
+- `RetryDialog` could call `setState` after `dispose`, resent the `content-length` header and
+  did not show 4xx/5xx results.
+- The copy dialog called `ScaffoldMessenger.of(context)` after `Navigator.pop`.
+- `pubspec.yaml` referenced a missing `logging_service_web.dart` (broke web builds). The unused
+  platform plugin definition and dependencies (`flutter_screenutil`, `intl`, `web`,
+  `plugin_platform_interface`) were removed.
 
 ### Responsive
 
-- Planşetdə ölçü əmsalı `3.0` idi → mətnlər qutulardan daşırdı. İndi `1.12` (≥600dp) /
-  `1.25` (≥900dp), telefonda `0.85–1.15`.
-- Sistem "font size" ayarı debug səhifələrində `1.25`-lə məhdudlaşdırılır.
-- Bütün mətnlərə `maxLines` + `ellipsis`; uzun dəyərlər üçün `SelectableText`;
-  status/metod nişanları `FittedBox` + sabit genişlik; statistika kartları `Wrap` ilə.
-- Geniş ekranda məzmun mərkəzləşir (maks. 1000dp).
+- Tablet scale factor was `3.0`, so text overflowed. Now `1.12` (≥600dp) / `1.25` (≥900dp),
+  and `0.85–1.15` on phones.
+- The system font size is capped at `1.25` on the debug pages.
+- `maxLines` + `ellipsis` on all text; `SelectableText` for long values; fixed-width
+  status/method labels with `FittedBox`; statistics cards use `Wrap`.
+- Content is centered on wide screens (max 1000dp).
 
-### Yeni
+### New
 
-- `DebugOverlay` / `NetworkLogger.overlayBuilder()` — sürüklənən FAB, badge, kənara yapışma,
-  təkrar açılış qoruması. Appda `navigatorKey`/`navigatorObservers` tələb olunmur.
+- `DebugOverlay` / `NetworkLogger.overlayBuilder()` — draggable button with badge, edge snapping
+  and double-open protection. No `navigatorKey` / `navigatorObservers` required.
 - `NetworkLogger` — `open`, `close`, `isOpenNotifier`, `configure`, `retryClientBuilder`.
-- Log siyahısında axtarış (URL/metod/status) və status filtri (All/Success/Errors/Pending).
-- ⋮ menyusu: Analytics, Pause/Resume recording, Copy all as JSON, Clear all.
-- Detal səhifəsində xülasə başlığı (status, müddət, ↑/↓ ölçü) və JSON ağacı ↔ xam mətn keçidi.
-- `FormData` artıq həm request, həm cURL, həm də JSON görünüşündə dəstəklənir.
-- Həssas header maskalama (`Authorization`, `Cookie`, `X-Api-Key`, …) — konsol, kopyalama və export.
-- `CopyHelper.generateSummary` (bug report üçün mətn) və `generateResponseBody`.
+- Search (URL / method / status) and status filter (All / Success / Errors / Pending).
+- ⋮ menu: Analytics, Pause/Resume recording, Copy all as JSON, Clear all.
+- Detail header (status, duration, ↑/↓ size) and JSON tree ↔ raw text toggle.
+- `FormData` support in the request view, cURL and JSON.
+- Sensitive header masking (`Authorization`, `Cookie`, `X-Api-Key`, …) in the console, copy and
+  export.
+- `CopyHelper.generateSummary` (bug report text) and `generateResponseBody`.
 - `DebugStorage`: `deleteById`, `deleteByIds`, `findById`, `setRecording`, `configure`,
   `exportAll`, `successCount`, `pendingCount`, `averageElapsedMs`.
 - `DebugModel`: `status`, `isPending`, `isSuccess`, `requestSize`, `responseSize`,
   `underlyingError`, `toJson`, `matches`.
-- Dart testləri əlavə olundu (`flutter test`).
-
-### Uyğunluq
-
-Köhnə API tam işləyir: `DebugLogging()`, `DebugStorage()`, `openDebugPage(context)`,
-`const DebugPage()`, `DebugDetail`, `DebugStats`, `CopyHelper`, `ResponsiveHelper`.
+- Tests added (`flutter test`).
 
 ## 0.0.1
 
-* İlk versiya.
+* Initial release.

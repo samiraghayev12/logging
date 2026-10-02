@@ -1,6 +1,6 @@
-# pub.dev-ə yüklənməyən fayllar.
-# Qeyd: .pubignore olduqda .gitignore paket üçün nəzərə alınmır,
-# ona görə lazımi qaydalar burada təkrarlanır.
+# Files that are not published to pub.dev.
+# Note: when .pubignore exists, .gitignore is ignored for publishing,
+# so the needed rules are repeated here.
 
 .dart_tool/
 build/
@@ -13,14 +13,14 @@ doc/api/
 .idea/
 *.iml
 
-# İstifadə olunmayan native plugin şablonları (paket təmiz Dart/Flutter-dir)
+# Unused native plugin templates (this is a pure Dart/Flutter package)
 /android/
 /ios/
 /linux/
 /macos/
 /windows/
 
-# Example app-ın build/platform artefaktları
+# Example app build/platform artifacts
 example/.dart_tool/
 example/build/
 example/pubspec.lock
@@ -31,7 +31,7 @@ example/android/.gradle/
 example/android/local.properties
 example/*.iml
 
-# Golden şəkillər (screenshots üçün istifadə olunanlardan başqa)
+# Golden images (except the ones used as pub.dev screenshots)
 test/goldens/*
 !test/goldens/list_phone.png
 !test/goldens/detail_ok.png

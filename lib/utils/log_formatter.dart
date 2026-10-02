@@ -3,15 +3,15 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
-/// Log məzmununu təhlükəsiz şəkildə mətnə / JSON-a çevirir.
+/// Safely converts log content to text / JSON.
 ///
-/// Bütün metodlar exception atmır — debug aləti heç vaxt appi çökdürməməlidir.
+/// No method throws — a debug tool must never crash the app.
 class LogFormatter {
   const LogFormatter._();
 
   static const JsonEncoder _prettyEncoder = JsonEncoder.withIndent('  ');
 
-  /// Gizlədilməli header adları (kiçik hərflə müqayisə olunur).
+  /// Header names to mask (compared in lower case).
   static const Set<String> sensitiveHeaders = {
     'authorization',
     'proxy-authorization',
@@ -24,7 +24,7 @@ class LogFormatter {
     'access-token',
   };
 
-  /// İstənilən dəyəri JSON-a uyğun struktura çevirir.
+  /// Converts any value to a JSON-compatible structure.
   static Object? sanitize(Object? value, {int depth = 0}) {
     if (depth > 24) return value.toString();
     if (value == null || value is num || value is bool || value is String) {
@@ -54,7 +54,7 @@ class LogFormatter {
     }
   }
 
-  /// JSON viewer-ə veriləcək struktur. String JSON-dursa parse edir.
+  /// Structure for the JSON viewer. Parses strings that contain JSON.
   static Object? forJsonView(Object? value) {
     if (value is String) {
       final decoded = tryDecode(value);
@@ -64,12 +64,12 @@ class LogFormatter {
     return sanitize(value);
   }
 
-  /// String JSON-dursa decode edir, əks halda `null` qaytarır.
+  /// Decodes a JSON string, otherwise returns `null`.
   static Object? tryDecode(String source) {
     final trimmed = source.trim();
     if (trimmed.isEmpty) return null;
     final first = trimmed.codeUnitAt(0);
-    // yalnız `{` və ya `[` ilə başlayanları yoxla
+    // only check strings starting with `{` or `[`
     if (first != 0x7B && first != 0x5B) return null;
     try {
       return jsonDecode(trimmed) as Object?;
@@ -78,7 +78,7 @@ class LogFormatter {
     }
   }
 
-  /// Sətir formasında, sıxılmış JSON.
+  /// Compact JSON string.
   static String encode(Object? value) {
     try {
       return jsonEncode(sanitize(value));
@@ -87,7 +87,7 @@ class LogFormatter {
     }
   }
 
-  /// Sətir formasında, girintili (oxunaqlı) JSON.
+  /// Indented (readable) JSON string.
   static String pretty(Object? value) {
     if (value == null) return '';
     try {
@@ -126,7 +126,7 @@ class LogFormatter {
     };
   }
 
-  /// Header map-ini `Map<String, String>`-ə normallaşdırır (dəyər `List` ola bilər).
+  /// Normalizes a header map to `Map<String, String>` (values may be a `List`).
   static Map<String, String> normalizeHeaders(
     Map<String, dynamic> headers, {
     bool redact = false,
@@ -148,7 +148,7 @@ class LogFormatter {
     return '${value.substring(0, 4)}••••${value.substring(value.length - 4)}';
   }
 
-  /// Data-nın təxmini ölçüsü (bayt). Hesablana bilmirsə `null`.
+  /// Approximate size of the data in bytes, or `null` if unknown.
   static int? byteSize(Object? value) {
     if (value == null) return null;
     try {
@@ -168,7 +168,7 @@ class LogFormatter {
     return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
   }
 
-  /// `14:32:07.482` formatı.
+  /// `14:32:07.482` format.
   static String clockTime(DateTime time) {
     final h = time.hour.toString().padLeft(2, '0');
     final m = time.minute.toString().padLeft(2, '0');
@@ -177,7 +177,7 @@ class LogFormatter {
     return '$h:$m:$s.$ms';
   }
 
-  /// `08.09.2026 14:32:07` formatı.
+  /// `08.09.2026 14:32:07` format.
   static String dateTimeLabel(DateTime time) {
     final d = time.day.toString().padLeft(2, '0');
     final mo = time.month.toString().padLeft(2, '0');

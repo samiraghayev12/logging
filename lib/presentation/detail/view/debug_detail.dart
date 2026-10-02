@@ -76,7 +76,7 @@ class _DebugDetailState extends State<DebugDetail>
               context: context,
               builder: (_) => RetryDialog(
                 debugModel: model,
-                dioClient: NetworkLogger.createRetryClient(),
+                dioClient: DioDebugLogger.createRetryClient(),
               ),
             ),
           ),

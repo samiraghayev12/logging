@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/log_formatter.dart';
 
-/// Sorğunun ümumi vəziyyəti.
+/// Overall state of a request.
 enum DebugStatus { pending, success, redirect, clientError, serverError, failed }
 
 class DebugModel {
@@ -28,7 +28,7 @@ class DebugModel {
 
   // ============ STATUS ============
 
-  /// Cavab (və ya error cavabı) hələ gəlməyibsə `true`.
+  /// `true` while no response (or error) has arrived yet.
   bool get isPending =>
       response == null && dioError == null && requestEndTime == null;
 
@@ -69,7 +69,7 @@ class DebugModel {
     }
   }
 
-  /// Real cavab — error halında da əldə edilir.
+  /// The actual response — also available on errors.
   Response<dynamic>? get _effectiveResponse => response ?? dioError?.response;
 
   int? get statusCodeValue => _effectiveResponse?.statusCode;
@@ -86,7 +86,7 @@ class DebugModel {
 
   String get host => uri.host;
 
-  /// Siyahıda göstərmək üçün qısa yol (query-siz).
+  /// Short path for the list (without query).
   String get shortPath {
     final value = uri.path;
     return value.isEmpty ? '/' : value;
@@ -107,7 +107,7 @@ class DebugModel {
 
   bool get isFormDataRequest => requestData is FormData;
 
-  /// JSON viewer-in göstərə biləcəyi struktur (FormData da daxil).
+  /// A structure the JSON viewer can show (including FormData).
   Object? get requestDataForView => LogFormatter.forJsonView(requestData);
 
   Map<String, dynamic> get queryParameters => requestOptions.queryParameters;
@@ -164,7 +164,7 @@ class DebugModel {
 
   // ============ ERROR DETAILS ============
 
-  /// Backend response body-dən gələn struktur (məs: {title, status, message}).
+  /// Structure from the backend response body (e.g. {title, status, message}).
   Map<String, dynamic>? get _errorBody {
     final data = _effectiveResponse?.data;
     if (data is Map) return Map<String, dynamic>.from(data);
@@ -175,7 +175,7 @@ class DebugModel {
     return null;
   }
 
-  /// Error status code — backend response body-ni də nəzərə alır.
+  /// Error status code — also checks the backend response body.
   String get errorStatusCode {
     final code = statusCodeValue;
     if (code != null) return '$code';
@@ -194,11 +194,11 @@ class DebugModel {
     return 'Error';
   }
 
-  /// Error mesajı — prioritetlə backend-dən gələn mesajı götürür.
+  /// Error message — prefers the message sent by the backend.
   String get errorStatusMessage {
     final body = _errorBody;
 
-    // 1. Backend response body-də ən informativ field
+    // 1. The most informative field in the backend response body
     if (body != null) {
       const keys = [
         'detail',
@@ -228,7 +228,7 @@ class DebugModel {
       }
     }
 
-    // 2. Body sadəcə mətndirsə
+    // 2. Body is plain text
     final rawData = _effectiveResponse?.data;
     if (rawData is String && rawData.trim().isNotEmpty && body == null) {
       return rawData.trim();
@@ -248,7 +248,7 @@ class DebugModel {
     return 'Unknown error occurred';
   }
 
-  /// Şəbəkə səviyyəsində baş verən xəta (`SocketException` və s.).
+  /// Network-level error (`SocketException`, etc.).
   String? get underlyingError {
     final error = dioError?.error;
     return error == null ? null : '$error';
@@ -262,7 +262,7 @@ class DebugModel {
 
   // ============ SEARCH ============
 
-  /// Sorğu tamamlandıqca dəyişdiyi üçün hər dəfə yenidən qurulur.
+  /// Rebuilt every time because it changes as the request completes.
   String get searchIndex =>
       '$httpMethod $url $statusCode $statusLabel'.toLowerCase();
 
@@ -313,7 +313,7 @@ class DebugModel {
 
   String get elapsedTimeInMs => elapsedTime != null ? '$elapsedTime ms' : '—';
 
-  /// Sürət göstəricisi rəngi.
+  /// Speed indicator color.
   Color get durationColor {
     final value = elapsedTime;
     if (value == null) return Colors.grey;
@@ -326,7 +326,7 @@ class DebugModel {
 
   String get requestTime => requestTimeString;
 
-  /// Siyahı üçün qısa vaxt — `14:32:07.482`.
+  /// Short time for the list — `14:32:07.482`.
   String get startClockLabel => LogFormatter.clockTime(requestStartTime);
 
   Map<String, dynamic> toJson({bool redact = false}) => <String, dynamic>{
@@ -349,8 +349,8 @@ class DebugModel {
 
   // ============ INTERNAL ============
 
-  // `default` qəsdən var: `DioExceptionType`-a yeni dio versiyalarında
-  // dəyər əlavə olunur (məs. `transformTimeout`) və exhaustive switch sınır.
+  // `default` is intentional: new dio versions add values to
+  // `DioExceptionType` (e.g. `transformTimeout`) and an exhaustive switch breaks.
   static String _errorTypeLabel(DioExceptionType type) {
     switch (type) {
       case DioExceptionType.connectionTimeout:
