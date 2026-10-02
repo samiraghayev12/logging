@@ -39,6 +39,16 @@ builder: (context, child) {
 
 ## v0.0.x-dən v0.1.0-a keçid
 
+Paketin adı dəyişib (`logging_service` → `dio_debug_logger`). `pubspec.yaml`-da git
+asılılığını `dio_debug_logger: ^0.1.0` ilə əvəz et və importları yenilə:
+
+```dart
+// köhnə
+import 'package:logging_service/logging_service.dart';
+// yeni
+import 'package:dio_debug_logger/dio_debug_logger.dart';
+```
+
 Köhnə API işləməyə davam edir — heç nəyi dəyişmək **məcburi deyil**:
 
 | Köhnə | Vəziyyət |

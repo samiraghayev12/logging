@@ -1,6 +1,6 @@
 {
-    "name": "logging_service_example",
-    "short_name": "logging_service_example",
+    "name": "dio_debug_logger_example",
+    "short_name": "dio_debug_logger_example",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

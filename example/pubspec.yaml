@@ -1,5 +1,5 @@
-name: logging_service_example
-description: "logging_service üçün nümunə app."
+name: dio_debug_logger_example
+description: "dio_debug_logger üçün nümunə app."
 publish_to: 'none'
 version: 1.0.0
 
@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^5.8.0+1
-  logging_service:
+  dio_debug_logger:
     path: ../
 
 dev_dependencies:
