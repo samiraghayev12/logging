@@ -110,7 +110,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Şəbəkə xətası (DNS)',
             enabled: !_busy,
             onTap: () => _run(
-              () => _dio.get<dynamic>('https://this-host-does-not-exist.invalid/x'),
+              () => _dio
+                  .get<dynamic>('https://this-host-does-not-exist.invalid/x'),
             ),
           ),
           _Action(
@@ -119,7 +120,8 @@ class _HomePageState extends State<HomePage> {
             onTap: () => _run(
               () => _dio.get<dynamic>(
                 '/posts',
-                options: Options(receiveTimeout: const Duration(milliseconds: 1)),
+                options:
+                    Options(receiveTimeout: const Duration(milliseconds: 1)),
               ),
             ),
           ),

@@ -33,9 +33,9 @@ class DebugSection extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      fontSize: ResponsiveHelper.getFontSize(context, 15),
-                    ),
+                  fontWeight: FontWeight.w600,
+                  fontSize: ResponsiveHelper.getFontSize(context, 15),
+                ),
               ),
             ),
             if (trailingLabel != null)
@@ -48,9 +48,9 @@ class DebugSection extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontSize: ResponsiveHelper.getFontSize(context, 11),
-                        color: Colors.grey[600],
-                      ),
+                    fontSize: ResponsiveHelper.getFontSize(context, 11),
+                    color: Colors.grey[600],
+                  ),
                 ),
               ),
             ?actionButton,
@@ -83,13 +83,13 @@ class DebugCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
-      padding: padding ??
-          EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
+      padding:
+          padding ?? EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
       decoration: BoxDecoration(
         color: color ?? (isDark ? Colors.grey[900] : Colors.grey[50]),
         border: Border.all(
-          color: borderColor ??
-              (isDark ? Colors.grey[800]! : Colors.grey[200]!),
+          color:
+              borderColor ?? (isDark ? Colors.grey[800]! : Colors.grey[200]!),
         ),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -128,9 +128,9 @@ class KeyValueTile extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: ResponsiveHelper.getFontSize(context, 12),
-                      ),
+                    fontWeight: FontWeight.w700,
+                    fontSize: ResponsiveHelper.getFontSize(context, 12),
+                  ),
                 ),
                 SizedBox(height: ResponsiveHelper.getSpacing(context, 4)),
                 Text(
@@ -139,9 +139,9 @@ class KeyValueTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   softWrap: true,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontSize: ResponsiveHelper.getFontSize(context, 12),
-                        height: 1.35,
-                      ),
+                    fontSize: ResponsiveHelper.getFontSize(context, 12),
+                    height: 1.35,
+                  ),
                 ),
               ],
             ),
@@ -380,7 +380,11 @@ class InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: ResponsiveHelper.getUIElementSize(context, 14), color: color),
+          Icon(
+            icon,
+            size: ResponsiveHelper.getUIElementSize(context, 14),
+            color: color,
+          ),
           SizedBox(width: ResponsiveHelper.getSpacing(context, 6)),
           Flexible(
             child: Text(
