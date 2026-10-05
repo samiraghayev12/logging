@@ -270,6 +270,10 @@ The old API still works but is deprecated:
 > Note: `NetworkLogger.overlayBuilder()` was enabled by default; `DioDebugLogger.builder()`
 > is only enabled in debug builds unless you pass `enabled`.
 
+## Author
+
+Made by [Samir Aghayev](https://samiragaev.com), Senior Flutter Developer.
+
 ## License
 
 [MIT](LICENSE)
