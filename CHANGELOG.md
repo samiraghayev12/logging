@@ -1,3 +1,7 @@
+## 0.4.1
+
+- Homepage now points to https://samiragaev.com.
+
 ## 0.4.0
 
 ### Security
