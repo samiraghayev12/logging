@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../storage/debug_model.dart';
 import 'log_formatter.dart';
+import 'redaction.dart';
 
 /// Converts a request to text in various formats.
 class CopyHelper {
@@ -22,7 +23,10 @@ class CopyHelper {
     if (body != null) {
       if (body is FormData) {
         for (final field in body.fields) {
-          buffer.write(" \\\n  -F ${_shellQuote('${field.key}=${field.value}')}");
+          final value = redact && Redaction.isSensitive(field.key)
+              ? Redaction.mask
+              : field.value;
+          buffer.write(" \\\n  -F ${_shellQuote('${field.key}=$value')}");
         }
         for (final file in body.files) {
           buffer.write(
@@ -30,12 +34,15 @@ class CopyHelper {
           );
         }
       } else {
-        final encoded = body is String ? body : LogFormatter.encode(body);
+        final data = redact ? Redaction.redact(body) : body;
+        final encoded = data is String ? data : LogFormatter.encode(data);
         buffer.write(" \\\n  -d ${_shellQuote(encoded)}");
       }
     }
 
-    buffer.write(" \\\n  ${_shellQuote(model.url)}");
+    buffer.write(
+      " \\\n  ${_shellQuote(redact ? Redaction.url(model.url) : model.url)}",
+    );
     return buffer.toString();
   }
 
@@ -55,31 +62,41 @@ class CopyHelper {
             'header': model
                 .requestHeadersView(redact: redact)
                 .entries
-                .map((e) => <String, dynamic>{
-                      'key': e.key,
-                      'value': e.value,
-                      'type': 'text',
-                    })
+                .map(
+                  (e) => <String, dynamic>{
+                    'key': e.key,
+                    'value': e.value,
+                    'type': 'text',
+                  },
+                )
                 .toList(),
             'body': <String, dynamic>{
               'mode': 'raw',
-              'raw': LogFormatter.pretty(model.requestData),
+              'raw': LogFormatter.pretty(
+                redact
+                    ? Redaction.redact(model.requestData)
+                    : model.requestData,
+              ),
               'options': <String, dynamic>{
                 'raw': <String, dynamic>{'language': 'json'},
               },
             },
             'url': <String, dynamic>{
-              'raw': model.url,
+              'raw': redact ? Redaction.url(model.url) : model.url,
               'protocol': uri.scheme,
               'host': uri.host.split('.'),
               if (uri.hasPort) 'port': '${uri.port}',
               'path': uri.pathSegments,
               if (uri.hasQuery)
                 'query': uri.queryParameters.entries
-                    .map((e) => <String, dynamic>{
-                          'key': e.key,
-                          'value': e.value,
-                        })
+                    .map(
+                      (e) => <String, dynamic>{
+                        'key': e.key,
+                        'value': redact && Redaction.isSensitive(e.key)
+                            ? Redaction.mask
+                            : e.value,
+                      },
+                    )
                     .toList(),
             },
           },
@@ -95,17 +112,23 @@ class CopyHelper {
       LogFormatter.pretty(model.toJson(redact: redact));
 
   /// Response body only.
-  static String generateResponseBody(DebugModel model) =>
-      LogFormatter.pretty(model.responseData);
+  static String generateResponseBody(DebugModel model, {bool redact = true}) =>
+      LogFormatter.pretty(
+        redact ? Redaction.redact(model.responseData) : model.responseData,
+      );
 
   /// Readable summary of the request and response (for bug reports).
   static String generateSummary(DebugModel model, {bool redact = true}) {
     final buffer = StringBuffer()
-      ..writeln('${model.httpMethod} ${model.url}')
+      ..writeln(
+        '${model.httpMethod} ${redact ? Redaction.url(model.url) : model.url}',
+      )
       ..writeln('Status : ${model.statusCode} (${model.statusLabel})')
       ..writeln('Time   : ${model.requestTimeString}')
       ..writeln('Took   : ${model.elapsedTimeInMs}')
-      ..writeln('Size   : ↑ ${model.requestSizeLabel} · ↓ ${model.responseSizeLabel}')
+      ..writeln(
+        'Size   : ↑ ${model.requestSizeLabel} · ↓ ${model.responseSizeLabel}',
+      )
       ..writeln()
       ..writeln('--- Request headers ---')
       ..writeln(LogFormatter.pretty(model.requestHeadersView(redact: redact)));
@@ -114,7 +137,11 @@ class CopyHelper {
       buffer
         ..writeln()
         ..writeln('--- Request body ---')
-        ..writeln(LogFormatter.pretty(model.requestData));
+        ..writeln(
+          LogFormatter.pretty(
+            redact ? Redaction.redact(model.requestData) : model.requestData,
+          ),
+        );
     }
 
     if (model.hasError) {
@@ -130,7 +157,11 @@ class CopyHelper {
       buffer
         ..writeln()
         ..writeln('--- Response body ---')
-        ..writeln(LogFormatter.pretty(model.responseData));
+        ..writeln(
+          LogFormatter.pretty(
+            redact ? Redaction.redact(model.responseData) : model.responseData,
+          ),
+        );
     }
 
     return buffer.toString();

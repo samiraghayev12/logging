@@ -241,10 +241,18 @@ void copyToClipboardWithMessenger(
 
 /// JSON body that toggles between tree and raw text and never overflows.
 class JsonBody extends StatefulWidget {
-  const JsonBody({super.key, required this.data, required this.emptyLabel});
+  const JsonBody({
+    super.key,
+    required this.data,
+    required this.emptyLabel,
+    this.size,
+  });
 
   final Object? data;
   final String emptyLabel;
+
+  /// Size in bytes to show; defaults to the size of [data].
+  final int? size;
 
   @override
   State<JsonBody> createState() => _JsonBodyState();
@@ -280,7 +288,7 @@ class _JsonBodyState extends State<JsonBody> {
             Expanded(
               child: Text(
                 LogFormatter.humanBytes(
-                  LogFormatter.byteSize(widget.data) ?? rawText.length,
+                  widget.size ?? LogFormatter.byteSize(widget.data) ?? rawText.length,
                 ),
                 style: TextStyle(
                   fontSize: ResponsiveHelper.getFontSize(context, 11),

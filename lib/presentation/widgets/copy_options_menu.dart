@@ -53,9 +53,9 @@ class _CopyOptionsMenuState extends State<CopyOptionsMenu> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: ResponsiveHelper.getFontSize(context, 17),
-                    ),
+                  fontWeight: FontWeight.w700,
+                  fontSize: ResponsiveHelper.getFontSize(context, 17),
+                ),
               ),
               SizedBox(height: ResponsiveHelper.getSpacing(context, 4)),
               SwitchListTile.adaptive(
@@ -64,14 +64,14 @@ class _CopyOptionsMenuState extends State<CopyOptionsMenu> {
                 contentPadding: EdgeInsets.zero,
                 onChanged: (value) => setState(() => _redact = value),
                 title: Text(
-                  'Hide tokens',
+                  'Hide secrets',
                   style: TextStyle(
                     fontSize: ResponsiveHelper.getFontSize(context, 13),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 subtitle: Text(
-                  'Mask Authorization / cookie headers',
+                  'Mask passwords, tokens and keys in headers, bodies and URLs',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -126,7 +126,7 @@ class _CopyOptionsMenuState extends State<CopyOptionsMenu> {
                       subtitle: 'Response body only',
                       enabled: model.hasResponseData,
                       onTap: () => _copy(
-                        CopyHelper.generateResponseBody(model),
+                        CopyHelper.generateResponseBody(model, redact: _redact),
                         'Response body',
                       ),
                     ),
@@ -183,7 +183,10 @@ class _Option extends StatelessWidget {
               padding: EdgeInsets.all(ResponsiveHelper.getPadding(context, 12)),
               child: Row(
                 children: [
-                  Icon(icon, size: ResponsiveHelper.getUIElementSize(context, 22)),
+                  Icon(
+                    icon,
+                    size: ResponsiveHelper.getUIElementSize(context, 22),
+                  ),
                   SizedBox(width: ResponsiveHelper.getSpacing(context, 12)),
                   Expanded(
                     child: Column(
@@ -193,21 +196,29 @@ class _Option extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
                                 fontWeight: FontWeight.w600,
-                                fontSize:
-                                    ResponsiveHelper.getFontSize(context, 13),
+                                fontSize: ResponsiveHelper.getFontSize(
+                                  context,
+                                  13,
+                                ),
                               ),
                         ),
-                        SizedBox(height: ResponsiveHelper.getSpacing(context, 2)),
+                        SizedBox(
+                          height: ResponsiveHelper.getSpacing(context, 2),
+                        ),
                         Text(
                           subtitle,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
                                 color: Colors.grey[600],
-                                fontSize:
-                                    ResponsiveHelper.getFontSize(context, 11),
+                                fontSize: ResponsiveHelper.getFontSize(
+                                  context,
+                                  11,
+                                ),
                               ),
                         ),
                       ],

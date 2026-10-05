@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../storage/debug_model.dart';
 import '../../../utils/log_formatter.dart';
+import '../../../utils/redaction.dart';
 import '../../../utils/responsive_helper.dart';
 import '../../widgets/debug_section.dart';
 
@@ -14,7 +15,9 @@ class DebugDetailRequestBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = ResponsiveHelper.getPadding(context, 16);
     final gap = ResponsiveHelper.getSpacing(context, 20);
-    final headers = debugModel.requestHeadersView();
+    final headers = debugModel.requestHeadersView(
+      redact: !Redaction.reveal.value,
+    );
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -29,7 +32,7 @@ class DebugDetailRequestBody extends StatelessWidget {
           children: [
             DebugCard(
               child: SelectableText(
-                debugModel.url,
+                Redaction.urlForDisplay(debugModel.url),
                 style: TextStyle(
                   fontSize: ResponsiveHelper.getFontSize(context, 12),
                   height: 1.4,
@@ -76,6 +79,7 @@ class DebugDetailRequestBody extends StatelessWidget {
               HeaderList(
                 headers: LogFormatter.normalizeHeaders(
                   debugModel.queryParameters,
+                  redact: !Redaction.reveal.value,
                 ),
               ),
             ],
@@ -83,10 +87,14 @@ class DebugDetailRequestBody extends StatelessWidget {
         ],
         SizedBox(height: gap),
         DebugSection(
-          title: debugModel.isFormDataRequest ? 'Request Body (FormData)' : 'Request Body',
+          title: debugModel.isFormDataRequest
+              ? 'Request Body (FormData)'
+              : 'Request Body',
           children: [
             JsonBody(
-              data: debugModel.requestData,
+              key: ValueKey(Redaction.reveal.value),
+              size: debugModel.requestSize,
+              data: Redaction.forDisplay(debugModel.requestData),
               emptyLabel: 'No request body',
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../storage/debug_model.dart';
+import '../../../utils/redaction.dart';
 import '../../../utils/responsive_helper.dart';
 import '../../widgets/debug_section.dart';
 
@@ -14,7 +15,9 @@ class DebugDetailResponseBody extends StatelessWidget {
     final padding = ResponsiveHelper.getPadding(context, 16);
     final gap = ResponsiveHelper.getSpacing(context, 20);
     final statusColor = debugModel.statusColor;
-    final headers = debugModel.responseHeadersView();
+    final headers = debugModel.responseHeadersView(
+      redact: !Redaction.reveal.value,
+    );
 
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -37,8 +40,8 @@ class DebugDetailResponseBody extends StatelessWidget {
                     debugModel.isPending
                         ? Icons.hourglass_top_rounded
                         : (debugModel.isSuccess
-                            ? Icons.check_circle_rounded
-                            : Icons.error_rounded),
+                              ? Icons.check_circle_rounded
+                              : Icons.error_rounded),
                     color: statusColor,
                     size: ResponsiveHelper.getFontSize(context, 22),
                   ),
@@ -57,7 +60,9 @@ class DebugDetailResponseBody extends StatelessWidget {
                             fontSize: ResponsiveHelper.getFontSize(context, 16),
                           ),
                         ),
-                        SizedBox(height: ResponsiveHelper.getSpacing(context, 4)),
+                        SizedBox(
+                          height: ResponsiveHelper.getSpacing(context, 4),
+                        ),
                         Text(
                           debugModel.statusMessage,
                           maxLines: 4,
@@ -81,7 +86,9 @@ class DebugDetailResponseBody extends StatelessWidget {
           title: 'Response Body',
           children: [
             JsonBody(
-              data: debugModel.responseData,
+              key: ValueKey(Redaction.reveal.value),
+              size: debugModel.responseSize,
+              data: Redaction.forDisplay(debugModel.responseData),
               emptyLabel: 'No response body',
             ),
           ],

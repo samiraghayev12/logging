@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../service/network_logger.dart';
@@ -26,7 +27,7 @@ class DebugOverlay extends StatefulWidget {
   const DebugOverlay({
     super.key,
     required this.child,
-    this.enabled = true,
+    this.enabled = kDebugMode,
     this.backgroundColor,
     this.foregroundColor,
     this.icon = Icons.bug_report_rounded,
@@ -39,7 +40,8 @@ class DebugOverlay extends StatefulWidget {
 
   final Widget child;
 
-  /// When `false`, the button is not built at all (e.g. in production).
+  /// When `false`, the button is not built at all. Defaults to `false` in
+  /// release builds.
   final bool enabled;
 
   final Color? backgroundColor;
@@ -73,14 +75,20 @@ class _DebugOverlayState extends State<DebugOverlay> {
 
   Offset _defaultOffset(Size area) {
     final alignment = widget.initialAlignment;
-    final maxX = (area.width - widget.buttonSize - widget.edgeMargin)
-        .clamp(widget.edgeMargin, double.infinity);
-    final maxY = (area.height - widget.buttonSize - widget.edgeMargin)
-        .clamp(widget.edgeMargin, double.infinity);
+    final maxX = (area.width - widget.buttonSize - widget.edgeMargin).clamp(
+      widget.edgeMargin,
+      double.infinity,
+    );
+    final maxY = (area.height - widget.buttonSize - widget.edgeMargin).clamp(
+      widget.edgeMargin,
+      double.infinity,
+    );
 
-    final x = widget.edgeMargin +
+    final x =
+        widget.edgeMargin +
         ((alignment.x + 1) / 2) * (maxX - widget.edgeMargin);
-    final y = widget.edgeMargin +
+    final y =
+        widget.edgeMargin +
         ((alignment.y + 1) / 2) * (maxY - widget.edgeMargin);
     return Offset(x, y);
   }
@@ -88,10 +96,7 @@ class _DebugOverlayState extends State<DebugOverlay> {
   Offset _clamp(Offset value, Size area) {
     final maxX = (area.width - widget.buttonSize).clamp(0.0, double.infinity);
     final maxY = (area.height - widget.buttonSize).clamp(0.0, double.infinity);
-    return Offset(
-      value.dx.clamp(0.0, maxX),
-      value.dy.clamp(0.0, maxY),
-    );
+    return Offset(value.dx.clamp(0.0, maxX), value.dy.clamp(0.0, maxY));
   }
 
   /// Always uses the State's own context: the Navigator is searched in the
@@ -158,7 +163,8 @@ class _DebugOverlayState extends State<DebugOverlay> {
                           height: widget.buttonSize,
                           child: GestureDetector(
                             behavior: HitTestBehavior.opaque,
-                            onPanUpdate: (details) => _onPanUpdate(details, area),
+                            onPanUpdate: (details) =>
+                                _onPanUpdate(details, area),
                             onPanEnd: (_) => _onPanEnd(area),
                             onPanCancel: () => _onPanEnd(area),
                             child: _DebugFab(
@@ -183,7 +189,6 @@ class _DebugOverlayState extends State<DebugOverlay> {
       ),
     );
   }
-
 }
 
 class _DebugFab extends StatelessWidget {
@@ -232,10 +237,7 @@ class _DebugFab extends StatelessWidget {
                   right: size * 0.1,
                   child: const _DebugFabBadge(),
                 ),
-              Positioned(
-                bottom: size * 0.08,
-                child: const _EnvironmentBadge(),
-              ),
+              Positioned(bottom: size * 0.08, child: const _EnvironmentBadge()),
             ],
           ),
         ),

@@ -7,6 +7,7 @@ button to your app that opens a full log viewer: request list with search and fi
 request / response / error details, statistics, retry, and cURL / Postman / JSON export.
 
 **Setup takes two lines, and both are automatically disabled in release builds.**
+**🔒 Safe by default** — see [Security & privacy](#security--privacy).
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/demo.webp" alt="dio_debug_logger demo" width="320">
@@ -22,7 +23,7 @@ request / response / error details, statistics, retry, and cURL / Postman / JSON
 | Statistics (success rate, slowest/fastest, by method) | ✅ |
 | Copy as cURL / Postman / JSON / readable summary | ✅ |
 | Retry a request | ✅ |
-| Sensitive header masking (`Authorization`, `Cookie`, …) | ✅ |
+| Passwords, tokens and keys masked everywhere (UI, console, copy, export) | ✅ |
 | Responsive (phone → tablet, large fonts) | ✅ |
 | Switch between backends (dev / staging / prod) at runtime | ✅ |
 
@@ -79,6 +80,59 @@ dio.addDebugLogger(enabled: isStaging);
 
 MaterialApp(builder: DioDebugLogger.builder(enabled: isStaging));
 ```
+
+---
+
+## Security & privacy
+
+A network logger sees everything your app sends, so it is built to be safe by default.
+Every point below is covered by tests.
+
+**Nothing runs in production**
+
+- `addDebugLogger()`, `DioDebugLogger.builder()`, `setEnvironments()`, the `DebugLogging`
+  interceptor and the `DebugOverlay` widget are all **off in release builds** unless you pass
+  `enabled: true` yourself. Off means: no recording, no button, no URL rewriting — requests pass
+  through untouched.
+- The deprecated `NetworkLogger` API follows the same rule.
+- If you do enable it in a release build (e.g. an internal QA build), a warning is printed so it
+  can't slip into a store build unnoticed, and `DioDebugLogger.open()` only works after such an
+  explicit opt-in.
+
+**Secrets are masked everywhere**
+
+Passwords, tokens, API keys, cookies, OTP/PIN codes and card data are replaced with `••••••`:
+
+| Where | Headers | Body fields | URL query |
+|---|---|---|---|
+| Log UI (tap 👁 on the detail page to reveal, resets on restart) | ✅ | ✅ | ✅ |
+| Console output | ✅ | ✅ | ✅ |
+| Copy as cURL / Postman / JSON / summary (**Hide secrets**, on by default) | ✅ | ✅ | ✅ |
+| `Copy all as JSON` / `exportAll()` | ✅ | ✅ | ✅ |
+
+Field names are matched in any style — `password`, `access_token`, `refreshToken`, `X-Api-Key`,
+`client_secret`, `pin`, `cvv`… Nested JSON, JSON strings, form-encoded bodies and `FormData`
+are all handled. Add your own fields:
+
+```dart
+DioDebugLogger.sensitiveKeys.addAll({'national_id', 'iban', 'diagnosis'});
+```
+
+**Nothing is stored or sent anywhere**
+
+- Logs live **in memory only** (last 200 requests by default) and disappear when the app
+  closes. Nothing is written to disk except the name of the selected environment.
+- The package makes no network calls of its own and has no analytics.
+- The environment switcher only offers the base URLs written in your code — there is no field
+  to type an arbitrary address, and requests to other hosts are never changed.
+- **Retry** resends with the same Dio that made the request, so certificate pinning and your
+  interceptors still apply (or set `DioDebugLogger.retryClientBuilder`).
+
+**Your part**
+
+- Don't pass `enabled: true` to builds that go to app stores.
+- If your API uses unusual names for secret or personal fields, add them to
+  `DioDebugLogger.sensitiveKeys`.
 
 ---
 
@@ -195,17 +249,8 @@ storage.exportAll(redact: true); // List<Map<String, dynamic>>
 - **⋮ menu** — Analytics, Pause recording, Copy all as JSON, Clear all
 - **Details** — Request / Response / Error tabs, JSON tree ↔ raw text, headers, size and duration
 - **Copy** — cURL, Postman collection, JSON, readable summary, response body only
-  (the **Hide tokens** switch masks `Authorization` / `Cookie`)
+  (**Hide secrets**, on by default, masks passwords, tokens and keys)
 - **Retry** — resend the request and see the result in place
-
----
-
-## Security notes
-
-- Sensitive headers (`Authorization`, `Cookie`, `X-Api-Key`, …) are masked in console output,
-  in copied text (when **Hide tokens** is on, the default) and in `exportAll()`.
-- The UI shows headers in full — this is a developer tool. Keep it disabled in production
-  (the default).
 
 ---
 

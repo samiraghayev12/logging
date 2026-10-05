@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
+import 'redaction.dart';
+
 /// Safely converts log content to text / JSON.
 ///
 /// No method throws — a debug tool must never crash the app.
@@ -11,7 +13,8 @@ class LogFormatter {
 
   static const JsonEncoder _prettyEncoder = JsonEncoder.withIndent('  ');
 
-  /// Header names to mask (compared in lower case).
+  /// Common secret header names. Masking uses [Redaction.isSensitive], which
+  /// covers these and more.
   static const Set<String> sensitiveHeaders = {
     'authorization',
     'proxy-authorization',
@@ -136,16 +139,11 @@ class LogFormatter {
       final stringValue = value is Iterable
           ? value.map((dynamic e) => '$e').join(', ')
           : '$value';
-      result[key] = redact && sensitiveHeaders.contains(key.toLowerCase())
-          ? _mask(stringValue)
+      result[key] = redact && Redaction.isSensitive(key)
+          ? Redaction.mask
           : stringValue;
     });
     return result;
-  }
-
-  static String _mask(String value) {
-    if (value.length <= 8) return '••••••';
-    return '${value.substring(0, 4)}••••${value.substring(value.length - 4)}';
   }
 
   /// Approximate size of the data in bytes, or `null` if unknown.

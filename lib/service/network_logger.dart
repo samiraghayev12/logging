@@ -5,8 +5,11 @@ import 'package:flutter/material.dart';
 import '../environment/debug_environment.dart';
 import '../presentation/overlay/debug_overlay.dart';
 import '../presentation/page/debug_page.dart';
+import '../storage/debug_model.dart';
 import '../storage/debug_storage.dart';
+import '../utils/redaction.dart';
 import 'debug_logging.dart';
+import 'release_guard.dart';
 
 /// Tracks debug routes: prevents pushing the log page twice and gives
 /// [DioDebugLogger] access to a [NavigatorState].
@@ -40,7 +43,9 @@ class DebugNavigatorObserver extends NavigatorObserver {
 
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    if (_isDebugRoute(oldRoute)) _activeRoutes = (_activeRoutes - 1).clamp(0, 999);
+    if (_isDebugRoute(oldRoute)) {
+      _activeRoutes = (_activeRoutes - 1).clamp(0, 999);
+    }
     if (_isDebugRoute(newRoute)) _activeRoutes++;
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
   }
@@ -78,7 +83,8 @@ extension DioDebugLoggerExtension on Dio {
     if (interceptors.any((interceptor) => interceptor is DebugLogging)) return;
     assert(() {
       final base = options.baseUrl;
-      String norm(String u) => u.endsWith('/') ? u.substring(0, u.length - 1) : u;
+      String norm(String u) =>
+          u.endsWith('/') ? u.substring(0, u.length - 1) : u;
       final list = environments.isNotEmpty
           ? environments
           : DebugEnvironments.instance.global;
@@ -94,6 +100,8 @@ extension DioDebugLoggerExtension on Dio {
     }());
     interceptors.add(
       DebugLogging(
+        enabled: true,
+        client: this,
         printToConsole: printToConsole,
         redactSensitiveHeaders: redactSensitiveHeaders,
         maxConsoleBodyLength: maxConsoleBodyLength,
@@ -145,19 +153,35 @@ class DioDebugLogger {
   /// ```
   static Dio Function()? retryClientBuilder;
 
-  static Dio createRetryClient() => retryClientBuilder?.call() ?? Dio();
+  /// The Dio used to retry [model]: [retryClientBuilder] if set, otherwise
+  /// the Dio that sent the request (keeps certificate pinning and options),
+  /// otherwise a plain `Dio()`.
+  static Dio createRetryClient([DebugModel? model]) {
+    final custom = retryClientBuilder?.call();
+    if (custom != null) return custom;
+    final original = model?.requestOptions.extra[DebugLogging.clientKey];
+    return original is Dio ? original : Dio();
+  }
+
+  /// Extra field names to mask, in addition to the built-in ones
+  /// (passwords, tokens, keys, cookies, card data…):
+  /// ```dart
+  /// DioDebugLogger.sensitiveKeys.addAll({'national_id', 'iban'});
+  /// ```
+  static Set<String> get sensitiveKeys => Redaction.extraKeys;
 
   /// The Dio interceptor. Prefer `dio.addDebugLogger()`.
   static Interceptor interceptor({
+    bool enabled = kDebugMode,
     bool printToConsole = kDebugMode,
     bool redactSensitiveHeaders = true,
     int maxConsoleBodyLength = 2000,
-  }) =>
-      DebugLogging(
-        printToConsole: printToConsole,
-        redactSensitiveHeaders: redactSensitiveHeaders,
-        maxConsoleBodyLength: maxConsoleBodyLength,
-      );
+  }) => DebugLogging(
+    enabled: enabled,
+    printToConsole: printToConsole,
+    redactSensitiveHeaders: redactSensitiveHeaders,
+    maxConsoleBodyLength: maxConsoleBodyLength,
+  );
 
   /// Environment registry (see `dio.addDebugLogger(environments: ...)`).
   static DebugEnvironments get environments => DebugEnvironments.instance;
@@ -171,7 +195,9 @@ class DioDebugLogger {
     List<DebugEnvironment> environments, {
     bool enabled = kDebugMode,
   }) {
-    if (enabled) DebugEnvironments.instance.setGlobal(environments);
+    if (!enabled) return;
+    ReleaseGuard.check('Environment switching');
+    DebugEnvironments.instance.setGlobal(environments);
   }
 
   /// The selected environment name, or `null` when the app's own base URLs
@@ -232,6 +258,7 @@ class DioDebugLogger {
 
   /// Opens the log page. Does nothing if it is already open.
   static Future<void> open([BuildContext? context]) async {
+    if (!ReleaseGuard.allowed) return;
     if (isOpenNotifier.value || observer.hasActiveRoute) return;
 
     final navigator = _resolveNavigator(context);
@@ -295,6 +322,7 @@ class DioDebugLogger {
     Alignment initialAlignment = Alignment.centerLeft,
     bool snapToEdge = true,
   }) {
+    if (enabled) ReleaseGuard.check('The debug button');
     return (BuildContext context, Widget? child) {
       final content = builder != null ? builder(context, child) : child;
       return DebugOverlay(
@@ -326,7 +354,8 @@ class NetworkLogger {
   static set navigatorKey(GlobalKey<NavigatorState>? value) =>
       DioDebugLogger.navigatorKey = value;
 
-  static ValueNotifier<bool> get isOpenNotifier => DioDebugLogger.isOpenNotifier;
+  static ValueNotifier<bool> get isOpenNotifier =>
+      DioDebugLogger.isOpenNotifier;
 
   static bool get isOpen => DioDebugLogger.isOpen;
 
@@ -342,11 +371,10 @@ class NetworkLogger {
   static Interceptor interceptor({
     bool? printToConsole,
     bool redactSensitiveHeaders = true,
-  }) =>
-      DioDebugLogger.interceptor(
-        printToConsole: printToConsole ?? kDebugMode,
-        redactSensitiveHeaders: redactSensitiveHeaders,
-      );
+  }) => DioDebugLogger.interceptor(
+    printToConsole: printToConsole ?? kDebugMode,
+    redactSensitiveHeaders: redactSensitiveHeaders,
+  );
 
   static void configure({int? maxRequests}) =>
       DioDebugLogger.configure(maxRequests: maxRequests);
@@ -356,9 +384,8 @@ class NetworkLogger {
 
   static void close([BuildContext? context]) => DioDebugLogger.close(context);
 
-  /// Unlike [DioDebugLogger.builder], [enabled] defaults to `true` here.
   static TransitionBuilder overlayBuilder({
-    bool enabled = true,
+    bool enabled = kDebugMode,
     Color? backgroundColor,
     Color? foregroundColor,
     IconData icon = Icons.bug_report_rounded,
@@ -366,15 +393,14 @@ class NetworkLogger {
     bool showBadge = true,
     Alignment initialAlignment = Alignment.centerLeft,
     bool snapToEdge = true,
-  }) =>
-      DioDebugLogger.builder(
-        enabled: enabled,
-        backgroundColor: backgroundColor,
-        foregroundColor: foregroundColor,
-        icon: icon,
-        buttonSize: buttonSize,
-        showBadge: showBadge,
-        initialAlignment: initialAlignment,
-        snapToEdge: snapToEdge,
-      );
+  }) => DioDebugLogger.builder(
+    enabled: enabled,
+    backgroundColor: backgroundColor,
+    foregroundColor: foregroundColor,
+    icon: icon,
+    buttonSize: buttonSize,
+    showBadge: showBadge,
+    initialAlignment: initialAlignment,
+    snapToEdge: snapToEdge,
+  );
 }

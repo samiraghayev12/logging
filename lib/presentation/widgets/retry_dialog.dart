@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../storage/debug_model.dart';
 import '../../utils/log_formatter.dart';
+import '../../utils/redaction.dart';
 import '../../utils/responsive_helper.dart';
 import 'debug_section.dart';
 
@@ -67,7 +68,7 @@ class _RetryDialogState extends State<RetryDialog> {
       setState(() {
         _isSuccess = code >= 200 && code < 400;
         _resultTitle = 'Status $code ${response.statusMessage ?? ''}'.trim();
-        _resultBody = LogFormatter.pretty(response.data);
+        _resultBody = LogFormatter.pretty(Redaction.forDisplay(response.data));
       });
     } on DioException catch (e) {
       if (!mounted) return;
@@ -121,9 +122,9 @@ class _RetryDialogState extends State<RetryDialog> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: ResponsiveHelper.getFontSize(context, 17),
-                    ),
+                  fontWeight: FontWeight.w700,
+                  fontSize: ResponsiveHelper.getFontSize(context, 17),
+                ),
               ),
               SizedBox(height: ResponsiveHelper.getSpacing(context, 12)),
               Flexible(
@@ -137,7 +138,11 @@ class _RetryDialogState extends State<RetryDialog> {
                         copyable: false,
                       ),
                       SizedBox(height: ResponsiveHelper.getSpacing(context, 8)),
-                      KeyValueTile(label: 'URL', value: model.url, maxLines: 4),
+                      KeyValueTile(
+                        label: 'URL',
+                        value: Redaction.urlForDisplay(model.url),
+                        maxLines: 4,
+                      ),
                       if (_resultTitle != null) ...[
                         SizedBox(
                           height: ResponsiveHelper.getSpacing(context, 12),
@@ -155,11 +160,16 @@ class _RetryDialogState extends State<RetryDialog> {
                                         ? Icons.check_circle_rounded
                                         : Icons.error_rounded,
                                     color: resultColor,
-                                    size: ResponsiveHelper.getFontSize(context, 18),
+                                    size: ResponsiveHelper.getFontSize(
+                                      context,
+                                      18,
+                                    ),
                                   ),
                                   SizedBox(
-                                    width:
-                                        ResponsiveHelper.getSpacing(context, 8),
+                                    width: ResponsiveHelper.getSpacing(
+                                      context,
+                                      8,
+                                    ),
                                   ),
                                   Expanded(
                                     child: Text(
@@ -187,8 +197,10 @@ class _RetryDialogState extends State<RetryDialog> {
                               if (_resultBody != null &&
                                   _resultBody!.trim().isNotEmpty) ...[
                                 SizedBox(
-                                  height:
-                                      ResponsiveHelper.getSpacing(context, 8),
+                                  height: ResponsiveHelper.getSpacing(
+                                    context,
+                                    8,
+                                  ),
                                 ),
                                 Text(
                                   _resultBody!,
@@ -198,7 +210,7 @@ class _RetryDialogState extends State<RetryDialog> {
                                     fontFamily: 'monospace',
                                     fontFamilyFallback: const [
                                       'Menlo',
-                                      'Courier'
+                                      'Courier',
                                     ],
                                     fontSize: ResponsiveHelper.getFontSize(
                                       context,
@@ -221,8 +233,9 @@ class _RetryDialogState extends State<RetryDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed:
-                        _isLoading ? null : () => Navigator.of(context).pop(),
+                    onPressed: _isLoading
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     child: const Text('Close'),
                   ),
                   SizedBox(width: ResponsiveHelper.getSpacing(context, 8)),

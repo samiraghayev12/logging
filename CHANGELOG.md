@@ -1,3 +1,28 @@
+## 0.4.0
+
+### Security
+
+- **Secrets are masked everywhere**: passwords, tokens, API keys, cookies, OTP/PIN and card
+  data in headers, body fields (nested JSON, JSON strings, form-encoded, `FormData`) and URL
+  query parameters — in the log UI, the console, every copy format and `exportAll()`.
+  Previously only headers were masked.
+- The detail page hides secrets by default; the 👁 button reveals them until the app restarts.
+- `DioDebugLogger.sensitiveKeys` to add your own field names.
+- Masks no longer show the first and last characters of a value.
+- **Off in release builds everywhere**: `DebugLogging` (added directly), `DebugOverlay` and the
+  deprecated `NetworkLogger.overlayBuilder()` / `interceptor()` now default to `kDebugMode`
+  too. A disabled interceptor passes requests through untouched.
+- Enabling the logger in a release build prints a warning; `DioDebugLogger.open()` does nothing
+  in release builds without an explicit opt-in.
+- **Retry** resends with the Dio that made the request, keeping certificate pinning and
+  interceptors (`retryClientBuilder` still takes precedence).
+
+### Changed
+
+- The copy dialog switch is now **Hide secrets** and also covers bodies and URLs.
+- `generateResponseBody` masks secrets by default (`redact: false` to turn off).
+- Console output no longer prints query parameters separately (they're in the masked URL).
+
 ## 0.3.0
 
 ### Environment switching

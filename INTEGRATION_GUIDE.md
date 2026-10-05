@@ -54,7 +54,7 @@ builder: (context, child) {
 
 ## Migrating from `logging_service` (git) / 0.1.x
 
-1. Replace the git dependency with `dio_debug_logger: ^0.3.0`.
+1. Replace the git dependency with `dio_debug_logger: ^0.4.0`.
 2. Update the import:
 
    ```dart
@@ -102,8 +102,9 @@ void main() {
 
 ## Sensitive data
 
-- `Authorization`, `Cookie`, `X-Api-Key`, etc. are masked in console output
-  (disable with `dio.addDebugLogger(redactSensitiveHeaders: false)`).
-- The **Hide tokens** switch in the copy dialog is on by default.
-- `DebugStorage().exportAll()` uses `redact: true` by default.
-- The UI shows headers in full — it is a developer tool; keep it disabled in production.
+- Passwords, tokens, API keys, cookies, OTP/PIN and card data are masked in headers, bodies and
+  URLs — in the UI, the console, copies and `exportAll()`. See
+  [Security & privacy](README.md#security--privacy).
+- Add your own fields: `DioDebugLogger.sensitiveKeys.addAll({'national_id'})`.
+- Everything is off in release builds unless you pass `enabled: true`; never do that in a store
+  build.

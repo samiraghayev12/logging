@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../storage/debug_model.dart';
+import '../../../utils/redaction.dart';
 import '../../../utils/responsive_helper.dart';
 import '../../widgets/debug_section.dart';
 
@@ -13,7 +14,9 @@ class DebugDetailErrorBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final padding = ResponsiveHelper.getPadding(context, 16);
     final gap = ResponsiveHelper.getSpacing(context, 20);
-    final headers = debugModel.errorHeadersView();
+    final headers = debugModel.errorHeadersView(
+      redact: !Redaction.reveal.value,
+    );
     final underlying = debugModel.underlyingError;
 
     return ListView(
@@ -84,7 +87,9 @@ class DebugDetailErrorBody extends StatelessWidget {
             title: 'Error Body',
             children: [
               JsonBody(
-                data: debugModel.responseData,
+                key: ValueKey(Redaction.reveal.value),
+              size: debugModel.responseSize,
+                data: Redaction.forDisplay(debugModel.responseData),
                 emptyLabel: 'No error body',
               ),
             ],

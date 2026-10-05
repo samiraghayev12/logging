@@ -2,9 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/log_formatter.dart';
+import '../utils/redaction.dart';
 
 /// Overall state of a request.
-enum DebugStatus { pending, success, redirect, clientError, serverError, failed }
+enum DebugStatus {
+  pending,
+  success,
+  redirect,
+  clientError,
+  serverError,
+  failed,
+}
 
 class DebugModel {
   final int id;
@@ -78,7 +86,8 @@ class DebugModel {
 
   String get httpMethod => requestOptions.method.toUpperCase();
 
-  String get path => requestOptions.path.isEmpty ? uri.path : requestOptions.path;
+  String get path =>
+      requestOptions.path.isEmpty ? uri.path : requestOptions.path;
 
   Uri get uri => requestOptions.uri;
 
@@ -125,7 +134,8 @@ class DebugModel {
 
   // ============ RESPONSE INFO ============
 
-  Map<String, dynamic> get responseHeaders => _effectiveResponse?.headers.map ?? const {};
+  Map<String, dynamic> get responseHeaders =>
+      _effectiveResponse?.headers.map ?? const {};
 
   Map<String, String> responseHeadersView({bool redact = false}) =>
       LogFormatter.normalizeHeaders(responseHeaders, redact: redact);
@@ -156,7 +166,9 @@ class DebugModel {
   String get statusMessage {
     final msg = _effectiveResponse?.statusMessage;
     if (msg != null && msg.isNotEmpty) return msg;
-    if (dioError != null) return dioError!.message ?? _errorTypeReadable(dioError!.type);
+    if (dioError != null) {
+      return dioError!.message ?? _errorTypeReadable(dioError!.type);
+    }
     if (isPending) return 'Waiting for response…';
     if (response == null) return 'No response received';
     return 'NONE';
@@ -183,7 +195,8 @@ class DebugModel {
     final body = _errorBody;
     if (body != null) {
       // RFC 7807 problem+json
-      final status = body['status'] ??
+      final status =
+          body['status'] ??
           body['Status'] ??
           body['statusCode'] ??
           body['StatusCode'];
@@ -214,7 +227,9 @@ class DebugModel {
       ];
       for (final key in keys) {
         final candidate = body[key];
-        if (candidate is String && candidate.trim().isNotEmpty) return candidate;
+        if (candidate is String && candidate.trim().isNotEmpty) {
+          return candidate;
+        }
       }
 
       // Validation errors — {errors: {field: [msg]}}
@@ -240,7 +255,9 @@ class DebugModel {
 
     // 4. Dio exception message
     final exceptionMsg = dioError?.message;
-    if (exceptionMsg != null && exceptionMsg.trim().isNotEmpty) return exceptionMsg;
+    if (exceptionMsg != null && exceptionMsg.trim().isNotEmpty) {
+      return exceptionMsg;
+    }
 
     // 5. Dio error type
     if (dioError != null) return _errorTypeReadable(dioError!.type);
@@ -255,7 +272,9 @@ class DebugModel {
   }
 
   Map<String, dynamic> get errorHeaders =>
-      dioError?.response?.headers.map ?? _effectiveResponse?.headers.map ?? const {};
+      dioError?.response?.headers.map ??
+      _effectiveResponse?.headers.map ??
+      const {};
 
   Map<String, String> errorHeadersView({bool redact = false}) =>
       LogFormatter.normalizeHeaders(errorHeaders, redact: redact);
@@ -330,22 +349,28 @@ class DebugModel {
   String get startClockLabel => LogFormatter.clockTime(requestStartTime);
 
   Map<String, dynamic> toJson({bool redact = false}) => <String, dynamic>{
-        'id': id,
-        'method': httpMethod,
-        'url': url,
-        'status': statusCode,
-        'statusLabel': statusLabel,
-        'startedAt': requestStartTime.toIso8601String(),
-        'finishedAt': requestEndTime?.toIso8601String(),
-        'elapsedMs': elapsedTime,
-        'requestHeaders': requestHeadersView(redact: redact),
-        'queryParameters': LogFormatter.sanitize(queryParameters),
-        'requestBody': LogFormatter.sanitize(requestData),
-        'responseHeaders': responseHeadersView(redact: redact),
-        'responseBody': LogFormatter.sanitize(responseData),
-        if (hasError) 'error': errorStatusMessage,
-        if (underlyingError != null) 'underlyingError': underlyingError,
-      };
+    'id': id,
+    'method': httpMethod,
+    'url': redact ? Redaction.url(url) : url,
+    'status': statusCode,
+    'statusLabel': statusLabel,
+    'startedAt': requestStartTime.toIso8601String(),
+    'finishedAt': requestEndTime?.toIso8601String(),
+    'elapsedMs': elapsedTime,
+    'requestHeaders': requestHeadersView(redact: redact),
+    'queryParameters': LogFormatter.sanitize(
+      redact ? Redaction.redact(queryParameters) : queryParameters,
+    ),
+    'requestBody': LogFormatter.sanitize(
+      redact ? Redaction.redact(requestData) : requestData,
+    ),
+    'responseHeaders': responseHeadersView(redact: redact),
+    'responseBody': LogFormatter.sanitize(
+      redact ? Redaction.redact(responseData) : responseData,
+    ),
+    if (hasError) 'error': errorStatusMessage,
+    if (underlyingError != null) 'underlyingError': underlyingError,
+  };
 
   // ============ INTERNAL ============
 
@@ -364,7 +389,9 @@ class DebugModel {
       case DioExceptionType.cancel:
         return 'CANCELLED';
       default:
-        return type.name.toUpperCase().contains('TIMEOUT') ? 'TIMEOUT' : 'ERROR';
+        return type.name.toUpperCase().contains('TIMEOUT')
+            ? 'TIMEOUT'
+            : 'ERROR';
     }
   }
 

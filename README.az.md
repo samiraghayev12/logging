@@ -83,6 +83,19 @@ final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'))
 - Dio gec (lazy) yaradılırsa, `main()`-də `DioDebugLogger.setEnvironments([...])` çağırın.
 - Mühit dəyişəndə logout üçün: `DioDebugLogger.onEnvironmentChanged = (name) => logout();`
 
+## Təhlükəsizlik
+
+- **Prod-da heç nə işləmir:** release build-də logger, düymə, mühit dəyişmə, `DebugLogging`,
+  `DebugOverlay` və köhnə `NetworkLogger` API-si söndürülüb (`enabled: true` verməsəniz).
+  Release-də açsanız, konsola xəbərdarlıq yazılır.
+- **Gizli məlumatlar hər yerdə maskalanır:** parol, token, API açarı, cookie, OTP/PIN və kart
+  məlumatları `••••••` kimi göstərilir — UI-də, konsolda, kopyalamada və export-da; header,
+  body və URL query-də. UI-də 👁 ilə göstərmək olar (tətbiq yenidən açılanda sıfırlanır).
+- Öz sahələrinizi əlavə edin: `DioDebugLogger.sensitiveKeys.addAll({'national_id'});`
+- **Heç nə saxlanılmır və göndərilmir:** loglar yalnız yaddaşdadır, tətbiq bağlananda silinir;
+  paket özü heç bir sorğu göndərmir.
+- **Retry** sorğunu göndərən Dio ilə təkrarlayır — certificate pinning qorunur.
+
 ## Konfiqurasiya
 
 ```dart

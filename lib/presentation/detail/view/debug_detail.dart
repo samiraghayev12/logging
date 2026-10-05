@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../service/network_logger.dart';
 import '../../../storage/debug_model.dart';
 import '../../../storage/debug_storage.dart';
+import '../../../utils/redaction.dart';
 import '../../../utils/responsive_helper.dart';
 import '../../widgets/copy_options_menu.dart';
 import '../../widgets/debug_section.dart';
@@ -22,8 +23,10 @@ class DebugDetail extends StatefulWidget {
 
 class _DebugDetailState extends State<DebugDetail>
     with SingleTickerProviderStateMixin {
-  late final TabController _tabController =
-      TabController(length: 2, vsync: this);
+  late final TabController _tabController = TabController(
+    length: 2,
+    vsync: this,
+  );
 
   @override
   void dispose() {
@@ -36,7 +39,7 @@ class _DebugDetailState extends State<DebugDetail>
     return ResponsiveHelper.clampTextScale(
       context,
       ListenableBuilder(
-        listenable: DebugStorage(),
+        listenable: Listenable.merge([DebugStorage(), Redaction.reveal]),
         builder: (context, _) => _buildScaffold(context),
       ),
     );
@@ -62,6 +65,15 @@ class _DebugDetailState extends State<DebugDetail>
         ),
         actions: [
           IconButton(
+            icon: Icon(
+              Redaction.reveal.value
+                  ? Icons.visibility_off_rounded
+                  : Icons.visibility_rounded,
+            ),
+            tooltip: Redaction.reveal.value ? 'Hide secrets' : 'Show secrets',
+            onPressed: () => Redaction.reveal.value = !Redaction.reveal.value,
+          ),
+          IconButton(
             icon: const Icon(Icons.content_copy_rounded),
             tooltip: 'Copy request',
             onPressed: () => showDialog<void>(
@@ -76,7 +88,7 @@ class _DebugDetailState extends State<DebugDetail>
               context: context,
               builder: (_) => RetryDialog(
                 debugModel: model,
-                dioClient: DioDebugLogger.createRetryClient(),
+                dioClient: DioDebugLogger.createRetryClient(model),
               ),
             ),
           ),
@@ -187,7 +199,7 @@ class _SummaryHeader extends StatelessWidget {
               SizedBox(width: ResponsiveHelper.getSpacing(context, 8)),
               Expanded(
                 child: Text(
-                  model.url,
+                  Redaction.urlForDisplay(model.url),
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -196,7 +208,10 @@ class _SummaryHeader extends StatelessWidget {
                   ),
                 ),
               ),
-              CopyIconButton(text: model.url, label: 'URL'),
+              CopyIconButton(
+                text: Redaction.urlForDisplay(model.url),
+                label: 'URL',
+              ),
             ],
           ),
           SizedBox(height: ResponsiveHelper.getSpacing(context, 10)),
@@ -208,8 +223,8 @@ class _SummaryHeader extends StatelessWidget {
                 icon: model.isPending
                     ? Icons.hourglass_top_rounded
                     : (model.hasError
-                        ? Icons.error_rounded
-                        : Icons.check_circle_rounded),
+                          ? Icons.error_rounded
+                          : Icons.check_circle_rounded),
                 label: model.statusCode,
                 color: model.statusColor,
               ),
