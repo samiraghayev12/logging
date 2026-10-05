@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Samir Aghayev — Senior Flutter Engineer</title>
+<meta name="description" content="Samir Aghayev, Senior Mobile Engineer (Flutter). 7 years in mobile, 22 apps shipped to the App Store and Google Play.">
+<meta property="og:title" content="Samir Aghayev — Senior Flutter Engineer">
+<meta property="og:description" content="7 years in mobile, 22 apps shipped. Payments, live maps and real-time apps.">
+<meta property="og:image" content="photo.jpg">
+<link rel="icon" href="photo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #262c36;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #4fa3ff;
+    --accent-soft: rgba(79, 163, 255, .12);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 16px; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(13, 17, 23, .85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .wrap { display: flex; gap: 20px; height: 52px; align-items: center; overflow-x: auto; }
+  nav a { color: var(--muted); font-size: 14px; font-weight: 500; white-space: nowrap; }
+  nav a:hover { color: var(--text); text-decoration: none; }
+
+  /* Hero */
+  header { padding: 56px 0 40px; }
+  .hero { display: flex; gap: 32px; align-items: center; }
+  .hero img {
+    width: 148px; height: 148px; border-radius: 50%;
+    border: 3px solid var(--border); flex-shrink: 0; object-fit: cover;
+  }
+  h1 { font-size: 40px; line-height: 1.15; margin: 0 0 6px; letter-spacing: -.02em; }
+  .role { font-size: 20px; color: var(--accent); font-weight: 600; margin: 0 0 8px; }
+  .loc { color: var(--muted); margin: 0 0 18px; }
+  .badge {
+    display: inline-block; padding: 4px 12px; border-radius: 999px;
+    background: rgba(63, 185, 80, .12); color: #3fb950;
+    font-size: 13px; font-weight: 600; margin-bottom: 18px;
+  }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 16px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+  }
+  .btn:hover { border-color: var(--accent); text-decoration: none; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #0d1117; }
+  .btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 36px; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .stat b { display: block; font-size: 28px; line-height: 1.2; }
+  .stat span { color: var(--muted); font-size: 13px; }
+
+  /* Sections */
+  section { padding: 36px 0; border-top: 1px solid var(--border); }
+  h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: .12em;
+    color: var(--muted); margin: 0 0 20px; font-weight: 600;
+  }
+  .about p { font-size: 17px; margin: 0; }
+
+  .skills { display: grid; gap: 16px; }
+  .skill-row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; }
+  .skill-row > div:first-child { color: var(--muted); font-weight: 500; padding-top: 4px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 13px; padding: 3px 10px; border-radius: 6px;
+    background: var(--accent-soft); color: #a8cfff;
+  }
+
+  /* Timeline */
+  .job { position: relative; padding-left: 22px; margin-bottom: 26px; }
+  .job:last-child { margin-bottom: 0; }
+  .job::before {
+    content: ""; position: absolute; left: 0; top: 8px;
+    width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+  }
+  .job::after {
+    content: ""; position: absolute; left: 4px; top: 22px; bottom: -22px;
+    width: 1px; background: var(--border);
+  }
+  .job:last-child::after { display: none; }
+  .job-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .job h3 { margin: 0; font-size: 17px; }
+  .job .company { color: var(--muted); font-weight: 400; }
+  .date { color: var(--muted); font-size: 14px; white-space: nowrap; }
+  .job ul { margin: 8px 0 0; padding-left: 18px; color: #c9d1d9; }
+  .job li { margin-bottom: 4px; }
+
+  /* Projects */
+  .group { margin-bottom: 28px; }
+  .group:last-child { margin-bottom: 0; }
+  .group h3 { font-size: 15px; margin: 0 0 12px; color: var(--text); }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .card {
+    display: block; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; color: var(--text);
+    transition: border-color .15s, transform .15s;
+  }
+  a.card:hover { border-color: var(--accent); text-decoration: none; transform: translateY(-2px); }
+  .card-title { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-weight: 600; }
+  .card-title .store { font-size: 12px; color: var(--accent); font-weight: 500; white-space: nowrap; }
+  .card p { margin: 4px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .rating { color: #e3b341; font-size: 13px; font-weight: 600; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .edu h3 { margin: 0; font-size: 17px; }
+  .edu p { margin: 4px 0 0; color: var(--muted); }
+  .langs { list-style: none; margin: 0; padding: 0; }
+  .langs li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .langs li:last-child { border-bottom: 0; }
+  .langs span { color: var(--muted); font-size: 14px; }
+
+  .contact { text-align: center; padding: 48px 0; }
+  .contact p { color: var(--muted); margin: 0 0 20px; }
+  .contact .actions { justify-content: center; }
+  footer { text-align: center; color: var(--muted); font-size: 13px; padding: 24px 0 40px; }
+
+  @media (max-width: 680px) {
+    header { padding: 36px 0 28px; }
+    .hero { flex-direction: column; text-align: center; gap: 20px; }
+    .hero .actions { justify-content: center; }
+    h1 { font-size: 32px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat b { font-size: 22px; }
+    .skill-row { grid-template-columns: 1fr; gap: 6px; }
+    .grid, .two { grid-template-columns: 1fr; }
+  }
+  @media print {
+    nav, .actions { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Apps</a>
+    <a href="#education">Education</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<header>
+  <div class="hero">
+    <img src="photo.jpg" alt="Samir Aghayev">
+    <div>
+      <h1>Samir Aghayev</h1>
+      <p class="role">Senior Mobile Engineer · Flutter</p>
+      <p class="loc">Baku, Azerbaijan</p>
+      <div class="badge">● Open to remote roles and relocation</div>
+      <div class="actions">
+        <a class="btn primary" href="Samir_Aghayev_CV.pdf" download>
+          <svg viewBox="0 0 24 24"><path d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>Download CV
+        </a>
+        <a class="btn" href="https://www.linkedin.com/in/samir-aghayev-bb7a08207/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 11-.02 5 2.5 2.5 0 01.02-5zM3 9h4v12H3V9zm7 0h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.3-.02-3-1.83-3-1.83 0-2.1 1.43-2.1 2.9V21h-4V9z"/></svg>LinkedIn
+        </a>
+        <a class="btn" href="https://github.com/samiraghayev12" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>GitHub
+        </a>
+        <a class="btn" href="mailto:samir091718@gmail.com">
+          <svg viewBox="0 0 24 24"><path d="M3 5h18a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V6a1 1 0 011-1zm9 7.2L4.4 7H4v.5l8 5.5 8-5.5V7h-.4L12 12.2z"/></svg>Email
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>7</b><span>years in mobile</span></div>
+    <div class="stat"><b>22</b><span>apps shipped</span></div>
+    <div class="stat"><b>iOS + Android</b><span>App Store &amp; Google Play</span></div>
+    <div class="stat"><b>US · Israel</b><span>remote teams</span></div>
+  </div>
+</header>
+
+<section id="about" class="about">
+  <h2>About</h2>
+  <p>Flutter developer with 7 years in mobile. I have shipped 22 apps to the App Store and Google Play, mostly for retail, fintech and utility companies in Azerbaijan, with remote work for teams in the US and Israel. Most of what I build sits in the awkward parts of an app: <strong>payments, live maps, and real-time state</strong> that has to survive a bad connection. Currently leading mobile development at RTH under TABİB.</p>
+</section>
+
+<section id="skills">
+  <h2>Skills</h2>
+  <div class="skills">
+    <div class="skill-row">
+      <div>Languages</div>
+      <div class="tags"><span class="tag">Dart</span><span class="tag">Kotlin</span><span class="tag">Java</span><span class="tag">Swift</span><span class="tag">JavaScript</span></div>
+    </div>
+    <div class="skill-row">
+      <div>Flutter</div>
+      <div class="tags"><span class="tag">BLoC</span><span class="tag">Provider</span><span class="tag">RxDart</span><span class="tag">get_it</span><span class="tag">Clean Architecture</span><span class="tag">MVVM</span><span class="tag">Platform channels</span><span class="tag">Responsive &amp; custom UI</span></div>
+    </div>
+    <div class="skill-row">
+      <div>Integrations</div>
+      <div class="tags"><span class="tag">REST / Dio</span><span class="tag">WebSockets</span><span class="tag">Firebase</span><span class="tag">FCM</span><span class="tag">Crashlytics</span><span class="tag">OneSignal</span><span class="tag">Payment gateways</span><span class="tag">Google Maps</span><span class="tag">OpenStreetMap</span><span class="tag">Geolocation &amp; foreground services</span><span class="tag">Deep links</span><span class="tag">NFC</span></div>
+    </div>
+    <div class="skill-row">
+      <div>Workflow</div>
+      <div class="tags"><span class="tag">Git (GitLab, Bitbucket)</span><span class="tag">Jira</span><span class="tag">Scrum</span><span class="tag">App Store Connect</span><span class="tag">Play Console</span><span class="tag">Code review</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <h2>Experience</h2>
+
+  <div class="job">
+    <div class="job-head"><h3>Senior Flutter Developer <span class="company">· RTH under TABİB, Baku</span></h3><span class="date">2024 – Present</span></div>
+    <ul>
+      <li>Lead mobile development for healthcare applications.</li>
+      <li>Set the architecture the team builds on: Clean Architecture with BLoC and get_it, so features stay separate and testable.</li>
+      <li>Handle releases end to end, from build flavors through App Store submission, then monitor Crashlytics after each rollout.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head"><h3>Senior Software Engineer <span class="company">· Fayton LLC, USA (contract, remote)</span></h3><span class="date">2024 – 2026</span></div>
+    <ul>
+      <li>Built the whole Fayton platform: the passenger app, the driver app and the website.</li>
+      <li>Matching flow over WebSockets: driver location, route creation, fare negotiation and order state, reconciling when a driver loses signal between cities.</li>
+      <li>Location layer on Geolocator and a foreground service, batching updates so long intercity routes don't drain the battery.</li>
+      <li>Both apps are live on the App Store and Google Play.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head"><h3>Senior Flutter Developer <span class="company">· NMSOFT LLC, Baku</span></h3><span class="date">2024 – 2025</span></div>
+    <ul>
+      <li>Built E-Bina and E-Bina Manager: balance top-up, payment history, service requests and intercom control.</li>
+      <li>Extracted shared code into an internal package that cut a few weeks off each new client project.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head"><h3>Middle Flutter Developer <span class="company">· Jeykhun Imanov Studio, Baku</span></h3><span class="date">2023 – 2024</span></div>
+    <ul><li>Maintained and extended existing Flutter apps, mostly e-commerce.</li></ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head"><h3>Middle Flutter Developer <span class="company">· NSPSolutions LLC, Baku</span></h3><span class="date">2022 – 2024</span></div>
+    <ul>
+      <li>Worked across e-commerce, retail loyalty and payment apps.</li>
+      <li>Integrated card payments, FCM and OneSignal notifications, deep links and Firebase Analytics.</li>
+      <li>Reduced crashes and jank in production apps using Crashlytics reports and DevTools profiling.</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head"><h3>Flutter Developer <span class="company">· ELX LLC, Baku</span></h3><span class="date">2021 – 2022</span></div>
+    <ul><li>Built both sides of a ride-hailing product: the driver app and the passenger app.</li></ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head"><h3>Junior Flutter Developer <span class="company">· Medium Creative Agency, Baku</span></h3><span class="date">2020 – 2021</span></div>
+    <ul><li>Switched from Android to Flutter. Shipped several client projects from scratch and maintained Ofisait and Fraza.</li></ul>
+  </div>
+
+  <div class="job">
+    <div class="job-head"><h3>Junior Android Developer <span class="company">· Frazex LLC, Baku</span></h3><span class="date">2019 – 2020</span></div>
+    <ul><li>First job. Maintained production Android applications.</li></ul>
+  </div>
+</section>
+
+<section id="projects">
+  <h2>Selected apps</h2>
+
+  <div class="group">
+    <h3>Shopping and retail</h3>
+    <div class="grid">
+      <a class="card" href="https://apps.apple.com/az/app/irshad-az/id1645503622" target="_blank" rel="noopener">
+        <div class="card-title">Irshad.az <span class="store">App Store ↗</span></div>
+        <p>Electronics retailer: 40,000-product catalogue, guest checkout, order tracking. <span class="rating">★ 4.2 · 273 ratings</span></p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/ofisait-az-onlayn-al%C4%B1%C5%9F-veri%C5%9F/id6503353566" target="_blank" rel="noopener">
+        <div class="card-title">Ofisait.az <span class="store">App Store ↗</span></div>
+        <p>Online store with coupon codes, lottery mechanics and nearby-store notifications. <span class="rating">★ 4.6</span></p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/etta/id6476774144" target="_blank" rel="noopener">
+        <div class="card-title">Etta <span class="store">App Store ↗</span></div>
+        <p>Cosmetics and beauty marketplace for an official distributor.</p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/%C9%99min-bazar/id6476768774" target="_blank" rel="noopener">
+        <div class="card-title">Əmin Bazar <span class="store">App Store ↗</span></div>
+        <p>Loyalty app with a bonus wallet and a shake-to-reveal daily deal.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>Payments and loyalty</h3>
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Kassam.az &amp; PayPark.az</div>
+        <p>Payment and parking-payment platforms, mobile and web.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">MyBanko</div>
+        <p>Banking and payments application.</p>
+      </div>
+      <a class="card" href="https://apps.apple.com/az/app/norm-bonus/id1672662147" target="_blank" rel="noopener">
+        <div class="card-title">Norm Bonus <span class="store">App Store ↗</span></div>
+        <p>Ordering and bonus redemption for Norm OJSC cement dealers. <span class="rating">★ 4.2</span></p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/norm-ustalar-klubu/id6445846797" target="_blank" rel="noopener">
+        <div class="card-title">NORM Ustalar Klubu <span class="store">App Store ↗</span></div>
+        <p>Loyalty programme for trade professionals, with rewards and campaigns.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>Transport, utilities and property</h3>
+    <div class="grid">
+      <a class="card" href="https://apps.apple.com/az/app/fayton-user/id6739486123" target="_blank" rel="noopener">
+        <div class="card-title">Fayton User <span class="store">App Store ↗</span></div>
+        <p>Intercity rides and parcel delivery for passengers and senders.</p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/fayton-driver/id6739328259" target="_blank" rel="noopener">
+        <div class="card-title">Fayton Driver <span class="store">App Store ↗</span></div>
+        <p>Driver side: route creation, fare setting and cargo acceptance.</p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/azerishiq/id6504283925" target="_blank" rel="noopener">
+        <div class="card-title">Azerishiq <span class="store">App Store ↗</span></div>
+        <p>National electricity operator's app: debt, consumption, payment history, support chat.</p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/e-bina/id6581491623" target="_blank" rel="noopener">
+        <div class="card-title">E-Bina <span class="store">App Store ↗</span></div>
+        <p>Property management, plus E-Bina Manager. Also apps for Baku City Residence, Harmony Residence, Avenue Group and Huner Group.</p>
+      </a>
+    </div>
+  </div>
+
+  <div class="group">
+    <h3>Education, media and agriculture</h3>
+    <div class="grid">
+      <a class="card" href="https://apps.apple.com/az/app/unimastery/id6738735338" target="_blank" rel="noopener">
+        <div class="card-title">UniMastery <span class="store">App Store ↗</span></div>
+        <p>Branded courses, workshops and 1:1 sessions with messaging and payments. Remote client, Israel.</p>
+      </a>
+      <a class="card" href="https://apps.apple.com/az/app/yeniavaz/id1503989598" target="_blank" rel="noopener">
+        <div class="card-title">Yeniavaz <span class="store">App Store ↗</span></div>
+        <p>Daily news application.</p>
+      </a>
+      <div class="card">
+        <div class="card-title">Dr.Agro &amp; Agroom</div>
+        <p>Agriculture sector applications.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="two">
+    <div class="edu">
+      <h2>Education</h2>
+      <h3>BSc Information Security</h3>
+      <p>Azerbaijan Technical University, Baku · 2019 – 2023</p>
+      <p style="margin-top:16px">Outside work: I play guitar, and I pick up new languages the same way I pick up new frameworks.</p>
+    </div>
+    <div>
+      <h2>Languages</h2>
+      <ul class="langs">
+        <li>Azerbaijani <span>Native</span></li>
+        <li>Turkish <span>Native</span></li>
+        <li>English <span>Professional working</span></li>
+        <li>Russian <span>Elementary</span></li>
+        <li>Georgian <span>Elementary</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <h2>Contact</h2>
+  <p>Open to remote roles and relocation. The fastest way to reach me is email or LinkedIn.</p>
+  <div class="actions">
+    <a class="btn primary" href="mailto:samir091718@gmail.com">samir091718@gmail.com</a>
+    <a class="btn" href="tel:+994508519076">+994 50 851 90 76</a>
+    <a class="btn" href="https://www.linkedin.com/in/samir-aghayev-bb7a08207/" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
+</section>
+
+</div>
+
+<footer>© 2026 Samir Aghayev</footer>
+
+</body>
+</html>
