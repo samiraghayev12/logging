@@ -40,6 +40,3 @@ test/goldens/*
 # Source videos (the published demo is doc/demo.webp)
 *.mov
 *.mp4
-
-# Personal resume website (not part of the package)
-/website/
