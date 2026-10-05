@@ -24,6 +24,7 @@ request / response / error details, statistics, retry, and cURL / Postman / JSON
 | Retry a request | ✅ |
 | Sensitive header masking (`Authorization`, `Cookie`, …) | ✅ |
 | Responsive (phone → tablet, large fonts) | ✅ |
+| Switch between backends (dev / staging / prod) at runtime | ✅ |
 
 ---
 
@@ -78,6 +79,49 @@ dio.addDebugLogger(enabled: isStaging);
 
 MaterialApp(builder: DioDebugLogger.builder(enabled: isStaging));
 ```
+
+---
+
+## Switching environments
+
+Switch the backend at runtime from the log page — no rebuild, no flavors. List your
+environments when adding the logger:
+
+```dart
+final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'))
+  ..addDebugLogger(environments: const [
+    DebugEnvironment('Dev', baseUrl: 'https://dev.api.example.com', color: Colors.green),
+    DebugEnvironment('Staging', baseUrl: 'https://staging.api.example.com', color: Colors.orange),
+    DebugEnvironment('Prod', baseUrl: 'https://api.example.com', color: Colors.red),
+  ]);
+```
+
+Tap the environment under the **Network Logs** title to switch. New requests go to the selected
+base URL, the button shows a badge (`DEV`, `STA`…), and the choice is remembered after restarts.
+**Default** uses the base URL configured in your code.
+
+- **Safe in production:** in release builds the logger isn't added, so nothing is rewritten.
+- Only requests whose base URL is one of the listed ones are changed — requests to other hosts
+  (CDNs, absolute URLs) are left alone. Your Dio's own `baseUrl` should be in the list.
+- **Several Dio instances** (e.g. API and auth): give each its own list with the same names —
+  selecting `Dev` switches all of them.
+- **Dio created lazily?** Declare the environments in `main()` so the switcher is there before
+  the first request. Every Dio without its own list uses them:
+
+  ```dart
+  DioDebugLogger.setEnvironments(const [
+    DebugEnvironment('Dev', baseUrl: 'https://dev.api.example.com'),
+    DebugEnvironment('Prod', baseUrl: 'https://api.example.com'),
+  ]);
+  ```
+
+- Switching backends usually invalidates the session — react to it:
+
+  ```dart
+  DioDebugLogger.onEnvironmentChanged = (name) => authService.logout();
+  DioDebugLogger.environment;               // selected name, or null for default
+  await DioDebugLogger.setEnvironment('Dev'); // from code (null = default)
+  ```
 
 ---
 

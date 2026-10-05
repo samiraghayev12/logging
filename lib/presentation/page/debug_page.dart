@@ -6,6 +6,7 @@ import '../../storage/debug_storage.dart';
 import '../../utils/log_formatter.dart';
 import '../../utils/responsive_helper.dart';
 import '../detail/view/debug_detail.dart';
+import '../environment/environment_sheet.dart';
 import '../stats/debug_stats.dart';
 
 /// Status filter for the log list.
@@ -328,11 +329,18 @@ class _DebugPageState extends State<DebugPage> {
                 ),
               ),
             )
-          : Text(
-              'Network Logs',
-              style: titleStyle,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Network Logs',
+                  style: titleStyle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const EnvironmentSubtitle(),
+              ],
             ),
       actions: [
         IconButton(

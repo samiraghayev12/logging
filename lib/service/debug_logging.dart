@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../environment/debug_environment.dart';
 import '../storage/debug_storage.dart';
 import '../utils/log_formatter.dart';
 
@@ -16,7 +17,10 @@ class DebugLogging extends Interceptor {
     this.printToConsole = kDebugMode,
     this.redactSensitiveHeaders = true,
     this.maxConsoleBodyLength = 2000,
-  });
+    this.environments = const [],
+  }) {
+    DebugEnvironments.instance.register(environments);
+  }
 
   /// Whether to print to the console.
   final bool printToConsole;
@@ -27,10 +31,25 @@ class DebugLogging extends Interceptor {
   /// Maximum body length printed to the console.
   final int maxConsoleBodyLength;
 
+  /// Backends this Dio can be switched to from the log page. When empty, the
+  /// list from `DioDebugLogger.setEnvironments` is used.
+  final List<DebugEnvironment> environments;
+
   final DebugStorage debug = DebugStorage();
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    final registry = DebugEnvironments.instance;
+    final group = environments.isNotEmpty ? environments : registry.global;
+    if (group.isNotEmpty) {
+      await registry.ready;
+      final baseUrl = registry.resolve(group, options.baseUrl);
+      if (baseUrl != null) options.baseUrl = baseUrl;
+    }
+
     _guard(() => debug.addRequest(options), 'addRequest');
 
     if (printToConsole) {

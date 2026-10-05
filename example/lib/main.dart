@@ -11,6 +11,17 @@ void main() {
   DioDebugLogger.retryClientBuilder =
       () => Dio()..httpClientAdapter = MockApiAdapter();
 
+  // Optional: backends you can switch between from the log page (debug
+  // builds only). Set here because the demo creates its Dio lazily.
+  DioDebugLogger.setEnvironments(const [
+    DebugEnvironment('Dev',
+        baseUrl: 'https://dev.api.example.com/v1', color: Colors.green),
+    DebugEnvironment('Staging',
+        baseUrl: 'https://staging.api.example.com/v1', color: Colors.orange),
+    DebugEnvironment('Prod',
+        baseUrl: 'https://api.example.com/v1', color: Colors.red),
+  ]);
+
   runApp(const DemoApp());
 }
 
@@ -106,7 +117,8 @@ final List<(String, List<Scenario>)> scenarioGroups = [
   (
     'CRUD',
     [
-      Scenario('GET', '/users?page=1&limit=5', 'List users (query params)', (api) {
+      Scenario('GET', '/users?page=1&limit=5', 'List users (query params)',
+          (api) {
         return api.dio.get<dynamic>(
           '/users',
           queryParameters: {'page': 1, 'limit': 5},
@@ -118,13 +130,21 @@ final List<(String, List<Scenario>)> scenarioGroups = [
       Scenario('POST', '/users', 'Create user → 201', (api) {
         return api.dio.post<dynamic>(
           '/users',
-          data: {'name': 'Kamran Rzayev', 'email': 'kamran@example.com', 'role': 'user'},
+          data: {
+            'name': 'Kamran Rzayev',
+            'email': 'kamran@example.com',
+            'role': 'user'
+          },
         );
       }),
       Scenario('PUT', '/users/7', 'Replace user', (api) {
         return api.dio.put<dynamic>(
           '/users/7',
-          data: {'name': 'Leyla Hasanova', 'email': 'leyla@example.com', 'role': 'editor'},
+          data: {
+            'name': 'Leyla Hasanova',
+            'email': 'leyla@example.com',
+            'role': 'editor'
+          },
         );
       }),
       Scenario('PATCH', '/users/7', 'Update one field', (api) {
@@ -141,7 +161,11 @@ final List<(String, List<Scenario>)> scenarioGroups = [
       Scenario('GET', '/products?category=…', 'Search with filters', (api) {
         return api.dio.get<dynamic>(
           '/products',
-          queryParameters: {'category': 'Phones', 'sort': 'price_asc', 'inStock': true},
+          queryParameters: {
+            'category': 'Phones',
+            'sort': 'price_asc',
+            'inStock': true
+          },
         );
       }),
       Scenario('GET', '/posts', 'Large response (100 items)', (api) {
@@ -253,7 +277,8 @@ class _DemoPageState extends State<DemoPage> {
       ..showSnackBar(
         SnackBar(
           duration: const Duration(milliseconds: 1200),
-          backgroundColor: isError ? Colors.red.shade700 : Colors.green.shade700,
+          backgroundColor:
+              isError ? Colors.red.shade700 : Colors.green.shade700,
           content: Text('${scenario.method} ${scenario.path}  →  $result'),
         ),
       );
@@ -290,8 +315,12 @@ class _DemoPageState extends State<DemoPage> {
                   Row(
                     children: [
                       Icon(
-                        _api.token != null ? Icons.lock_open_rounded : Icons.lock_rounded,
-                        color: _api.token != null ? Colors.green : theme.colorScheme.outline,
+                        _api.token != null
+                            ? Icons.lock_open_rounded
+                            : Icons.lock_rounded,
+                        color: _api.token != null
+                            ? Colors.green
+                            : theme.colorScheme.outline,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -304,6 +333,20 @@ class _DemoPageState extends State<DemoPage> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 6),
+                  ListenableBuilder(
+                    listenable: DioDebugLogger.environments,
+                    builder: (context, _) => Row(
+                      children: [
+                        const Icon(Icons.dns_rounded, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Environment: ${DioDebugLogger.environment ?? 'Default (Prod)'}',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -320,7 +363,8 @@ class _DemoPageState extends State<DemoPage> {
                         icon: _runningAll
                             ? const SizedBox.square(
                                 dimension: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(Icons.play_arrow_rounded),
                         label: const Text('Run all'),
@@ -390,11 +434,13 @@ class _ScenarioTile extends StatelessWidget {
           child: Text(
             scenario.method,
             textAlign: TextAlign.center,
-            style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12),
+            style: TextStyle(
+                color: color, fontWeight: FontWeight.w700, fontSize: 12),
           ),
         ),
         title: Text(scenario.title),
-        subtitle: Text(scenario.path, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle:
+            Text(scenario.path, maxLines: 1, overflow: TextOverflow.ellipsis),
         trailing: const Icon(Icons.send_rounded, size: 18),
       ),
     );

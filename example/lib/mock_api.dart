@@ -13,8 +13,10 @@ import 'package:dio/dio.dart';
 class MockApiAdapter implements HttpClientAdapter {
   MockApiAdapter();
 
-  static const validToken = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MiIsIm5hbWUiOiJEZW1vIn0.demo-signature';
-  static const expiredToken = 'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDAwMDAwMDB9.expired-signature';
+  static const validToken =
+      'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0MiIsIm5hbWUiOiJEZW1vIn0.demo-signature';
+  static const expiredToken =
+      'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE2MDAwMDAwMDB9.expired-signature';
 
   int _requestId = 1000;
 
@@ -34,18 +36,23 @@ class MockApiAdapter implements HttpClientAdapter {
 
     final isText = route.body is String;
     return ResponseBody.fromString(
-      route.body == null ? '' : (isText ? route.body as String : jsonEncode(route.body)),
+      route.body == null
+          ? ''
+          : (isText ? route.body as String : jsonEncode(route.body)),
       route.status,
       statusMessage: _statusMessages[route.status],
       headers: {
         if (route.body != null)
           Headers.contentTypeHeader: [
             route.contentType ??
-                (isText ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8'),
+                (isText
+                    ? 'text/plain; charset=utf-8'
+                    : 'application/json; charset=utf-8'),
           ],
         'x-request-id': ['req_${_requestId++}'],
         'x-ratelimit-remaining': ['${59 - (_requestId % 60)}'],
         'server': ['mock-api/1.0'],
+        'x-served-by': [options.uri.host],
         ...route.headers,
       },
     );
@@ -136,13 +143,19 @@ class MockApiAdapter implements HttpClientAdapter {
         'page': page,
         'limit': limit,
         'total': 48,
-        'data': [for (var i = 0; i < limit; i++) _user((page - 1) * limit + i + 1)],
+        'data': [
+          for (var i = 0; i < limit; i++) _user((page - 1) * limit + i + 1)
+        ],
       });
     }
     if (path == '/users' && method == 'POST') {
       return _Route(
         201,
-        {'id': 49, ...?(data as Map?)?.cast<String, dynamic>(), 'createdAt': _now()},
+        {
+          'id': 49,
+          ...?(data as Map?)?.cast<String, dynamic>(),
+          'createdAt': _now()
+        },
         headers: {
           'location': ['/v1/users/49'],
         },
@@ -151,7 +164,8 @@ class MockApiAdapter implements HttpClientAdapter {
     if (userMatch != null) {
       final id = int.parse(userMatch.group(1)!);
       if (id > 48) {
-        return _Route(404, {'error': 'not_found', 'message': 'User $id not found'});
+        return _Route(
+            404, {'error': 'not_found', 'message': 'User $id not found'});
       }
       switch (method) {
         case 'GET':
@@ -198,7 +212,9 @@ class MockApiAdapter implements HttpClientAdapter {
               'id': i,
               'userId': (i % 10) + 1,
               'title': 'Post title number $i',
-              'body': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' * 3,
+              'body':
+                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' *
+                      3,
               'tags': ['flutter', 'dio', if (i.isEven) 'demo'],
             },
         ],
@@ -207,10 +223,17 @@ class MockApiAdapter implements HttpClientAdapter {
     if (path == '/upload' && method == 'POST') {
       final form = data is FormData ? data : null;
       return _Route(201, {
-        'fields': {for (final f in form?.fields ?? <MapEntry<String, String>>[]) f.key: f.value},
+        'fields': {
+          for (final f in form?.fields ?? <MapEntry<String, String>>[])
+            f.key: f.value
+        },
         'files': [
           for (final f in form?.files ?? <MapEntry<String, MultipartFile>>[])
-            {'field': f.key, 'filename': f.value.filename, 'size': f.value.length},
+            {
+              'field': f.key,
+              'filename': f.value.filename,
+              'size': f.value.length
+            },
         ],
         'url': 'https://cdn.example.com/uploads/avatar_42.png',
       });
@@ -234,10 +257,12 @@ class MockApiAdapter implements HttpClientAdapter {
       });
     }
     if (path == '/admin/settings') {
-      return _Route(403, {'error': 'forbidden', 'message': 'Admin role required'});
+      return _Route(
+          403, {'error': 'forbidden', 'message': 'Admin role required'});
     }
     if (path == '/users/conflict') {
-      return _Route(409, {'error': 'conflict', 'message': 'Email already exists'});
+      return _Route(
+          409, {'error': 'conflict', 'message': 'Email already exists'});
     }
     if (path == '/payments') {
       return _Route(
@@ -254,7 +279,10 @@ class MockApiAdapter implements HttpClientAdapter {
     if (path == '/rate-limited') {
       return _Route(
         429,
-        {'error': 'too_many_requests', 'message': 'Rate limit exceeded, retry in 30s'},
+        {
+          'error': 'too_many_requests',
+          'message': 'Rate limit exceeded, retry in 30s'
+        },
         headers: {
           'retry-after': ['30'],
         },
@@ -268,7 +296,8 @@ class MockApiAdapter implements HttpClientAdapter {
       });
     }
     if (path == '/maintenance') {
-      return _Route(503, 'Service temporarily unavailable. Please try again later.');
+      return _Route(
+          503, 'Service temporarily unavailable. Please try again later.');
     }
 
     // ---------- Network failures ----------
@@ -285,7 +314,8 @@ class MockApiAdapter implements HttpClientAdapter {
       return _Route.fail(
         (o) => DioException.connectionError(
           requestOptions: o,
-          reason: 'Failed host lookup: api.example.com (No address associated with hostname)',
+          reason:
+              'Failed host lookup: api.example.com (No address associated with hostname)',
         ),
       );
     }
@@ -302,7 +332,8 @@ class MockApiAdapter implements HttpClientAdapter {
   static Map<String, dynamic> _user(int id) => {
         'id': id,
         'name': _names[id % _names.length],
-        'email': '${_names[id % _names.length].split(' ').first.toLowerCase()}$id@example.com',
+        'email':
+            '${_names[id % _names.length].split(' ').first.toLowerCase()}$id@example.com',
         'role': id == 42 ? 'admin' : 'user',
         'address': {'city': 'Baku', 'country': 'AZ'},
       };

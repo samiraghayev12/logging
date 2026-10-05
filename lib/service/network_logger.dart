@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../environment/debug_environment.dart';
 import '../presentation/overlay/debug_overlay.dart';
 import '../presentation/page/debug_page.dart';
 import '../storage/debug_storage.dart';
@@ -55,19 +56,48 @@ extension DioDebugLoggerExtension on Dio {
   ///
   /// Does nothing when [enabled] is `false` (defaults to `false` in release
   /// builds) or when the logger is already attached.
+  ///
+  /// Pass [environments] to switch this Dio between backends from the log
+  /// page. The Dio's own `baseUrl` should be one of them; requests to other
+  /// hosts are never changed.
+  ///
+  /// ```dart
+  /// dio.addDebugLogger(environments: [
+  ///   DebugEnvironment('Dev', baseUrl: 'https://dev.api.example.com'),
+  ///   DebugEnvironment('Prod', baseUrl: 'https://api.example.com'),
+  /// ]);
+  /// ```
   void addDebugLogger({
     bool enabled = kDebugMode,
     bool printToConsole = kDebugMode,
     bool redactSensitiveHeaders = true,
     int maxConsoleBodyLength = 2000,
+    List<DebugEnvironment> environments = const [],
   }) {
     if (!enabled) return;
     if (interceptors.any((interceptor) => interceptor is DebugLogging)) return;
+    assert(() {
+      final base = options.baseUrl;
+      String norm(String u) => u.endsWith('/') ? u.substring(0, u.length - 1) : u;
+      final list = environments.isNotEmpty
+          ? environments
+          : DebugEnvironments.instance.global;
+      if (list.isNotEmpty &&
+          base.isNotEmpty &&
+          !list.any((e) => norm(e.baseUrl) == norm(base))) {
+        debugPrint(
+          'dio_debug_logger: this Dio\'s baseUrl "$base" is not one of its '
+          'environments, so switching environments will not affect it.',
+        );
+      }
+      return true;
+    }());
     interceptors.add(
       DebugLogging(
         printToConsole: printToConsole,
         redactSensitiveHeaders: redactSensitiveHeaders,
         maxConsoleBodyLength: maxConsoleBodyLength,
+        environments: environments,
       ),
     );
   }
@@ -128,6 +158,34 @@ class DioDebugLogger {
         redactSensitiveHeaders: redactSensitiveHeaders,
         maxConsoleBodyLength: maxConsoleBodyLength,
       );
+
+  /// Environment registry (see `dio.addDebugLogger(environments: ...)`).
+  static DebugEnvironments get environments => DebugEnvironments.instance;
+
+  /// Sets environments for every Dio that doesn't pass its own list to
+  /// `addDebugLogger`. Call it in `main()` so the switcher is available
+  /// before the first request (useful when Dio is created lazily).
+  ///
+  /// Does nothing when [enabled] is `false` (release builds by default).
+  static void setEnvironments(
+    List<DebugEnvironment> environments, {
+    bool enabled = kDebugMode,
+  }) {
+    if (enabled) DebugEnvironments.instance.setGlobal(environments);
+  }
+
+  /// The selected environment name, or `null` when the app's own base URLs
+  /// are used.
+  static String? get environment => DebugEnvironments.instance.selected;
+
+  /// Switches the environment from code. `null` goes back to the app default.
+  static Future<void> setEnvironment(String? name) =>
+      DebugEnvironments.instance.select(name);
+
+  /// Called after the environment is switched (`null` = app default).
+  /// A good place to log the user out if sessions don't carry over.
+  static set onEnvironmentChanged(void Function(String? name)? callback) =>
+      DebugEnvironments.instance.onChanged = callback;
 
   /// Changes how many requests are kept in memory (default 200).
   static void configure({int? maxRequests}) =>

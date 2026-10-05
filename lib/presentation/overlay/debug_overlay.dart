@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../service/network_logger.dart';
+import '../../environment/debug_environment.dart';
 import '../../storage/debug_storage.dart';
+import '../environment/environment_sheet.dart';
 
 /// Keeps the button position across rebuilds and page transitions.
 class _FabPosition {
@@ -230,10 +232,48 @@ class _DebugFab extends StatelessWidget {
                   right: size * 0.1,
                   child: const _DebugFabBadge(),
                 ),
+              Positioned(
+                bottom: size * 0.08,
+                child: const _EnvironmentBadge(),
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Shows the selected environment (e.g. "DEV") at the bottom of the button.
+class _EnvironmentBadge extends StatelessWidget {
+  const _EnvironmentBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final registry = DebugEnvironments.instance;
+    return ListenableBuilder(
+      listenable: registry,
+      builder: (context, _) {
+        final name = registry.selected;
+        if (name == null) return const SizedBox.shrink();
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: registry.byName(name).first.color ?? Colors.black87,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Text(
+            environmentBadge(name),
+            maxLines: 1,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 8,
+              height: 1.3,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        );
+      },
     );
   }
 }

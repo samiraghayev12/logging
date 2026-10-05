@@ -60,6 +60,29 @@ dio.addDebugLogger(enabled: isStaging);
 MaterialApp(builder: DioDebugLogger.builder(enabled: isStaging));
 ```
 
+## Mühit dəyişmək (dev / staging / prod)
+
+Backend-i tətbiq işləyərkən log səhifəsindən dəyişin — yenidən build lazım deyil:
+
+```dart
+final dio = Dio(BaseOptions(baseUrl: 'https://api.example.com'))
+  ..addDebugLogger(environments: const [
+    DebugEnvironment('Dev', baseUrl: 'https://dev.api.example.com', color: Colors.green),
+    DebugEnvironment('Prod', baseUrl: 'https://api.example.com', color: Colors.red),
+  ]);
+```
+
+**Network Logs** başlığının altındakı mühit adına toxunun və seçin. Yeni sorğular seçilmiş
+ünvana gedir, düymədə nişan görünür (`DEV`), seçim tətbiq bağlanıb açılanda da qalır.
+**Default** koddakı `baseUrl`-i istifadə edir.
+
+- Release build-də logger əlavə olunmur — prod-a heç bir təsiri yoxdur.
+- Yalnız siyahıdakı ünvanlara gedən sorğular dəyişir; CDN və başqa host-lar toxunulmaz qalır.
+- Bir neçə Dio (API, auth) varsa, hər birinə eyni adlarla öz siyahısını verin — `Dev` seçəndə
+  hamısı birlikdə dəyişir.
+- Dio gec (lazy) yaradılırsa, `main()`-də `DioDebugLogger.setEnvironments([...])` çağırın.
+- Mühit dəyişəndə logout üçün: `DioDebugLogger.onEnvironmentChanged = (name) => logout();`
+
 ## Konfiqurasiya
 
 ```dart

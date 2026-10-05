@@ -1,3 +1,18 @@
+## 0.3.0
+
+### Environment switching
+
+- Switch the backend (dev / staging / prod…) at runtime from the log page:
+  `dio.addDebugLogger(environments: [DebugEnvironment('Dev', baseUrl: ...), ...])`.
+- The selected environment is shown under the page title and as a badge on the floating
+  button, and is remembered between app starts (`shared_preferences`).
+- Only requests to one of the listed base URLs are rewritten; other hosts are left alone.
+  Several Dio instances with the same environment names switch together.
+- `DioDebugLogger.setEnvironments([...])` for Dio instances created lazily.
+- `DioDebugLogger.environment`, `setEnvironment()` and `onEnvironmentChanged`.
+- Release builds are unaffected: the logger (and the rewriting) is not added.
+- Demo app: switch between Dev / Staging / Prod.
+
 ## 0.2.1
 
 - New demo app in `example/` with a built-in fake API: GET / POST / PUT / PATCH / DELETE,
