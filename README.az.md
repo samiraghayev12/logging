@@ -7,7 +7,9 @@ statistika, retry və cURL / Postman / JSON kopyalama.
 **Quraşdırma 2 sətirdir və hər ikisi release build-də avtomatik söndürülür.**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/demo.webp" alt="dio_debug_logger demo" width="320">
+  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/demo.webp" alt="dio_debug_logger demo" width="300">
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/environment.png" alt="Mühit dəyişmə" width="300">
 </p>
 
 [🇬🇧 English](README.md)

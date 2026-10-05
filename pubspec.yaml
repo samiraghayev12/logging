@@ -17,6 +17,8 @@ topics:
 screenshots:
   - description: Demo — requests, details, errors and analytics
     path: doc/demo.webp
+  - description: Switch between dev, staging and prod backends at runtime
+    path: doc/environment.png
   - description: Network log list
     path: test/goldens/list_phone.png
   - description: Request details

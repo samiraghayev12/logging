@@ -19,6 +19,7 @@
 
 ### Changed
 
+- Environment switcher screenshot in the README and on pub.dev.
 - The copy dialog switch is now **Hide secrets** and also covers bodies and URLs.
 - `generateResponseBody` masks secrets by default (`redact: false` to turn off).
 - Console output no longer prints query parameters separately (they're in the masked URL).

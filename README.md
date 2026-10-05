@@ -10,7 +10,9 @@ request / response / error details, statistics, retry, and cURL / Postman / JSON
 **🔒 Safe by default** — see [Security & privacy](#security--privacy).
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/demo.webp" alt="dio_debug_logger demo" width="320">
+  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/demo.webp" alt="dio_debug_logger demo" width="300">
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/samiraghayev12/logging/master/doc/environment.png" alt="Environment switcher" width="300">
 </p>
 
 [🇦🇿 Azərbaycan dilində](README.az.md)
