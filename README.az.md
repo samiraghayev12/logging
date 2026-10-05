@@ -143,4 +143,6 @@ Köhnə API işləyir, amma "deprecated"-dir:
 > Qeyd: `NetworkLogger.overlayBuilder()` default olaraq həmişə açıq idi,
 > `DioDebugLogger.builder()` isə yalnız debug build-də açıqdır (`enabled` verilməsə).
 
+Müəllif: [Samir Aghayev](https://samiragaev.com), Senior Flutter Developer.
+
 Ətraflı sənəd: [README.md](README.md)
